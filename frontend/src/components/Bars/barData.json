@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "title": "Dashboard",
+    "link": "/dashboard"
+  },
+  {
+    "id": 2,
+    "title": "Doctors",
+    "link": "/doctor"
+  },
+  {
+    "id": 3,
+    "title": "Patients",
+    "link": "/patient"
+  },
+  {
+    "id": 4,
+    "title": "Appointments",
+    "link": "/appointment"
+  },
+  {
+    "id": 5,
+    "title": "Departments",
+    "link": "/department"
+  },
+  {
+    "id": 6,
+    "title": "Tests",
+    "link": "/test"
+  },
+  {
+    "id": 7,
+    "title": "Treatments",
+    "link": "/treatment"
+  },
+  {
+    "id": 8,
+    "title": "Services",
+    "link": "/service"
+  },
+  {
+    "id": 9,
+    "title": "Medicines",
+    "link": "/medicine"
+  },
+  {
+    "id": 10,
+    "title": "Prescriptions",
+    "link": "/prescription"
+  },
+  {
+    "id": 11,
+    "title": "Billings",
+    "link": "/billing"
+  },
+  {
+    "id": 12,
+    "title": "Medical Records",
+    "link": "/medicalrecord"
+  }
+]
