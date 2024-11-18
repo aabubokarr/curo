@@ -71,6 +71,7 @@ export const Department = () => {
             <thead>
               <tr>
                 <th>Department ID</th>
+                <th>Head</th>
                 <th>Name</th>
                 <th>View</th>
                 <th>Delete</th>
@@ -85,6 +86,7 @@ export const Department = () => {
                   }`}
                 >
                   <td>{department.dept_id}</td>
+                  <td>{department.doc_name}</td>
                   <td>{department.dept_name}</td>
                   <td>
                     <Link to={`/edit-department/${department.dept_id}`}>

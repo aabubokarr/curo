@@ -95,20 +95,12 @@ export const Register = () => {
               >
                 Register
               </button>
-              <div className="mt-2 flex items-center justify-between">
-                <p>
-                  Already have an account?{" "}
-                  <Link to="/login" className="text-[#009BA9]">
-                    Login
-                  </Link>
-                </p>
-                <Link
-                  to="/"
-                  className="text-[14px] border-[1px] bg-[#009BA9] text-white rounded-lg p-1"
-                >
-                  Go back
+              <p className="mt-2">
+                Already have an account?{" "}
+                <Link to="/" className="text-[#009BA9]">
+                  Login
                 </Link>
-              </div>
+              </p>
             </div>
           </form>
         </div>

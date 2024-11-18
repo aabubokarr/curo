@@ -1,10 +1,9 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { Link } from "react-router-dom";
 import IdCard from "../../Profile/IdCard";
+import { Sidebar } from "../../Bars/Sidebar";
+import { Profile } from "../../Profile/Profile";
 
 export const EditDoctor = () => {
   const { doctorId } = useParams();
@@ -83,13 +82,14 @@ export const EditDoctor = () => {
   };
 
   return (
-    <div className="px-24">
-      <div className="my-2">
-        <Link to="/doctor">
-          <FontAwesomeIcon icon={faArrowLeft} /> Go Back
-        </Link>
-      </div>
-      <div className="flex items-start gap-5">
+    <div className="flex">
+      <Sidebar />
+      <div className="px-3 w-full">
+        <div className="top-0 flex items-center justify-between sticky bg-[#EFF0F6] z-10 py-3">
+          <h1 className="text-[28px] font-semibold">Edit Doctor</h1>
+          <Profile />
+        </div>
+        <div className="flex gap-3">
         <div className="bg-[#FAFAFA] rounded-[20px] p-5 w-full">
           {error && (
             <div className="bg-red-200 text-red-600 p-2 rounded mb-4">
@@ -205,6 +205,7 @@ export const EditDoctor = () => {
           id={doctor.doctor_id}
           speciality={doctor.speciality}
         />
+        </div>
       </div>
     </div>
   );

@@ -1,8 +1,32 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Sidebar } from "../../Bars/Sidebar";
 import { Profile } from "../../Profile/Profile";
+import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
 
 export const Prescription = () => {
+  const token = localStorage.getItem("token");
+  const [prescriptionList, setPrescriptionList] = useState([]);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    // Fetch prescriptions for the logged-in doctor
+    axios
+      .get("http://localhost:8081/list/prescription", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        setPrescriptionList(res.data);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError("Failed to fetch prescription data.");
+      });
+  }, [token]);
 
   return (
     <div className="flex">
@@ -12,24 +36,23 @@ export const Prescription = () => {
           <h1 className="text-[28px] font-semibold">Prescription</h1>
           <Profile />
         </div>
-       <div className="bg-[#FAFAFA] rounded-[20px] pt-5">
-          {role === "admin" && (
-            <div className="px-5 pb-3">
-              <Link
-                to="/create-prescription"
-                className="w-[120px] h-[48px] cursor-pointer bg-[#009BA9] text-[18px] font-normal rounded-[8px] flex items-center justify-center text-white"
-              >
-                Add New
-              </Link>
-            </div>
-          )}
+        {error && <div className="bg-red-200 text-red-600 p-2 rounded mb-4">{error}</div>}
+        <div className="bg-[#FAFAFA] rounded-[20px] pt-5">
+          <div className="px-5 pb-3">
+            <Link
+              to="/create-prescription"
+              className="w-[120px] h-[48px] cursor-pointer bg-[#009BA9] text-[18px] font-normal rounded-[8px] flex items-center justify-center text-white"
+            >
+              Add New
+            </Link>
+          </div>
           <table className="w-full pt-3">
             <thead>
               <tr>
                 <th>Prescription ID</th>
-                <th>Name</th>
+                <th>Patient ID</th>
+                <th>Doctor ID</th>
                 <th>View</th>
-                <th>Delete</th>
               </tr>
             </thead>
             <tbody>
@@ -41,17 +64,14 @@ export const Prescription = () => {
                   }`}
                 >
                   <td>{prescription.prescription_id}</td>
-                  <td>{prescription.prescription_name}</td>
+                  <td>{prescription.patient_id}</td>
+                  <td>{prescription.doctor_id}</td>
                   <td>
-                    <Link to={`/edit-prescription/${prescription.prescription_id}`}>
+                    <Link
+                      to={`/edit-prescription/${prescription.prescription_id}`}
+                    >
                       <FontAwesomeIcon icon={faEye} />
                     </Link>
-                  </td>
-                  <td
-                    onClick={() => handleDelete(prescription.prescription_id)}
-                    className="cursor-pointer"
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
                   </td>
                 </tr>
               ))}

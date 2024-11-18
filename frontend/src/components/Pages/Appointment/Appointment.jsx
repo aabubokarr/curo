@@ -10,22 +10,33 @@ export const Appointment = () => {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
   const [appointmentList, setAppointmentList] = useState([]);
+  const [userData, setUserData] = useState({});
 
   useEffect(() => {
+    if (!token || !role) {
+      console.error("Token or role is missing");
+      return;
+    }
+
+    const api =
+      role === "admin"
+        ? "http://localhost:8081/list/appointment"
+        : "http://localhost:8081/list/appointment/doctor";
+
     axios
-      .get("http://localhost:8081/list/appointment", {
+      .get(api, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
       .then((res) => {
         setAppointmentList(res.data);
-        console.log(res.data)
+        console.log(res.data);
       })
       .catch((err) => {
-        console.log(err);
+        console.error("Error fetching initial data:", err);
       });
-  }, [token]);
+  }, [token, role]);
 
   return (
     <div className="flex">
@@ -51,8 +62,8 @@ export const Appointment = () => {
                 <th>Patient Name</th>
                 <th>Date</th>
                 <th>Time</th>
-                <th>View</th>
-                <th>Delete</th>
+                {role === "admin" && <th>View</th>}
+                {role === "admin" && <th>Delete</th>}
               </tr>
             </thead>
             <tbody>
@@ -68,14 +79,18 @@ export const Appointment = () => {
                   <td>{appointment.patient_name}</td>
                   <td>{appointment.appointment_date}</td>
                   <td>{appointment.appointment_time}</td>
-                  <td>
-                    <Link>
-                      <FontAwesomeIcon icon={faEye} />
-                    </Link>
-                  </td>
-                  <td className="cursor-pointer">
-                    <FontAwesomeIcon icon={faTrash} />
-                  </td>
+                  {role === "admin" && (
+                    <td>
+                      <Link>
+                        <FontAwesomeIcon icon={faEye} />
+                      </Link>
+                    </td>
+                  )}
+                  {role === "admin" && (
+                    <td className="cursor-pointer">
+                      <FontAwesomeIcon icon={faTrash} />
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

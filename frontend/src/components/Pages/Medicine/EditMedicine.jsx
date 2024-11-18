@@ -1,17 +1,22 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { Link } from "react-router-dom";
 import { Sidebar } from "../../Bars/Sidebar";
 import { Profile } from "../../Profile/Profile";
 
-export const EditDepartment = () => {
-  const { deptId } = useParams();
+export const EditMedicine = () => {
+  const { medId } = useParams();
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
-  const [department, setDepartment] = useState({});
+  const [medicine, setMedicine] = useState({});
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
-    dept_name: "",
+    medicine_name: "",
+    medicine_quantity: "",
+    medicine_price: "",
   });
 
   useEffect(() => {
@@ -21,19 +26,19 @@ export const EditDepartment = () => {
     }
 
     axios
-      .get(`http://localhost:8081/department/${deptId}`, {
+      .get(`http://localhost:8081/medicine/${medId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
       .then((res) => {
-        setDepartment(res.data), console.log(res.data);
+        setMedicine(res.data), console.log(res.data);
       })
       .catch((err) => {
-        setError("Failed to fetch department data");
+        setError("Failed to fetch medicine data");
         console.error(err);
       });
-  }, [deptId, token, navigate]);
+  }, [medId, token, navigate]);
 
   const handleChange = (e) => {
     setFormData({
@@ -57,17 +62,17 @@ export const EditDepartment = () => {
       console.log(formData);
 
       axios
-        .patch(`http://localhost:8081/update/department/${deptId}`, formData, {
+        .patch(`http://localhost:8081/update/medicine/${medId}`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         })
         .then((res) => {
-          console.log("Department updated successfully", res.data);
-          alert("Department updated successfully");
+          console.log("Medicine updated successfully", res.data);
+          alert("Medicine updated successfully");
         })
         .catch((error) => {
-          console.error("Error updating department:", error);
+          console.error("Error updating medicine:", error);
         });
     }
   };
@@ -77,7 +82,7 @@ export const EditDepartment = () => {
       <Sidebar />
       <div className="px-3 w-full">
         <div className="top-0 flex items-center justify-between sticky bg-[#EFF0F6] z-10 py-3">
-          <h1 className="text-[28px] font-semibold">Edit Departments</h1>
+          <h1 className="text-[28px] font-semibold">Edit Medicine</h1>
           <Profile />
         </div>
         <div className="bg-[#FAFAFA] rounded-[20px] p-5 w-full">
@@ -88,14 +93,36 @@ export const EditDepartment = () => {
           )}
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-              <label htmlFor="dept_name">Department Name</label>
+              <label htmlFor="medicine_name">Medicine Name</label>
               <input
                 onChange={handleChange}
                 className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
                 type="text"
-                placeholder={department.dept_name}
-                name="dept_name"
+                placeholder={medicine.medicine_name}
+                name="medicine_name"
               />
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
+                <label htmlFor="medicine_quantity">Medicine Quantity</label>
+                <input
+                  onChange={handleChange}
+                  className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                  type="text"
+                  placeholder={medicine.medicine_quantity}
+                  name="medicine_quantity"
+                />
+              </div>
+              <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
+                <label htmlFor="medicine_price">Medicine Price</label>
+                <input
+                  onChange={handleChange}
+                  className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                  type="number"
+                  placeholder={medicine.medicine_price}
+                  name="medicine_price"
+                />
+              </div>
             </div>
             <button
               type="submit"

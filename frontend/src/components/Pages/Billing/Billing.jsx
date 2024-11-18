@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { Sidebar } from "../../Bars/Sidebar";
 import { Profile } from "../../Profile/Profile";
 import axios from "axios";
@@ -87,13 +87,11 @@ export const Bill = () => {
                   <td>{bill.bill_id}</td>
                   <td>{bill.amount}</td>
                   <td>
-                    <Link >
+                    <Link>
                       <FontAwesomeIcon icon={faEye} />
                     </Link>
                   </td>
-                  <td
-                    className="cursor-pointer"
-                  >
+                  <td className="cursor-pointer">
                     <FontAwesomeIcon icon={faTrash} />
                   </td>
                 </tr>

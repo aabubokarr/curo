@@ -26,7 +26,7 @@ export const Profile = () => {
       .catch((err) => {
         if (err.response && err.response.status === 403) {
           localStorage.removeItem("token");
-          navigate("/login");
+          navigate("/");
         }
         console.error(err);
       });
@@ -58,34 +58,27 @@ export const Profile = () => {
   };
 
   return (
-    <div
+    <Link
+      to="/edit-profile"
       onClick={handleProfile}
       onMouseEnter={trueProfile}
       onMouseLeave={falseProfile}
     >
       <Avatar {...stringAvatar(name)} className="cursor-pointer" />
       {profileMenu && (
-        <div className="absolute text-[14px] font-medium flex flex-col gap-3 right-0 bg-[#FAFAFA] p-3 rounded-lg top-[60px] border-[.5px] border-[#c4c4c4]">
-          <Link
-            to="/editprofile"
-            className="flex items-center gap-2 cursor-pointer"
-          >
-            <img src="img/settings.png" alt="settings" />
-            Edit Profile
-          </Link>
+        <div className="absolute text-[14px] font-medium right-0 bg-[#FAFAFA] p-2 rounded-lg top-[60px] border-[.5px] border-[#c4c4c4]">
           <div
-            className="flex items-center gap-2 cursor-pointer"
+            className="cursor-pointer hover:bg-opacity-20 hover:bg-[#c4c4c4] rounded-[6px] p-2"
             onClick={() => {
               localStorage.removeItem("token");
               localStorage.removeItem("role");
               navigate("/");
             }}
           >
-            <img src="img/logout.png" alt="logout" />
             Logout
           </div>
         </div>
       )}
-    </div>
+    </Link>
   );
 };

@@ -6,7 +6,6 @@ export const EditProfile = () => {
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
   const [profileData, setProfileData] = useState({});
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -21,29 +20,23 @@ export const EditProfile = () => {
         })
         .then((res) => {
           setProfileData(res.data.user);
-          setLoading(false);
         })
         .catch((err) => {
           console.error(err);
           setError("Failed to fetch profile data.");
-          setLoading(false);
         });
     }
   }, [token, navigate]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>{error}</div>;
-  }
-
   return (
     <div>
-      <h1>Edit Profile</h1>
-      <p>Name: {profileData.name}</p>
-      <p>Email: {profileData.email}</p>
+      {error && (
+        <div className="bg-red-200 text-red-600 p-2 rounded mb-4">{error}</div>
+      )}
+      <div>
+        <p>Name: {profileData.name}</p>
+        <p>Email: {profileData.email}</p>
+      </div>
     </div>
   );
 };

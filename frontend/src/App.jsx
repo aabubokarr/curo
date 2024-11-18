@@ -16,6 +16,8 @@ import { Test } from "./components/Pages/Test/Test";
 import { Treatment } from "./components/Pages/Treatment/Treatment";
 import { Service } from "./components/Pages/Service/Service";
 import { Medicine } from "./components/Pages/Medicine/Medicine";
+import { CreateMedicine } from "./components/Pages/Medicine/CreateMedicine";
+import { EditMedicine } from "./components/Pages/Medicine/EditMedicine";
 import { Prescription } from "./components/Pages/Prescription/Prescription";
 import { Bill } from "./components/Pages/Billing/Billing";
 import { MedicalRecord } from "./components/Pages/MedicalRecord/MedicalRecord";
@@ -42,10 +44,12 @@ function App() {
         <Route exact path="/treatment" element={<Treatment />} />
         <Route exact path="/service" element={<Service />} />
         <Route exact path="/medicine" element={<Medicine />} />
+        <Route exact path="/create-medicine" element={<CreateMedicine />} />
+        <Route exact path="/edit-medicine/:medId" element={<EditMedicine />} />
         <Route exact path="/prescription" element={<Prescription />} />
         <Route exact path="/billing" element={<Bill />} />
         <Route exact path="/medicalrecord" element={<MedicalRecord />} />
-        <Route exact path="/editprofile" element={<EditProfile />} />
+        <Route exact path="/edit-profile" element={<EditProfile />} />
       </Routes>
     </Main>
   );

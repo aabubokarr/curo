@@ -93,20 +93,12 @@ export const Login = () => {
               >
                 Login
               </button>
-              <div className="mt-2 flex items-center justify-between">
-                <p>
-                  Don't have an account?{" "}
-                  <Link to="/register" className="text-[#009BA9]">
-                    Sign Up
-                  </Link>
-                </p>
-                <Link
-                  to="/"
-                  className="text-[14px] border-[1px] bg-[#009BA9] text-white rounded-lg p-1"
-                >
-                  Go back
+              <p className="mt-2">
+                Don't have an account?{" "}
+                <Link to="/register" className="text-[#009BA9]">
+                  Sign Up
                 </Link>
-              </div>
+              </p>
             </div>
           </form>
         </div>

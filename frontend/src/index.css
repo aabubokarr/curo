@@ -11,6 +11,10 @@
     font-family: "Plus Jakarta Sans", sans-serif;
 }
 
+::-webkit-scrollbar {
+    display: none;
+}
+
 body{
     background-color: #EFF0F6;
     color: #20211A;

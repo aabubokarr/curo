@@ -107,15 +107,33 @@ app.get("/user", authenticateJWT, (req, res) => {
     }
 
     if (results.length === 0) {
-      return res.status(404).json({ error: "User  not found" });
+      return res.status(404).json({ error: "User not found" });
     }
 
     const user = results[0];
     console.log(user);
     return res.status(200).json({
-      message: "User  details retrieved successfully",
+      message: "User details retrieved successfully",
       user,
     });
+  });
+});
+
+// Get user count
+app.get("/user/count", authenticateJWT, (req, res) => {
+  const sql =
+    "SELECT SUM(CASE WHEN gender = 'Male' THEN 1 ELSE 0 END) AS doc_male, SUM(CASE WHEN gender = 'Female' THEN 1 ELSE 0 END) AS doc_female, (SELECT SUM(CASE WHEN gender = 'Male' THEN 1 ELSE 0 END) FROM patient_details) AS pat_male, (SELECT SUM(CASE WHEN gender = 'Female' THEN 1 ELSE 0 END) FROM patient_details) AS pat_female FROM doctor_details;";
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ error: "Count not found" });
+    }
+
+    return res.status(200).json(results[0]);
   });
 });
 
@@ -554,7 +572,8 @@ app.delete("/delete/department/:id", (req, res) => {
 
 // Get all departments
 app.get("/list/department", authenticateJWT, (req, res) => {
-  const sql = "SELECT * FROM department";
+  const sql =
+    "SELECT d.dept_id, doc.name AS doc_name, dept_name FROM department d, doctor_details doc, dept_head h WHERE d.dept_id = doc.dept_id AND doc.doctor_id = h.doctor_id;";
 
   db.query(sql, (err, results) => {
     if (err) {
@@ -718,6 +737,20 @@ app.get("/list/appointment", (req, res) => {
     "SELECT appointment_id, doc.name AS doctor_name, pat.name AS patient_name, appointment_date, appointment_time FROM appointment AS app, doctor_details AS doc, patient_details AS pat WHERE doc.doctor_id = app.doctor_id AND pat.patient_id = app.patient_id";
 
   db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Error fetching appointments: ", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    res.status(200).json(results);
+  });
+});
+
+app.get("/list/appointment/doctor", authenticateJWT, (req, res) => {
+  const doctorId = req.user.userId;
+  const sql =
+    "SELECT appointment_id, doc.name AS doctor_name, pat.name AS patient_name, appointment_date, appointment_time FROM appointment AS app, doctor_details AS doc, patient_details AS pat WHERE doc.doctor_id = app.doctor_id AND pat.patient_id = app.patient_id AND doc.doctor_id = ?";
+
+  db.query(sql, [doctorId], (err, results) => {
     if (err) {
       console.error("Error fetching appointments: ", err);
       return res.status(500).json({ error: "Database error" });
@@ -1139,34 +1172,31 @@ app.post("/create/prescription", (req, res) => {
   const sql =
     "INSERT INTO prescription (patient_id, doctor_id, medicine_id) VALUES (?, ?, ?)";
 
-  db.query(
-    sql,
-    [patient_id, doctor_id, medicine_id],
-    (err, result) => {
-      if (err) {
-        console.error("Error creating prescription: ", err);
-        return res.status(500).json({ error: "Database error" });
-      }
-      res.status(201).json({
-        prescription_id: result.insertId,
-        patient_id,
-        doctor_id,
-        medicine_id
-      });
-    }
-  );
-});
-
-// Get all prescriptions
-app.get("/list/prescription", (req, res) => {
-  const sql = "SELECT * FROM prescription";
-
-  db.query(sql, (err, results) => {
+  db.query(sql, [patient_id, doctor_id, medicine_id], (err, result) => {
     if (err) {
-      console.error("Error fetching prescriptions: ", err);
+      console.error("Error creating prescription: ", err);
       return res.status(500).json({ error: "Database error" });
     }
-    res.status(200).json(results);
+    res.status(201).json({
+      prescription_id: result.insertId,
+      patient_id,
+      doctor_id,
+      medicine_id,
+    });
+  });
+});
+
+// Get prescriptions for the logged-in doctor
+app.get("/list/prescription", authenticateJWT, (req, res) => {
+  const doctorId = req.user.userId;
+
+  const sql = "SELECT * FROM prescription WHERE doctor_id = ?;";
+
+  db.query(sql, [doctorId], (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: "Database error" });
+    }
+    return res.status(200).json(results);
   });
 });
 
@@ -1347,10 +1377,7 @@ app.delete("/delete/bill/:id", (req, res) => {
 // MEDICAL RECORD API's
 // Create a new medical record
 app.post("/create/medical_record", (req, res) => {
-  const {
-    patient_id,
-    doctor_id
-  } = req.body;
+  const { patient_id, doctor_id } = req.body;
   const sql =
     "INSERT INTO medical_record (patient_id, doctor_id) VALUES (?, ?)";
 
@@ -1362,7 +1389,7 @@ app.post("/create/medical_record", (req, res) => {
     res.status(201).json({
       record_id: result.insertId,
       patient_id,
-      doctor_id
+      doctor_id,
     });
   });
 });

@@ -28,13 +28,14 @@ export const Sidebar = () => {
       );
     } else if (role === "doctor") {
       return (
+        b.title === "Dashboard" ||
         b.title === "Appointments" ||
-        b.title === "Departments" ||
         b.title === "Prescriptions" ||
-        b.title === "Medical Record"
+        b.title === "Medical Records"
       );
     } else if (role === "patient") {
       return (
+        b.title === "Dashboard" ||
         b.title === "Appointments" ||
         b.title === "Prescriptions" ||
         b.title === "Medical Records"
@@ -46,16 +47,13 @@ export const Sidebar = () => {
 
   return (
     <div className="text-white w-[350px] h-[100vh] top-0 sticky bg-[#009BA9]">
-      <Link
-        to="/"
-        className="bg-white w-[60px] h-[50px] rounded-[100px] flex items-center justify-center m-auto my-3"
-      >
+      <div className="bg-white cursor-pointer w-[60px] h-[50px] rounded-[100px] flex items-center justify-center m-auto my-3">
         <div className="flex items-center">
           <div className="w-[15px] h-[15px] rounded-[100px] bg-black"></div>
           <div className="w-[20px] h-[5px] bg-black"></div>
           <div className="w-[15px] h-[15px] rounded-[100px] bg-black"></div>
         </div>
-      </Link>
+      </div>
       {routes.map((b) => (
         <div
           key={b.id}

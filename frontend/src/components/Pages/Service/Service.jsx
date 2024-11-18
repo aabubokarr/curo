@@ -1,14 +1,52 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Sidebar } from "../../Bars/Sidebar";
 import { Profile } from "../../Profile/Profile";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 export const Service = () => {
   const role = localStorage.getItem("role");
   const token = localStorage.getItem("token");
   const [serviceList, setServiceList] = useState([]);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:8081/list/service", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        setServiceList(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+        setError("Failed to fetch service data.");
+      });
+  }, [token]);
+
+  const handleDelete = (serviceId) => {
+    if (window.confirm("Are you sure you want to delete this service?")) {
+      axios
+        .delete(`http://localhost:8081/delete/service/${serviceId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((res) => {
+          setServiceList((prevList) =>
+            prevList.filter((service) => service.service_id !== serviceId)
+          );
+          alert("Service deleted successfully.");
+        })
+        .catch((err) => {
+          console.error(err);
+          alert("Failed to delete service.");
+        });
+    }
+  };
 
   return (
     <div className="flex">
@@ -33,6 +71,7 @@ export const Service = () => {
             <thead>
               <tr>
                 <th>Service ID</th>
+                <th>Patient ID</th>
                 <th>Service Name</th>
                 <th>Service cost</th>
                 <th>View</th>
@@ -48,6 +87,7 @@ export const Service = () => {
                   }`}
                 >
                   <td>{service.service_id}</td>
+                  <td>{service.patient_id}</td>
                   <td>{service.service_name}</td>
                   <td>{service.service_cost}</td>
                   <td>
