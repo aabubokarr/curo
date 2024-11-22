@@ -10,14 +10,8 @@ export const Appointment = () => {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
   const [appointmentList, setAppointmentList] = useState([]);
-  const [userData, setUserData] = useState({});
 
   useEffect(() => {
-    if (!token || !role) {
-      console.error("Token or role is missing");
-      return;
-    }
-
     const api =
       role === "admin"
         ? "http://localhost:8081/list/appointment"
@@ -38,6 +32,29 @@ export const Appointment = () => {
       });
   }, [token, role]);
 
+  const handleDelete = (appId) => {
+    if (window.confirm("Are you sure you want to delete this appointment?")) {
+      axios
+        .delete(`http://localhost:8081/delete/appointment/${appId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((res) => {
+          setAppointmentList((prevList) =>
+            prevList.filter(
+              (appointment) => appointment.appointment_id !== appId
+            )
+          );
+          alert("Appointment deleted successfully.");
+        })
+        .catch((err) => {
+          console.error(err);
+          alert("Failed to delete appointment.");
+        });
+    }
+  };
+
   return (
     <div className="flex">
       <Sidebar />
@@ -49,9 +66,12 @@ export const Appointment = () => {
         <div className="bg-[#FAFAFA] rounded-[20px] pt-5">
           {role === "admin" && (
             <div className="px-5 pb-3">
-              <div className="w-[120px] h-[48px] bg-[#009BA9] text-[18px] font-normal rounded-[8px] flex items-center justify-center text-white">
+              <Link
+                to="/create-appointment"
+                className="w-[120px] h-[48px] cursor-pointer bg-[#009BA9] text-[18px] font-normal rounded-[8px] flex items-center justify-center text-white"
+              >
                 Add New
-              </div>
+              </Link>
             </div>
           )}
           <table className="w-full pt-3">
@@ -62,7 +82,6 @@ export const Appointment = () => {
                 <th>Patient Name</th>
                 <th>Date</th>
                 <th>Time</th>
-                {role === "admin" && <th>View</th>}
                 {role === "admin" && <th>Delete</th>}
               </tr>
             </thead>
@@ -80,14 +99,10 @@ export const Appointment = () => {
                   <td>{appointment.appointment_date}</td>
                   <td>{appointment.appointment_time}</td>
                   {role === "admin" && (
-                    <td>
-                      <Link>
-                        <FontAwesomeIcon icon={faEye} />
-                      </Link>
-                    </td>
-                  )}
-                  {role === "admin" && (
-                    <td className="cursor-pointer">
+                    <td
+                      onClick={() => handleDelete(appointment.appointment_id)}
+                      className="cursor-pointer"
+                    >
                       <FontAwesomeIcon icon={faTrash} />
                     </td>
                   )}

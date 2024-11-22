@@ -4,39 +4,34 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Sidebar } from "../../Bars/Sidebar";
 import { Profile } from "../../Profile/Profile";
 
-export const EditMedicine = () => {
-  const { medId } = useParams();
+export const EditTreatment = () => {
+  const { planId } = useParams();
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
-  const [medicine, setMedicine] = useState({});
+  const [treatment, setTreatment] = useState({});
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
-    medicine_name: "",
-    medicine_quantity: "",
-    medicine_price: "",
+    patient_id: "",
+    diagnosis: "",
+    medications: "",
+    plan_details: "",
   });
 
   useEffect(() => {
-    if (role !== 'admin') {
-      localStorage.removeItem('token')
-      navigate("/");
-      return;
-    }
-
     axios
-      .get(`http://localhost:8081/medicine/${medId}`, {
+      .get(`http://localhost:8081/treatment-plan/${planId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
       .then((res) => {
-        setMedicine(res.data), console.log(res.data);
+        setTreatment(res.data), console.log(res.data);
       })
       .catch((err) => {
-        setError("Failed to fetch medicine data");
+        setError("Failed to fetch treatment data");
         console.error(err);
       });
-  }, [medId, token, navigate]);
+  }, [planId, token, navigate]);
 
   const handleChange = (e) => {
     setFormData({
@@ -60,17 +55,21 @@ export const EditMedicine = () => {
       console.log(formData);
 
       axios
-        .patch(`http://localhost:8081/update/medicine/${medId}`, formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+        .patch(
+          `http://localhost:8081/update/treatment-plan/${planId}`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
         .then((res) => {
-          console.log("Medicine updated successfully", res.data);
-          alert("Medicine updated successfully");
+          console.log("Treatment updated successfully", res.data);
+          alert("Treatment updated successfully");
         })
         .catch((error) => {
-          console.error("Error updating medicine:", error);
+          console.error("Error updating treatment:", error);
         });
     }
   };
@@ -80,7 +79,7 @@ export const EditMedicine = () => {
       <Sidebar />
       <div className="px-3 w-full">
         <div className="top-0 flex items-center justify-between sticky bg-[#EFF0F6] z-10 py-3">
-          <h1 className="text-[28px] font-semibold">Edit Medicine</h1>
+          <h1 className="text-[28px] font-semibold">Edit Treatment Plan</h1>
           <Profile />
         </div>
         <div className="bg-[#FAFAFA] rounded-[20px] p-5 w-full">
@@ -90,35 +89,47 @@ export const EditMedicine = () => {
             </div>
           )}
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-            <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-              <label htmlFor="medicine_name">Medicine Name</label>
-              <input
-                onChange={handleChange}
-                className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
-                type="text"
-                placeholder={medicine.medicine_name}
-                name="medicine_name"
-              />
-            </div>
             <div className="flex items-center gap-3">
               <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                <label htmlFor="medicine_quantity">Medicine Quantity</label>
-                <input
-                  onChange={handleChange}
-                  className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
-                  type="text"
-                  placeholder={medicine.medicine_quantity}
-                  name="medicine_quantity"
-                />
-              </div>
-              <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                <label htmlFor="medicine_price">Medicine Price</label>
+                <label htmlFor="patient_id">Patient ID</label>
                 <input
                   onChange={handleChange}
                   className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
                   type="number"
-                  placeholder={medicine.medicine_price}
-                  name="medicine_price"
+                  placeholder={treatment.patient_id}
+                  name="patient_id"
+                />
+              </div>
+              <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
+                <label htmlFor="diagnosis">Diagnosis</label>
+                <input
+                  onChange={handleChange}
+                  className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                  type="text"
+                  placeholder={treatment.diagnosis}
+                  name="diagnosis"
+                />
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
+                <label htmlFor="medications">Medications</label>
+                <input
+                  onChange={handleChange}
+                  className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                  type="text"
+                  placeholder={treatment.medications}
+                  name="medications"
+                />
+              </div>
+              <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
+                <label htmlFor="plan_details">Plan Details</label>
+                <input
+                  onChange={handleChange}
+                  className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                  type="text"
+                  placeholder={treatment.plan_details}
+                  name="plan_details"
                 />
               </div>
             </div>

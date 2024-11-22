@@ -36,14 +36,33 @@ const authenticateJWT = (req, res, next) => {
 
 // Registration
 app.post("/register", (req, res) => {
-  const values = [req.body.name, req.body.email, req.body.password];
+  const {
+    name,
+    email,
+    password,
+    role,
+  } = req.body;
 
   const sql =
-    "INSERT INTO user_details (`name`, `email`, `password`) VALUES(?)";
+    "INSERT INTO admin_details (name, email, password, role) VALUES (?, ?, ?, ?)";
 
-  db.query(sql, [values], (err, data) => {
-    if (err) return res.json(err);
-    return res.json(data);
+  const values = [
+    name,
+    email,
+    password,
+    role,
+  ];
+
+  db.query(sql, values, (err, results) => {
+    if (err) {
+      console.error("Error inserting data: ", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    res.status(201).json({
+      message: "Admin details inserted successfully",
+      patientId: results.insertId,
+    });
   });
 });
 
@@ -587,7 +606,7 @@ app.get("/list/department", authenticateJWT, (req, res) => {
 
 // TREATMENT PLAN API's
 // Create a treatment plan
-app.post("/create/treatment-plans", (req, res) => {
+app.post("/create/treatment-plan", (req, res) => {
   const { patient_id, diagnosis, medications, plan_details } = req.body;
   const sql =
     "INSERT INTO treatment_plan (patient_id, diagnosis, medications, plan_details) VALUES (?, ?, ?, ?)";
@@ -1187,12 +1206,26 @@ app.post("/create/prescription", (req, res) => {
 });
 
 // Get prescriptions for the logged-in doctor
-app.get("/list/prescription", authenticateJWT, (req, res) => {
+app.get("/list/doctor/prescription", authenticateJWT, (req, res) => {
   const doctorId = req.user.userId;
 
   const sql = "SELECT * FROM prescription WHERE doctor_id = ?;";
 
   db.query(sql, [doctorId], (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: "Database error" });
+    }
+    return res.status(200).json(results);
+  });
+});
+
+// Get prescriptions for the logged-in patient
+app.get("/list/patient/prescription", authenticateJWT, (req, res) => {
+  const patientId = req.user.userId;
+
+  const sql = "SELECT * FROM prescription WHERE patient_id = ?;";
+
+  db.query(sql, [patientId], (err, results) => {
     if (err) {
       return res.status(500).json({ error: "Database error" });
     }

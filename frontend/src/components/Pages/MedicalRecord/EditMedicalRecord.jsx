@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Sidebar } from "../../Bars/Sidebar";
 import { Profile } from "../../Profile/Profile";
 
-export const EditMedicine = () => {
+export const EditMedicalRecord = () => {
   const { medId } = useParams();
   const token = localStorage.getItem("token");
   const navigate = useNavigate();

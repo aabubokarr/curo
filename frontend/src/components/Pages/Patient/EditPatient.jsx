@@ -139,7 +139,7 @@ export const EditPatient = () => {
                   <label htmlFor="password">Password</label>
                   <input
                     onChange={handleChange}
-                    placeholder={patient.password}
+                    placeholder="**** ****"
                     className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
                     type="password"
                     name="password"

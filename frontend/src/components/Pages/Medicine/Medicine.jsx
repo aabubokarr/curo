@@ -53,7 +53,7 @@ export const Medicine = () => {
       <Sidebar />
       <div className="px-3 w-full">
         <div className="top-0 flex items-center justify-between sticky bg-[#EFF0F6] z-10 py-3">
-          <h1 className="text-[28px] font-semibold">Medicine</h1>
+          <h1 className="text-[28px] font-semibold">Medicines</h1>
           <Profile />
         </div>
         <div className="bg-[#FAFAFA] rounded-[20px] pt-5">

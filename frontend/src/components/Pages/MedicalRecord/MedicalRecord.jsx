@@ -60,7 +60,7 @@ export const MedicalRecord = () => {
           {role === "admin" && (
             <div className="px-5 pb-3">
               <Link
-                to="/create-department"
+                to="/create-record"
                 className="w-[120px] h-[48px] cursor-pointer bg-[#009BA9] text-[18px] font-normal rounded-[8px] flex items-center justify-center text-white"
               >
                 Add New

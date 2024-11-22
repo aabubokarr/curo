@@ -8,6 +8,7 @@ Chart.register(...registerables);
 
 export const Dashboard = () => {
   const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role")
   const chartRef = useRef(null);
 
   useEffect(() => {
@@ -32,7 +33,7 @@ export const Dashboard = () => {
               ],
               datasets: [
                 {
-                  label: "Number of users",
+                  label: "Total",
                   data: [
                     res.data.doc_male,
                     res.data.doc_female,
@@ -75,7 +76,15 @@ export const Dashboard = () => {
           <Profile />
         </div>
         <div className="bg-[#FAFAFA] rounded-[20px] p-5">
-          <canvas ref={chartRef} id="myChart"></canvas>
+          {role === 'admin' && (
+            <canvas ref={chartRef} id="myChart"></canvas>
+          )}
+          {role === 'doctor' && (
+            <div>Doctor</div>
+          )}
+          {role === 'patient' && (
+            <div>Patient</div>
+          )}
         </div>
       </div>
     </div>

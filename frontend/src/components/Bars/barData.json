@@ -51,12 +51,12 @@
   },
   {
     "id": 11,
-    "title": "Billings",
-    "link": "/billing"
+    "title": "Bills",
+    "link": "/bill"
   },
   {
     "id": 12,
     "title": "Medical Records",
-    "link": "/medicalrecord"
+    "link": "/medical-record"
   }
 ]

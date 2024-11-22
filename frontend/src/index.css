@@ -24,3 +24,5 @@ body{
     font-family: 'Times New Roman', Times, serif;
     writing-mode:tb-rl;
 }
+
+@layer base { img { display: initial;}}

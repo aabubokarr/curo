@@ -53,7 +53,7 @@ export const Bill = () => {
       <Sidebar />
       <div className="px-3 w-full">
         <div className="top-0 flex items-center justify-between sticky bg-[#EFF0F6] z-10 py-3">
-          <h1 className="text-[28px] font-semibold">Bill</h1>
+          <h1 className="text-[28px] font-semibold">Bills</h1>
           <Profile />
         </div>
         <div className="bg-[#FAFAFA] rounded-[20px] pt-5">
@@ -71,6 +71,7 @@ export const Bill = () => {
             <thead>
               <tr>
                 <th>Bill ID</th>
+                <th>Patient ID</th>
                 <th> Amount </th>
                 <th>View</th>
                 <th>Delete</th>
@@ -85,6 +86,7 @@ export const Bill = () => {
                   }`}
                 >
                   <td>{bill.bill_id}</td>
+                  <td>{bill.patient_id}</td>
                   <td>{bill.amount}</td>
                   <td>
                     <Link>

@@ -53,7 +53,7 @@ export const Service = () => {
       <Sidebar />
       <div className="px-3 w-full">
         <div className="top-0 flex items-center justify-between sticky bg-[#EFF0F6] z-10 py-3">
-          <h1 className="text-[28px] font-semibold">Service</h1>
+          <h1 className="text-[28px] font-semibold">Services</h1>
           <Profile />
         </div>
         <div className="bg-[#FAFAFA] rounded-[20px] pt-5">
@@ -91,11 +91,14 @@ export const Service = () => {
                   <td>{service.service_name}</td>
                   <td>{service.service_cost}</td>
                   <td>
-                    <Link>
+                    <Link to={`/edit-service/${service.service_id}`}>
                       <FontAwesomeIcon icon={faEye} />
                     </Link>
                   </td>
-                  <td className="cursor-pointer">
+                  <td
+                    onClick={() => handleDelete(service.service_id)}
+                    className="cursor-pointer"
+                  >
                     <FontAwesomeIcon icon={faTrash} />
                   </td>
                 </tr>

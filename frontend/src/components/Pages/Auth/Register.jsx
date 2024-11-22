@@ -7,6 +7,7 @@ export const Register = () => {
     name: "",
     email: "",
     password: "",
+    role: "admin",
   });
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -30,10 +31,10 @@ export const Register = () => {
     }
 
     axios
-      .post("http://localhost:8081/create/department", formData)
+      .post("http://localhost:8081/register", formData)
       .then((res) => {
         console.log("Created successfully");
-        navigate("/login");
+        navigate("/");
       })
       .catch((error) => {
         console.error("Error creating :", error);

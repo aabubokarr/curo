@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Avatar } from "@mui/material";
+import html2pdf from "html2pdf.js"
 
 function IdCard(props) {
   function stringAvatar(name) {
@@ -17,21 +18,14 @@ function IdCard(props) {
     };
   }
 
+  const handleDownload = () => {
+    const idCard = document.getElementById("idCard")
+    html2pdf(idCard)
+  }
+
   return (
     <div>
-      <div className="w-[220px] h-[350px] rounded-lg bg-[#FAFAFA] flex items-center mx-auto">
-        <div className="flex flex-col gap-1 w-[38px]">
-          <div className="pl-1 pt-1">
-            <div className="bg-white w-[30px] h-[25px] rounded-[100px] flex justify-center border-[.5px] border-[#c4c4c4] items-center">
-              <div className="w-[7.5px] h-[7.5px] rounded-[100px] bg-black"></div>
-              <div className="w-[10px] h-[2.5px] bg-black"></div>
-              <div className="w-[7.5px] h-[7.5px] rounded-[100px] bg-black"></div>
-            </div>
-          </div>
-          <div className="bg-[#009BA9] rounded-tr-lg text-white text-[18px] times-roman w-[38px] flex items-center justify-center rotate-180 py-6">
-            Bmax Database Management System
-          </div>
-        </div>
+      <div id="idCard" className="w-[220px] h-[350px] rounded-lg bg-[#FAFAFA] flex items-center mx-auto px-3">
         <div className="p-1 flex flex-col items-center">
           <div className="flex flex-col items-center gap-2">
             <Avatar
@@ -46,7 +40,7 @@ function IdCard(props) {
           <div className="text-[10px] flex flex-col gap-1">
             <p>
               This card is the property of{" "}
-              <span className="font-bold">Bmax Database Management System</span>
+              <span className="font-bold">Database Management System</span>
             </p>
             <p>
               Plot : 15, Block : B, Bashundhara, Dhaka-1229, Bangladesh, Please
@@ -55,7 +49,7 @@ function IdCard(props) {
           </div>
         </div>
       </div>
-      <button className="mx-auto mt-2 w-[220px] h-[48px] bg-[#009BA9] flex items-center justify-center text-[16px] text-white font-bold rounded-lg">
+      <button onClick={handleDownload} className="mx-auto mt-2 w-[220px] h-[48px] bg-[#009BA9] flex items-center justify-center text-[16px] text-white font-bold rounded-lg">
         Download
       </button>
     </div>

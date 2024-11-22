@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Sidebar } from "../../Bars/Sidebar";
 import { Profile } from "../../Profile/Profile";
 
-export const EditMedicine = () => {
+export const EditBill = () => {
   const { medId } = useParams();
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
@@ -17,8 +17,7 @@ export const EditMedicine = () => {
   });
 
   useEffect(() => {
-    if (role !== 'admin') {
-      localStorage.removeItem('token')
+    if (!token) {
       navigate("/");
       return;
     }

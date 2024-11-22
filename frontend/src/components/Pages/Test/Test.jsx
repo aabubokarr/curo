@@ -53,7 +53,7 @@ export const Test = () => {
       <Sidebar />
       <div className="px-3 w-full">
         <div className="top-0 flex items-center justify-between sticky bg-[#EFF0F6] z-10 py-3">
-          <h1 className="text-[28px] font-semibold">Test</h1>
+          <h1 className="text-[28px] font-semibold">Tests</h1>
           <Profile />
         </div>
         <div className="bg-[#FAFAFA] rounded-[20px] pt-5">
@@ -73,7 +73,7 @@ export const Test = () => {
                 <th>Test ID</th>
                 <th>Patient ID</th>
                 <th>Test Name</th>
-                <th>Test cost</th>
+                <th>Test Cost</th>
                 <th>View</th>
                 <th>Delete</th>
               </tr>
@@ -91,11 +91,12 @@ export const Test = () => {
                   <td>{test.test_name}</td>
                   <td>{test.test_cost}</td>
                   <td>
-                    <Link >
+                    <Link to={`/edit-test/${test.test_id}`}>
                       <FontAwesomeIcon icon={faEye} />
                     </Link>
                   </td>
                   <td
+                    onClick={() => handleDelete(test.test_id)}
                     className="cursor-pointer"
                   >
                     <FontAwesomeIcon icon={faTrash} />

@@ -1,42 +1,18 @@
-import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React, { useState } from "react";
 import { Sidebar } from "../../Bars/Sidebar";
 import { Profile } from "../../Profile/Profile";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-export const EditMedicine = () => {
-  const { medId } = useParams();
-  const token = localStorage.getItem("token");
-  const navigate = useNavigate();
-  const [medicine, setMedicine] = useState({});
+export const CreateBill = () => {
   const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
   const [formData, setFormData] = useState({
     medicine_name: "",
     medicine_quantity: "",
     medicine_price: "",
   });
-
-  useEffect(() => {
-    if (role !== 'admin') {
-      localStorage.removeItem('token')
-      navigate("/");
-      return;
-    }
-
-    axios
-      .get(`http://localhost:8081/medicine/${medId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((res) => {
-        setMedicine(res.data), console.log(res.data);
-      })
-      .catch((err) => {
-        setError("Failed to fetch medicine data");
-        console.error(err);
-      });
-  }, [medId, token, navigate]);
 
   const handleChange = (e) => {
     setFormData({
@@ -48,29 +24,37 @@ export const EditMedicine = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const isFormComplete = Object.values(formData).some(
+    const isFormComplete = Object.values(formData).every(
       (field) => field !== ""
     );
     if (!isFormComplete) {
-      setError("Please fill in at least one required field.");
+      setError("Please fill in all required fields.");
       return;
     }
 
-    if (window.confirm("Are you sure you want to update info?")) {
-      console.log(formData);
-
+    if (window.confirm("Are you sure you want to create this medicine?")) {
       axios
-        .patch(`http://localhost:8081/update/medicine/${medId}`, formData, {
+        .post("http://localhost:8081/create/medicine", formData, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         })
         .then((res) => {
-          console.log("Medicine updated successfully", res.data);
-          alert("Medicine updated successfully");
+          console.log("Medicine created successfully", res.data);
+          alert("Medicine created successfully!");
+          navigate("/medicine");
         })
         .catch((error) => {
-          console.error("Error updating medicine:", error);
+          console.error("Error creating medicine:", error);
+          if (error.response && error.response.data) {
+            alert(
+              `Failed to create medicine: ${
+                error.response.data.error || "Unknown error"
+              }`
+            );
+          } else {
+            alert("Failed to create medicine due to network error.");
+          }
         });
     }
   };
@@ -80,10 +64,10 @@ export const EditMedicine = () => {
       <Sidebar />
       <div className="px-3 w-full">
         <div className="top-0 flex items-center justify-between sticky bg-[#EFF0F6] z-10 py-3">
-          <h1 className="text-[28px] font-semibold">Edit Medicine</h1>
+          <h1 className="text-[28px] font-semibold">Create Bill</h1>
           <Profile />
         </div>
-        <div className="bg-[#FAFAFA] rounded-[20px] p-5 w-full">
+        <div className="bg-[#FAFAFA] rounded-[20px] p-5">
           {error && (
             <div className="bg-red-200 text-red-600 p-2 rounded mb-4">
               {error}
@@ -96,7 +80,7 @@ export const EditMedicine = () => {
                 onChange={handleChange}
                 className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
                 type="text"
-                placeholder={medicine.medicine_name}
+                placeholder="Enter Medicine Name"
                 name="medicine_name"
               />
             </div>
@@ -107,7 +91,7 @@ export const EditMedicine = () => {
                   onChange={handleChange}
                   className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
                   type="text"
-                  placeholder={medicine.medicine_quantity}
+                  placeholder="Enter Medicine Quantity"
                   name="medicine_quantity"
                 />
               </div>
@@ -117,7 +101,7 @@ export const EditMedicine = () => {
                   onChange={handleChange}
                   className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
                   type="number"
-                  placeholder={medicine.medicine_price}
+                  placeholder="Enter Medicine Price"
                   name="medicine_price"
                 />
               </div>
@@ -126,7 +110,7 @@ export const EditMedicine = () => {
               type="submit"
               className="mt-2 w-full h-[48px] bg-[#009BA9] flex items-center justify-center text-[16px] text-white font-bold rounded-lg"
             >
-              Update
+              CREATE
             </button>
           </form>
         </div>

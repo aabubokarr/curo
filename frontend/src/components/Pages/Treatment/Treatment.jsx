@@ -30,14 +30,16 @@ export const Treatment = () => {
   const handleDelete = (treatmentId) => {
     if (window.confirm("Are you sure you want to delete this treatment?")) {
       axios
-        .delete(`http://localhost:8081/delete/treatment/${treatmentId}`, {
+        .delete(`http://localhost:8081/delete/treatment-plan/${treatmentId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         })
         .then((res) => {
           setTreatmentList((prevList) =>
-            prevList.filter((treatment) => treatment.treatment_id !== treatmentId)
+            prevList.filter(
+              (treatment) => treatment.treatment_id !== treatmentId
+            )
           );
           alert("Treatment deleted successfully.");
         })
@@ -53,7 +55,7 @@ export const Treatment = () => {
       <Sidebar />
       <div className="px-3 w-full">
         <div className="top-0 flex items-center justify-between sticky bg-[#EFF0F6] z-10 py-3">
-          <h1 className="text-[28px] font-semibold">Treatment</h1>
+          <h1 className="text-[28px] font-semibold">Treatments</h1>
           <Profile />
         </div>
         <div className="bg-[#FAFAFA] rounded-[20px] pt-5">
@@ -91,11 +93,12 @@ export const Treatment = () => {
                   <td>{treatment.diagnosis}</td>
                   <td>{treatment.medications}</td>
                   <td>
-                    <Link >
+                    <Link to={`/edit-treatment/${treatment.treatment_id}`}>
                       <FontAwesomeIcon icon={faEye} />
                     </Link>
                   </td>
                   <td
+                    onClick={() => handleDelete(treatment.treatment_id)}
                     className="cursor-pointer"
                   >
                     <FontAwesomeIcon icon={faTrash} />

@@ -23,7 +23,7 @@ export const Sidebar = () => {
         b.title === "Treatments" ||
         b.title === "Services" ||
         b.title === "Medicines" ||
-        b.title === "Billings" ||
+        b.title === "Bills" ||
         b.title === "Medical Records"
       );
     } else if (role === "doctor") {
@@ -36,7 +36,6 @@ export const Sidebar = () => {
     } else if (role === "patient") {
       return (
         b.title === "Dashboard" ||
-        b.title === "Appointments" ||
         b.title === "Prescriptions" ||
         b.title === "Medical Records"
       );
@@ -58,14 +57,14 @@ export const Sidebar = () => {
         <div
           key={b.id}
           onClick={() => handleActive(b.link)}
-          className={`text-[18px] rounded-l-lg ml-10 p-[10px] cursor-pointer hover:bg-[#EFF0F6] hover:text-[#20211A]
+          className={`text-[18px] rounded-l-lg ml-10 cursor-pointer hover:bg-[#EFF0F6] hover:text-[#20211A]
             ${
               active === b.link
                 ? "bg-[#EFF0F6] text-[#20211A]"
                 : "bg-transparent"
             }`}
         >
-          <Link to={b.link} className="block w-full h-full">
+          <Link to={b.link} className="block p-[10px] w-full h-full">
             {b.title}
           </Link>
         </div>
