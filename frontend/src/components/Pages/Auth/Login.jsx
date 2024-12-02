@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Button from "../../Button/Button";
 
 export const Login = () => {
   const [formData, setFormData] = useState({
@@ -9,19 +10,12 @@ export const Login = () => {
   });
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   };
-
-  useEffect(() => {
-    if (token) {
-      navigate("/dashboard");
-    }
-  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -34,11 +28,14 @@ export const Login = () => {
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("role", res.data.role);
       })
-      .catch((err) => {
-        if (err.response && err.response.status === 401) {
-          setError("Invalid email or password");
+      .catch((error) => {
+        console.error("Error while login:", error);
+        if (error.response && error.response.data) {
+          setError(
+            `Failed to login : ${error.response.data.error || "Unknown error"}`
+          );
         } else {
-          console.log(err);
+          setError("Failed to login due to network error.");
         }
       });
   };
@@ -87,12 +84,7 @@ export const Login = () => {
               />
             </div>
             <div>
-              <button
-                type="submit"
-                className="mt-2 w-full h-[48px] bg-[#009BA9] flex items-center justify-center text-[16px] text-white font-bold rounded-lg"
-              >
-                Login
-              </button>
+              <Button name="LOGIN" />
               <p className="mt-2">
                 Don't have an account?{" "}
                 <Link to="/register" className="text-[#009BA9]">

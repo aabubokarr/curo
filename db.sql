@@ -50,8 +50,8 @@ CREATE TABLE doctor_details(
 -- Insert into doctor_details
 INSERT INTO doctor_details (name, email, phone_no, address, password, gender, speciality, dept_id, role)
 VALUES
-('Nafis Anzum', 'nafis@bmax.com', '31234567890', 'Bangladesh', 'docpass1', 'Male', 'Opthalmologist', 1, 'doctor'),
-('Ava Brown', 'ava@bmax.com', '41234567890', 'Australia', 'docpass2', 'Female', 'Cardiologist', 2, 'doctor');
+('Nafis Anzum', 'nafis@gmail.com', '31234567890', 'Bangladesh', 'docpass1', 'Male', 'Opthalmologist', 1, 'doctor'),
+('Ava Brown', 'ava@gmail.com', '41234567890', 'Australia', 'docpass2', 'Female', 'Cardiologist', 2, 'doctor');
 
 -- 4. Create patient table
 CREATE TABLE patient_details(
@@ -75,35 +75,37 @@ CREATE TABLE patient_details(
 INSERT INTO patient_details 
 (name, email, phone_no, address, password, gender, blood_group, dob, height, weight, occupation, role)
 VALUES
-('Emily Parker', 'emily@bmax.com', '91234567890', '123 Maple St, Springfield', 'p@ssw0rd123', 'Female', 'O+', '1990-05-12', 1.65, 55.50, 'Teacher', 'patient'),
-('Sophia Johnson', 'sophia@bmax.com', '92345678901', '456 Oak St, Springfield', 'abc123DEF!', 'Female', 'A+', '1985-08-20', 1.70, 60.00, 'Software Engineer', 'patient'),
-('Isabella Davis', 'isabella@bmax.com', '95678901234', '234 Cedar St, Springfield', 'dav!sSecure890', 'Female', 'O-', '1995-03-07', 1.68, 62.35, 'Architect', 'patient');
+('Emily Parker', 'emily@gmail.com', '91234567890', 'Usa', 'patpass1', 'Female', 'O+', '1990-05-12', 1.65, 55.50, 'Teacher', 'patient'),
+('Sophia Johnson', 'sophia@gmail.com', '92345678901', 'Russia', 'patpass2!', 'Female', 'A+', '1985-08-20', 1.70, 60.00, 'Software Engineer', 'patient'),
+('Md Akib', 'akib@gmail.com', '95678901234', 'Bangladesh', 'patpass3', 'Male', 'B+', '1995-03-07', 1.68, 62.35, 'Architect', 'patient');
 
 -- 5. Create treatment table
 CREATE TABLE treatment_plan(
     treatment_id INT AUTO_INCREMENT,
     patient_id INT,
+    doctor_id INT,
     diagnosis VARCHAR(50),
     medications VARCHAR(100),
     plan_details VARCHAR(100),
     PRIMARY KEY (treatment_id ),
-    FOREIGN KEY (patient_id) REFERENCES patient_details(patient_id)
+    FOREIGN KEY (patient_id) REFERENCES patient_details(patient_id),
+    FOREIGN KEY (doctor_id) REFERENCES doctor_details(doctor_id)
 );
 
 -- Insert into treatment table
-INSERT INTO treatment_plan (patient_id, diagnosis, medications, plan_details)
+INSERT INTO treatment_plan (patient_id, doctor_id, diagnosis, medications, plan_details)
 VALUES
-(1, 'Fracture', 'Paracetamol, Ibuprofen', 'Patient to take rest, apply ice, and visit after a week for X-ray'),
-(2,'Viral Infection', 'Cough Syrup, Vitamin C', 'Patient to rest and take prescribed medications for 7 days'),
-(3, 'Heart Condition', 'Aspirin, Beta-blockers', 'Patient to undergo ECG and heart monitoring, follow-up after 1 week');
+(1, 1, 'Fracture', 'Paracetamol, Ibuprofen', 'Patient to take rest, apply ice, and visit after a week for X-ray'),
+(2, 1, 'Viral Infection', 'Cough Syrup, Vitamin C', 'Patient to rest and take prescribed medications for 7 days'),
+(3, 2, 'Heart Condition', 'Aspirin, Beta-blockers', 'Patient to undergo ECG and heart monitoring, follow-up after 1 week');
  
 -- 6. Create appointment table
 CREATE TABLE appointment (
     appointment_id INT AUTO_INCREMENT,
     doctor_id INT,
     patient_id INT,
-    appointment_date DATE,
-    appointment_time TIME,
+    appointment_date varchar(15),
+    appointment_time varchar(10),
     PRIMARY KEY (appointment_id),
     FOREIGN KEY (doctor_id) REFERENCES doctor_details(doctor_id),
     FOREIGN KEY (patient_id) REFERENCES patient_details(patient_id)
@@ -112,9 +114,9 @@ CREATE TABLE appointment (
 -- Insert into appointment table
 INSERT INTO appointment(doctor_id, patient_id, appointment_date, appointment_time)
 VALUES
-(1, 1,'2024-11-07','09:00:00'),
-(1, 2,'2024-11-07','09:30:00'),
-(2, 1,'2024-11-07','10:00:00');
+(1, 1,'2024-11-07','10:00 AM'),
+(1, 2,'2024-11-07','09:30 AM'),
+(2, 1,'2024-11-07','10:00 AM');
 
 -- 7. Create medicine table
 CREATE TABLE medicine (
@@ -135,15 +137,15 @@ VALUES
 -- 8. Create service table
 CREATE TABLE service (
     service_id INT AUTO_INCREMENT,
-    patient_id INT,
+    treatment_id INT,
     service_name VARCHAR(255),
     service_cost INT,
     PRIMARY KEY (service_id),
-    FOREIGN KEY (patient_id) REFERENCES patient_details(patient_id)
+    FOREIGN KEY (treatment_id) REFERENCES treatment_plan(treatment_id)
 );
  
 -- Insert into service table
-INSERT INTO service (patient_id, service_name, service_cost)
+INSERT INTO service (treatment_id, service_name, service_cost)
 VALUES
 (1, 'X-ray', 1500),
 (2, 'MRI', 3000),
@@ -152,15 +154,15 @@ VALUES
 -- 9. Create test table
 CREATE TABLE test (
     test_id INT AUTO_INCREMENT,
-    patient_id INT,
+    treatment_id INT,
     test_name VARCHAR(255),
     test_cost INT,
     PRIMARY KEY (test_id),
-    FOREIGN KEY (patient_id) REFERENCES patient_details(patient_id)
+    FOREIGN KEY (treatment_id) REFERENCES treatment_plan(treatment_id)
 );
 
 -- Insert into test table
-INSERT INTO test (patient_id, test_name, test_cost)
+INSERT INTO test (treatment_id, test_name, test_cost)
 VALUES
 (1, 'Blood Test', 1000),
 (2, 'Urine Test', 800),
@@ -188,18 +190,17 @@ VALUES
 -- 11. Create bill table
 CREATE TABLE bill (
     bill_id INT AUTO_INCREMENT,
-    patient_id INT,
-    amount INT,
+    treatment_id INT,
     PRIMARY KEY (bill_id),
-    FOREIGN KEY (patient_id) REFERENCES patient_details(patient_id)
+    FOREIGN KEY (treatment_id) REFERENCES treatment_plan(treatment_id)
 );
 
 -- Insert into bill table
-INSERT INTO bill (patient_id, amount)
+INSERT INTO bill (treatment_id)
 VALUES
-(1, 3000),
-(2, 5000),
-(3, 7000);
+(1),
+(2),
+(3);
  
 -- 12. Create medical_record table
 CREATE TABLE medical_record (

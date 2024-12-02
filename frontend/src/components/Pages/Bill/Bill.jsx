@@ -56,8 +56,8 @@ export const Bill = () => {
           <h1 className="text-[28px] font-semibold">Bills</h1>
           <Profile />
         </div>
-        <div className="bg-[#FAFAFA] rounded-[20px] pt-5">
-          {role === "admin" && (
+        {role === "admin" ? (
+          <div className="bg-[#FAFAFA] rounded-[20px] pt-5">
             <div className="px-5 pb-3">
               <Link
                 to="/create-bill"
@@ -66,41 +66,50 @@ export const Bill = () => {
                 Add New
               </Link>
             </div>
-          )}
-          <table className="w-full pt-3">
-            <thead>
-              <tr>
-                <th>Bill ID</th>
-                <th>Patient ID</th>
-                <th> Amount </th>
-                <th>View</th>
-                <th>Delete</th>
-              </tr>
-            </thead>
-            <tbody>
-              {billList.map((bill, index) => (
-                <tr
-                  key={bill.bill_id}
-                  className={`text-center h-[48px] ${
-                    index % 2 === 0 ? "bg-[#F1F1F1]" : "bg-[#FAFAFA]"
-                  }`}
-                >
-                  <td>{bill.bill_id}</td>
-                  <td>{bill.patient_id}</td>
-                  <td>{bill.amount}</td>
-                  <td>
-                    <Link>
-                      <FontAwesomeIcon icon={faEye} />
-                    </Link>
-                  </td>
-                  <td className="cursor-pointer">
-                    <FontAwesomeIcon icon={faTrash} />
-                  </td>
+            <table className="w-full pt-3">
+              <thead>
+                <tr>
+                  <th>Bill ID</th>
+                  <th>Treatment ID</th>
+                  <th>Patient Name</th>
+                  <th>Doctor Name</th>
+                  <th>Amount</th>
+                  <th>View</th>
+                  <th>Delete</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {billList.map((bill, index) => (
+                  <tr
+                    key={bill.bill_id}
+                    className={`text-center h-[48px] ${
+                      index % 2 === 0 ? "bg-[#F1F1F1]" : "bg-[#FAFAFA]"
+                    }`}
+                  >
+                    <td>{bill.bill_id}</td>
+                    <td>{bill.treatment_id}</td>
+                    <td>{bill.patient_name}</td>
+                    <td>{bill.doctor_name}</td>
+                    <td>{bill.total_amount}</td>
+                    <td>
+                      <Link to={`/view-bill/${bill.bill_id}`}>
+                        <FontAwesomeIcon icon={faEye} />
+                      </Link>
+                    </td>
+                    <td
+                      onClick={() => handleDelete(bill.bill_id)}
+                      className="cursor-pointer"
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center">You don't have access to this page</div>
+        )}
       </div>
     </div>
   );

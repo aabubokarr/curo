@@ -14,7 +14,7 @@ const db = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "",
-  database: "db",
+  database: "testdb",
 });
 
 // MIDDLEWARE
@@ -36,22 +36,12 @@ const authenticateJWT = (req, res, next) => {
 
 // Registration
 app.post("/register", (req, res) => {
-  const {
-    name,
-    email,
-    password,
-    role,
-  } = req.body;
+  const { name, email, password, role } = req.body;
 
   const sql =
     "INSERT INTO admin_details (name, email, password, role) VALUES (?, ?, ?, ?)";
 
-  const values = [
-    name,
-    email,
-    password,
-    role,
-  ];
+  const values = [name, email, password, role];
 
   db.query(sql, values, (err, results) => {
     if (err) {
@@ -153,6 +143,58 @@ app.get("/user/count", authenticateJWT, (req, res) => {
     }
 
     return res.status(200).json(results[0]);
+  });
+});
+
+// Update user password
+app.post("/user/password", authenticateJWT, (req, res) => {
+  const { userId, role } = req.user;
+  const { old_pass, new_pass } = req.body;
+
+  let sql;
+  if (role === "admin") {
+    sql = "SELECT password FROM admin_details WHERE admin_id = ?;";
+  } else if (role === "doctor") {
+    sql = "SELECT password FROM doctor_details WHERE doctor_id = ?;";
+  } else if (role === "patient") {
+    sql = "SELECT password FROM patient_details WHERE patient_id = ?;";
+  } else {
+    return res.status(403).json({ error: "Invalid role" });
+  }
+
+  db.query(sql, [userId], (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const user = results[0];
+
+    if (old_pass !== user.password) {
+      return res.status(401).json({ error: "Old password is incorrect" });
+    }
+
+    let updateSql;
+    if (role === "admin") {
+      updateSql = "UPDATE admin_details SET password = ? WHERE admin_id = ?;";
+    } else if (role === "doctor") {
+      updateSql = "UPDATE doctor_details SET password = ? WHERE doctor_id = ?;";
+    } else if (role === "patient") {
+      updateSql = "UPDATE patient_details SET password = ? WHERE patient_id = ?;";
+    }
+
+    db.query(updateSql, [new_pass, userId], (err, updateResults) => {
+      if (err) {
+        return res.status(500).json({ error: "Database error" });
+      }
+
+      return res.status(200).json({
+        message: "Password updated successfully",
+      });
+    });
   });
 });
 
@@ -415,7 +457,7 @@ app.get("/doctor/:id", authenticateJWT, (req, res) => {
   const doctorId = req.params.id;
 
   const sql =
-    "SELECT doctor_id, name, email, phone_no, address, gender, speciality, dept_id, role FROM doctor_details WHERE doctor_id = ?";
+    "SELECT doctor_id, name, email, phone_no, address, gender, speciality, dept.dept_name, role FROM doctor_details d, department dept WHERE d.dept_id = dept.dept_id AND doctor_id = ?";
 
   db.query(sql, [doctorId], (err, results) => {
     if (err) {
@@ -607,13 +649,14 @@ app.get("/list/department", authenticateJWT, (req, res) => {
 // TREATMENT PLAN API's
 // Create a treatment plan
 app.post("/create/treatment-plan", (req, res) => {
-  const { patient_id, diagnosis, medications, plan_details } = req.body;
+  const { patient_id, doctor_id, diagnosis, medications, plan_details } =
+    req.body;
   const sql =
-    "INSERT INTO treatment_plan (patient_id, diagnosis, medications, plan_details) VALUES (?, ?, ?, ?)";
+    "INSERT INTO treatment_plan (patient_id, doctor_id, diagnosis, medications, plan_details) VALUES (?, ?, ?, ?, ?)";
 
   db.query(
     sql,
-    [patient_id, diagnosis, medications, plan_details],
+    [patient_id, doctor_id, diagnosis, medications, plan_details],
     (err, result) => {
       if (err) {
         console.error("Error creating treatment plan: ", err);
@@ -622,6 +665,7 @@ app.post("/create/treatment-plan", (req, res) => {
       res.status(201).json({
         treatment_id: result.insertId,
         patient_id,
+        doctor_id,
         diagnosis,
         medications,
         plan_details,
@@ -663,7 +707,8 @@ app.get("/treatment-plan/:id", (req, res) => {
 // Update a treatment plan
 app.patch("/update/treatment-plan/:id", (req, res) => {
   const { id } = req.params;
-  const { patient_id, diagnosis, medications, plan_details } = req.body;
+  const { patient_id, doctor_id, diagnosis, medications, plan_details } =
+    req.body;
 
   const updates = [];
   const values = [];
@@ -671,6 +716,10 @@ app.patch("/update/treatment-plan/:id", (req, res) => {
   if (patient_id) {
     updates.push("patient_id = ?");
     values.push(patient_id);
+  }
+  if (doctor_id) {
+    updates.push("doctor_id = ?");
+    values.push(doctor_id);
   }
   if (diagnosis) {
     updates.push("diagnosis = ?");
@@ -728,24 +777,47 @@ app.delete("/delete/treatment-plan/:id", (req, res) => {
 app.post("/create/appointment", (req, res) => {
   const { doctor_id, patient_id, appointment_date, appointment_time } =
     req.body;
-  const sql =
-    "INSERT INTO appointment (doctor_id, patient_id, appointment_date, appointment_time) VALUES (?, ?, ?, ?)";
+
+  const checkSql =
+    "SELECT * FROM appointment WHERE doctor_id = ? AND appointment_date = ? AND appointment_time = ?";
 
   db.query(
-    sql,
-    [doctor_id, patient_id, appointment_date, appointment_time],
-    (err, result) => {
+    checkSql,
+    [doctor_id, appointment_date, appointment_time],
+    (err, results) => {
       if (err) {
-        console.error("Error creating appointment: ", err);
+        console.error("Error checking appointments: ", err);
         return res.status(500).json({ error: "Database error" });
       }
-      res.status(201).json({
-        appointment_id: result.insertId,
-        doctor_id,
-        patient_id,
-        appointment_date,
-        appointment_time,
-      });
+
+      if (results.length > 0) {
+        return res
+          .status(400)
+          .json({
+            error: "Doctor already has an appointment at this date and time.",
+          });
+      }
+
+      const sql =
+        "INSERT INTO appointment (doctor_id, patient_id, appointment_date, appointment_time) VALUES (?, ?, ?, ?)";
+
+      db.query(
+        sql,
+        [doctor_id, patient_id, appointment_date, appointment_time],
+        (err, result) => {
+          if (err) {
+            console.error("Error creating appointment: ", err);
+            return res.status(500).json({ error: "Database error" });
+          }
+          res.status(201).json({
+            appointment_id: result.insertId,
+            doctor_id,
+            patient_id,
+            appointment_date,
+            appointment_time,
+          });
+        }
+      );
     }
   );
 });
@@ -886,7 +958,8 @@ app.post("/create/medicine", (req, res) => {
 
 // Get all medicine
 app.get("/list/medicine", (req, res) => {
-  const sql = "SELECT * FROM medicine";
+  const sql =
+    "SELECT medicine_id, medicine_name, medicine_quantity, medicine_price, (medicine_quantity*medicine_price) AS total FROM medicine";
 
   db.query(sql, (err, results) => {
     if (err) {
@@ -974,21 +1047,44 @@ app.delete("/delete/medicine/:id", (req, res) => {
 // SERVICE API's
 // Create a new service
 app.post("/create/service", (req, res) => {
-  const { patient_id, service_name, service_cost } = req.body;
-  const sql =
-    "INSERT INTO service (patient_id, service_name, service_cost) VALUES (?, ?, ?)";
+  const { treatment_id, service_name, service_cost } = req.body;
 
-  db.query(sql, [patient_id, service_name, service_cost], (err, result) => {
+  const checkSql =
+    "SELECT treatment_id FROM treatment_plan WHERE treatment_id = ?";
+  db.query(checkSql, [treatment_id], (err, result) => {
     if (err) {
-      console.error("Error creating service: ", err);
-      return res.status(500).json({ error: "Database error" });
+      console.error("Error checking treatment ID: ", err);
+      return res
+        .status(500)
+        .json({ error: "Database error while verifying treatment ID." });
     }
-    res.status(201).json({
-      service_id: result.insertId,
-      patient_id,
-      service_name,
-      service_cost,
-    });
+
+    if (result.length === 0) {
+      return res.status(400).json({
+        error: "Invalid treatment ID. Please provide a valid treatment ID.",
+      });
+    }
+
+    const insertSql =
+      "INSERT INTO service (treatment_id, service_name, service_cost) VALUES (?, ?, ?)";
+    db.query(
+      insertSql,
+      [treatment_id, service_name, service_cost],
+      (err, result) => {
+        if (err) {
+          console.error("Error creating service: ", err);
+          return res
+            .status(500)
+            .json({ error: "Database error while creating service." });
+        }
+        res.status(201).json({
+          service_id: result.insertId,
+          treatment_id,
+          service_name,
+          service_cost,
+        });
+      }
+    );
   });
 });
 
@@ -1025,14 +1121,14 @@ app.get("/service/:id", (req, res) => {
 // Update a service
 app.patch("/update/service/:id", (req, res) => {
   const { id } = req.params;
-  const { patient_id, service_name, service_cost } = req.body;
+  const { treatment_id, service_name, service_cost } = req.body;
 
   const updates = [];
   const values = [];
 
-  if (patient_id) {
-    updates.push("patient_id = ?");
-    values.push(patient_id);
+  if (treatment_id) {
+    updates.push("treatment_id = ?");
+    values.push(treatment_id);
   }
   if (service_name) {
     updates.push("service_name = ?");
@@ -1082,18 +1178,40 @@ app.delete("/delete/service/:id", (req, res) => {
 // TEST API's
 // Create a new test
 app.post("/create/test", (req, res) => {
-  const { patient_id, test_name, test_cost } = req.body;
-  const sql =
-    "INSERT INTO test (patient_id, test_name, test_cost) VALUES (?, ?, ?)";
+  const { treatment_id, test_name, test_cost } = req.body;
 
-  db.query(sql, [patient_id, test_name, test_cost], (err, result) => {
+  const checkSql =
+    "SELECT treatment_id FROM treatment_plan WHERE treatment_id = ?";
+  db.query(checkSql, [treatment_id], (err, result) => {
     if (err) {
-      console.error("Error creating test: ", err);
-      return res.status(500).json({ error: "Database error" });
+      console.error("Error checking treatment ID: ", err);
+      return res
+        .status(500)
+        .json({ error: "Database error while verifying treatment ID." });
     }
-    res
-      .status(201)
-      .json({ test_id: result.insertId, patient_id, test_name, test_cost });
+
+    if (result.length === 0) {
+      return res.status(400).json({
+        error: "Invalid treatment ID. Please provide a valid treatment ID.",
+      });
+    }
+
+    const insertSql =
+      "INSERT INTO test (treatment_id, test_name, test_cost) VALUES (?, ?, ?)";
+    db.query(insertSql, [treatment_id, test_name, test_cost], (err, result) => {
+      if (err) {
+        console.error("Error creating test: ", err);
+        return res
+          .status(500)
+          .json({ error: "Database error while creating test" });
+      }
+      res.status(201).json({
+        test_id: result.insertId,
+        treatment_id,
+        test_name,
+        test_cost,
+      });
+    });
   });
 });
 
@@ -1130,14 +1248,14 @@ app.get("/test/:id", (req, res) => {
 // Update a test
 app.patch("/update/test/:id", (req, res) => {
   const { id } = req.params;
-  const { patient_id, test_name, test_cost } = req.body;
+  const { treatment_id, test_name, test_cost } = req.body;
 
   const updates = [];
   const values = [];
 
-  if (patient_id) {
-    updates.push("patient_id = ?");
-    values.push(patient_id);
+  if (treatment_id) {
+    updates.push("treatment_id = ?");
+    values.push(treatment_id);
   }
   if (test_name) {
     updates.push("test_name = ?");
@@ -1169,18 +1287,18 @@ app.patch("/update/test/:id", (req, res) => {
 
 // Delete a test
 app.delete("/delete/test/:id", (req, res) => {
-  const { id } = req.params; // Extract the test_id from the URL parameters
-  const sql = "DELETE FROM test WHERE test_id = ?"; // SQL query to delete the test
+  const { id } = req.params;
+  const sql = "DELETE FROM test WHERE test_id = ?";
 
   db.query(sql, [id], (err, results) => {
     if (err) {
       console.error("Error deleting test: ", err);
-      return res.status(500).json({ error: "Database error" }); // Handle database errors
+      return res.status(500).json({ error: "Database error" });
     }
     if (results.affectedRows === 0) {
-      return res.status(404).json({ error: "Test not found" }); // Handle case where no rows were affected
+      return res.status(404).json({ error: "Test not found" });
     }
-    res.status(200).json({ message: "Test deleted successfully" }); // Success response
+    res.status(200).json({ message: "Test deleted successfully" });
   });
 });
 
@@ -1312,21 +1430,49 @@ app.delete("/delete/prescription/:id", (req, res) => {
 // BILL API's
 // Create a new bill
 app.post("/create/bill", (req, res) => {
-  const { patient_id, amount } = req.body;
-  const sql = "INSERT INTO bill (patient_id, amount) VALUES (?, ?)";
+  const { treatment_id } = req.body;
 
-  db.query(sql, [patient_id, amount], (err, result) => {
+  // Check if the treatment ID exists
+  const checkSql =
+    "SELECT treatment_id FROM treatment_plan WHERE treatment_id = ?";
+  db.query(checkSql, [treatment_id], (err, result) => {
     if (err) {
-      console.error("Error creating bill: ", err);
-      return res.status(500).json({ error: "Database error" });
+      console.error("Error checking treatment ID: ", err);
+      return res
+        .status(500)
+        .json({ error: "Database error while verifying treatment ID." });
     }
-    res.status(201).json({ bill_id: result.insertId, patient_id, amount });
+
+    // If treatment_id does not exist
+    if (result.length === 0) {
+      return res
+        .status(400)
+        .json({
+          error: "Invalid treatment ID. Please provide a valid treatment ID.",
+        });
+    }
+
+    // Proceed to insert the new service
+    const insertSql = "INSERT INTO bill (treatment_id) VALUES (?)";
+    db.query(insertSql, [treatment_id], (err, result) => {
+      if (err) {
+        console.error("Error creating service: ", err);
+        return res
+          .status(500)
+          .json({ error: "Database error while creating service." });
+      }
+      res.status(201).json({
+        service_id: result.insertId,
+        treatment_id,
+      });
+    });
   });
 });
 
 // Get all bills
 app.get("/list/bill", (req, res) => {
-  const sql = "SELECT * FROM bill";
+  const sql =
+    "WITH TestCounts AS (SELECT tp.treatment_id, COUNT(t.test_id) AS total_tests, GROUP_CONCAT(DISTINCT t.test_name SEPARATOR ', ') AS test_names, COALESCE(SUM(t.test_cost), 0) AS total_test_cost FROM treatment_plan tp LEFT JOIN test t ON tp.treatment_id = t.treatment_id GROUP BY tp.treatment_id), ServiceCounts AS (SELECT tp.treatment_id, COUNT(DISTINCT s.service_id) AS total_services, GROUP_CONCAT(DISTINCT s.service_name SEPARATOR ', ') AS service_names, COALESCE(SUM(s.service_cost), 0) AS total_service_cost FROM treatment_plan tp LEFT JOIN service s ON tp.treatment_id = s.treatment_id GROUP BY tp.treatment_id) SELECT b.bill_id, tp.treatment_id, p.name AS patient_name, d.name AS doctor_name, tc.test_names, tc.total_tests, sc.service_names, sc.total_services, tc.total_test_cost, sc.total_service_cost, (tc.total_test_cost + sc.total_service_cost) AS total_amount FROM bill b JOIN treatment_plan tp ON b.treatment_id = tp.treatment_id JOIN patient_details p ON p.patient_id = tp.patient_id JOIN doctor_details d ON d.doctor_id = tp.doctor_id LEFT JOIN TestCounts tc ON tp.treatment_id = tc.treatment_id LEFT JOIN ServiceCounts sc ON tp.treatment_id = sc.treatment_id;";
 
   db.query(sql, (err, results) => {
     if (err) {
@@ -1340,7 +1486,8 @@ app.get("/list/bill", (req, res) => {
 // Get a bill by ID
 app.get("/bill/:id", (req, res) => {
   const { id } = req.params;
-  const sql = "SELECT * FROM bill WHERE bill_id = ?";
+  const sql =
+    "WITH TestCounts AS (SELECT tp.treatment_id, COUNT(t.test_id) AS total_tests, GROUP_CONCAT(DISTINCT t.test_name SEPARATOR ', ') AS test_names, COALESCE(SUM(t.test_cost), 0) AS total_test_cost FROM treatment_plan tp LEFT JOIN test t ON tp.treatment_id = t.treatment_id GROUP BY tp.treatment_id), ServiceCounts AS (SELECT tp.treatment_id, COUNT(DISTINCT s.service_id) AS total_services, GROUP_CONCAT(DISTINCT s.service_name SEPARATOR ', ') AS service_names, COALESCE(SUM(s.service_cost), 0) AS total_service_cost FROM treatment_plan tp LEFT JOIN service s ON tp.treatment_id = s.treatment_id GROUP BY tp.treatment_id) SELECT b.bill_id, tp.treatment_id, p.name AS patient_name, d.name AS doctor_name, tc.test_names, tc.total_tests, sc.service_names, sc.total_services, tc.total_test_cost, sc.total_service_cost, (tc.total_test_cost + sc.total_service_cost) AS total_amount FROM bill b JOIN treatment_plan tp ON b.treatment_id = tp.treatment_id JOIN patient_details p ON p.patient_id = tp.patient_id JOIN doctor_details d ON d.doctor_id = tp.doctor_id LEFT JOIN TestCounts tc ON tp.treatment_id = tc.treatment_id LEFT JOIN ServiceCounts sc ON tp.treatment_id = sc.treatment_id WHERE b.bill_id = ?;";
 
   db.query(sql, [id], (err, results) => {
     if (err) {
@@ -1351,42 +1498,6 @@ app.get("/bill/:id", (req, res) => {
       return res.status(404).json({ error: "Bill not found" });
     }
     res.status(200).json(results[0]);
-  });
-});
-
-// Update a bill
-app.patch("/update/bill/:id", (req, res) => {
-  const { id } = req.params;
-  const { patient_id, amount } = req.body;
-
-  const updates = [];
-  const values = [];
-
-  if (patient_id) {
-    updates.push("patient_id = ?");
-    values.push(patient_id);
-  }
-  if (amount) {
-    updates.push("amount = ?");
-    values.push(amount);
-  }
-
-  if (updates.length === 0) {
-    return res.status(400).json({ error: "No fields to update" });
-  }
-
-  const sql = `UPDATE bill SET ${updates.join(", ")} WHERE bill_id = ?`;
-  values.push(id);
-
-  db.query(sql, values, (err, results) => {
-    if (err) {
-      console.error("Error updating bill: ", err);
-      return res.status(500).json({ error: "Database error" });
-    }
-    if (results.affectedRows === 0) {
-      return res.status(404).json({ error: "Bill not found" });
-    }
-    res.status(200).json({ message: "Bill updated successfully" });
   });
 });
 

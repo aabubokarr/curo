@@ -56,8 +56,8 @@ export const Service = () => {
           <h1 className="text-[28px] font-semibold">Services</h1>
           <Profile />
         </div>
-        <div className="bg-[#FAFAFA] rounded-[20px] pt-5">
-          {role === "admin" && (
+        {role === "admin" ? (
+          <div className="bg-[#FAFAFA] rounded-[20px] pt-5">
             <div className="px-5 pb-3">
               <Link
                 to="/create-service"
@@ -66,46 +66,46 @@ export const Service = () => {
                 Add New
               </Link>
             </div>
-          )}
-          <table className="w-full pt-3">
-            <thead>
-              <tr>
-                <th>Service ID</th>
-                <th>Patient ID</th>
-                <th>Service Name</th>
-                <th>Service cost</th>
-                <th>View</th>
-                <th>Delete</th>
-              </tr>
-            </thead>
-            <tbody>
-              {serviceList.map((service, index) => (
-                <tr
-                  key={service.service_id}
-                  className={`text-center h-[48px] ${
-                    index % 2 === 0 ? "bg-[#F1F1F1]" : "bg-[#FAFAFA]"
-                  }`}
-                >
-                  <td>{service.service_id}</td>
-                  <td>{service.patient_id}</td>
-                  <td>{service.service_name}</td>
-                  <td>{service.service_cost}</td>
-                  <td>
-                    <Link to={`/edit-service/${service.service_id}`}>
-                      <FontAwesomeIcon icon={faEye} />
-                    </Link>
-                  </td>
-                  <td
-                    onClick={() => handleDelete(service.service_id)}
-                    className="cursor-pointer"
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </td>
+            <table className="w-full pt-3">
+              <thead>
+                <tr>
+                  <th>Treatment ID</th>
+                  <th>Service Name</th>
+                  <th>Service cost</th>
+                  <th>View</th>
+                  <th>Delete</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {serviceList.map((service, index) => (
+                  <tr
+                    key={service.service_id}
+                    className={`text-center h-[48px] ${
+                      index % 2 === 0 ? "bg-[#F1F1F1]" : "bg-[#FAFAFA]"
+                    }`}
+                  >
+                    <td>{service.treatment_id}</td>
+                    <td>{service.service_name}</td>
+                    <td>{service.service_cost}</td>
+                    <td>
+                      <Link to={`/edit-service/${service.service_id}`}>
+                        <FontAwesomeIcon icon={faEye} />
+                      </Link>
+                    </td>
+                    <td
+                      onClick={() => handleDelete(service.service_id)}
+                      className="cursor-pointer"
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center">You don't have access to this page</div>
+        )}
       </div>
     </div>
   );

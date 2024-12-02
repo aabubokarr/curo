@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Button from "../../Button/Button";
 
 export const Register = () => {
   const [formData, setFormData] = useState({
@@ -37,7 +38,16 @@ export const Register = () => {
         navigate("/");
       })
       .catch((error) => {
-        console.error("Error creating :", error);
+        console.error("Error registering:", error);
+        if (error.response && error.response.data) {
+          setError(
+            `Failed to register : ${
+              error.response.data.error || "Unknown error"
+            }`
+          );
+        } else {
+          setError("Failed to register due to network error.");
+        }
       });
   };
 
@@ -90,12 +100,7 @@ export const Register = () => {
               />
             </div>
             <div>
-              <button
-                type="submit"
-                className="mt-2 w-full h-[48px] bg-[#009BA9] flex items-center justify-center text-[16px] text-white font-bold rounded-lg"
-              >
-                Register
-              </button>
+              <Button name="REGISTER" />
               <p className="mt-2">
                 Already have an account?{" "}
                 <Link to="/" className="text-[#009BA9]">

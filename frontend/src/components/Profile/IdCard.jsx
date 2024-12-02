@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Avatar } from "@mui/material";
-import html2pdf from "html2pdf.js"
+import html2pdf from "html2pdf.js";
 
 function IdCard(props) {
   function stringAvatar(name) {
@@ -18,14 +18,27 @@ function IdCard(props) {
     };
   }
 
-  const handleDownload = () => {
-    const idCard = document.getElementById("idCard")
-    html2pdf(idCard)
-  }
+  const handleDownload = (e) => {
+    e.preventDefault();
+    const idCard = document.getElementById("idCard");
+
+    const options = {
+      margin: 1,
+      filename: "idCard.pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+    };
+
+    html2pdf().from(idCard).set(options).save();
+  };
 
   return (
     <div>
-      <div id="idCard" className="w-[220px] h-[350px] rounded-lg bg-[#FAFAFA] flex items-center mx-auto px-3">
+      <div
+        id="idCard"
+        className="w-[220px] h-[350px] rounded-lg bg-[#FAFAFA] flex items-center mx-auto px-3"
+      >
         <div className="p-1 flex flex-col items-center">
           <div className="flex flex-col items-center gap-2">
             <Avatar
@@ -44,12 +57,15 @@ function IdCard(props) {
             </p>
             <p>
               Plot : 15, Block : B, Bashundhara, Dhaka-1229, Bangladesh, Please
-              return to the above address or call : 0123456789
+              return to the above address or call : 16667
             </p>
           </div>
         </div>
       </div>
-      <button onClick={handleDownload} className="mx-auto mt-2 w-[220px] h-[48px] bg-[#009BA9] flex items-center justify-center text-[16px] text-white font-bold rounded-lg">
+      <button
+        onClick={handleDownload}
+        className="mx-auto mt-2 w-[220px] h-[48px] bg-[#009BA9] flex items-center justify-center text-[16px] text-white font-bold rounded-lg"
+      >
         Download
       </button>
     </div>

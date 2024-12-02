@@ -30,7 +30,7 @@ import { CreatePrescription } from "./components/Pages/Prescription/CreatePrescr
 import { ViewPrescription } from "./components/Pages/Prescription/ViewPrescription";
 import { Bill } from "./components/Pages/Bill/Bill";
 import { CreateBill } from "./components/Pages/Bill/CreateBill";
-import { EditBill } from "./components/Pages/Bill/EditBill";
+import { ViewBill } from "./components/Pages/Bill/ViewBill";
 import { MedicalRecord } from "./components/Pages/MedicalRecord/MedicalRecord";
 import { CreateMedicalRecord } from "./components/Pages/MedicalRecord/CreateMedicalRecord";
 import { EditMedicalRecord } from "./components/Pages/MedicalRecord/EditMedicalRecord";
@@ -72,7 +72,7 @@ function App() {
         <Route exact path="/view-prescription/:prescriptionId" element={<ViewPrescription />} />
         <Route exact path="/bill" element={<Bill />} />
         <Route exact path="/create-bill" element={<CreateBill />} />
-        <Route exact path="/edit-bill/:billId" element={<EditBill />} />
+        <Route exact path="/view-bill/:billId" element={<ViewBill />} />
         <Route exact path="/medical-record" element={<MedicalRecord />} />
         <Route exact path="/create-record" element={<CreateMedicalRecord />} />
         <Route exact path="/edit-record/:recordId" element={<EditMedicalRecord />} />

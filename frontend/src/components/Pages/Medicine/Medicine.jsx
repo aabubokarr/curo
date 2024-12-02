@@ -56,8 +56,8 @@ export const Medicine = () => {
           <h1 className="text-[28px] font-semibold">Medicines</h1>
           <Profile />
         </div>
-        <div className="bg-[#FAFAFA] rounded-[20px] pt-5">
-          {role === "admin" && (
+        {role === "admin" ? (
+          <div className="bg-[#FAFAFA] rounded-[20px] pt-5">
             <div className="px-5 pb-3">
               <Link
                 to="/create-medicine"
@@ -66,46 +66,50 @@ export const Medicine = () => {
                 Add New
               </Link>
             </div>
-          )}
-          <table className="w-full pt-3">
-            <thead>
-              <tr>
-                <th>Medicine ID</th>
-                <th>Medicine Name</th>
-                <th>Medicine Quantity</th>
-                <th>Medicine Price</th>
-                <th>View</th>
-                <th>Delete</th>
-              </tr>
-            </thead>
-            <tbody>
-              {medicineList.map((medicine, index) => (
-                <tr
-                  key={medicine.medicine_id}
-                  className={`text-center h-[48px] ${
-                    index % 2 === 0 ? "bg-[#F1F1F1]" : "bg-[#FAFAFA]"
-                  }`}
-                >
-                  <td>{medicine.medicine_id}</td>
-                  <td>{medicine.medicine_name}</td>
-                  <td>{medicine.medicine_quantity}</td>
-                  <td>{medicine.medicine_price} TK</td>
-                  <td>
-                    <Link to={`/edit-medicine/${medicine.medicine_id}`}>
-                      <FontAwesomeIcon icon={faEye} />
-                    </Link>
-                  </td>
-                  <td
-                    onClick={() => handleDelete(medicine.medicine_id)}
-                    className="cursor-pointer"
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </td>
+            <table className="w-full pt-3">
+              <thead>
+                <tr>
+                  <th>Medicine ID</th>
+                  <th>Medicine Name</th>
+                  <th>Quantity</th>
+                  <th>Unit Price</th>
+                  <th>Total</th>
+                  <th>View</th>
+                  <th>Delete</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {medicineList.map((medicine, index) => (
+                  <tr
+                    key={medicine.medicine_id}
+                    className={`text-center h-[48px] ${
+                      index % 2 === 0 ? "bg-[#F1F1F1]" : "bg-[#FAFAFA]"
+                    }`}
+                  >
+                    <td>{medicine.medicine_id}</td>
+                    <td>{medicine.medicine_name}</td>
+                    <td>{medicine.medicine_quantity}</td>
+                    <td>{medicine.medicine_price} TK</td>
+                    <td>{medicine.total} TK</td>
+                    <td>
+                      <Link to={`/edit-medicine/${medicine.medicine_id}`}>
+                        <FontAwesomeIcon icon={faEye} />
+                      </Link>
+                    </td>
+                    <td
+                      onClick={() => handleDelete(medicine.medicine_id)}
+                      className="cursor-pointer"
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center">You don't have access to this page</div>
+        )}
       </div>
     </div>
   );

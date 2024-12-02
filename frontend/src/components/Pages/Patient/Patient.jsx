@@ -59,60 +59,64 @@ export const Patient = () => {
           <h1 className="text-[28px] font-semibold">Patients</h1>
           <Profile />
         </div>
-        <div className="bg-[#FAFAFA] rounded-[20px] pt-5">
-          {role === "admin" && (
-            <div className="px-5 pb-3">
-              <Link
-                to="/create-patient"
-                className="w-[120px] h-[48px] cursor-pointer bg-[#009BA9] text-[18px] font-normal rounded-[8px] flex items-center justify-center text-white"
-              >
-                Add New
-              </Link>
-            </div>
-          )}
-          <table className="w-full pt-3">
-            <thead>
-              <tr>
-                <th>Patient ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone No.</th>
-                <th>Gender</th>
-                <th>Address</th>
-                <th>View</th>
-                <th>Delete</th>
-              </tr>
-            </thead>
-            <tbody>
-              {patientList.map((patient, index) => (
-                <tr
-                  key={patient.patient_id}
-                  className={`text-center h-[48px] ${
-                    index % 2 === 0 ? "bg-[#F1F1F1]" : "bg-[#FAFAFA]"
-                  }`}
+        {role === "admin" ? (
+          <div className="bg-[#FAFAFA] rounded-[20px] pt-5">
+            {role === "admin" && (
+              <div className="px-5 pb-3">
+                <Link
+                  to="/create-patient"
+                  className="w-[120px] h-[48px] cursor-pointer bg-[#009BA9] text-[18px] font-normal rounded-[8px] flex items-center justify-center text-white"
                 >
-                  <td>{patient.patient_id}</td>
-                  <td>{patient.name}</td>
-                  <td>{patient.email}</td>
-                  <td>{patient.phone_no}</td>
-                  <td>{patient.gender}</td>
-                  <td>{patient.address}</td>
-                  <td>
-                    <Link to={`/edit-patient/${patient.patient_id}`}>
-                      <FontAwesomeIcon icon={faEye} />
-                    </Link>
-                  </td>
-                  <td
-                    onClick={() => handleDelete(patient.patient_id)}
-                    className="cursor-pointer"
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </td>
+                  Add New
+                </Link>
+              </div>
+            )}
+            <table className="w-full pt-3">
+              <thead>
+                <tr>
+                  <th>Patient ID</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone No.</th>
+                  <th>Gender</th>
+                  <th>Address</th>
+                  <th>View</th>
+                  <th>Delete</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {patientList.map((patient, index) => (
+                  <tr
+                    key={patient.patient_id}
+                    className={`text-center h-[48px] ${
+                      index % 2 === 0 ? "bg-[#F1F1F1]" : "bg-[#FAFAFA]"
+                    }`}
+                  >
+                    <td>{patient.patient_id}</td>
+                    <td>{patient.name}</td>
+                    <td>{patient.email}</td>
+                    <td>{patient.phone_no}</td>
+                    <td>{patient.gender}</td>
+                    <td>{patient.address}</td>
+                    <td>
+                      <Link to={`/edit-patient/${patient.patient_id}`}>
+                        <FontAwesomeIcon icon={faEye} />
+                      </Link>
+                    </td>
+                    <td
+                      onClick={() => handleDelete(patient.patient_id)}
+                      className="cursor-pointer"
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center">You don't have access to this page</div>
+        )}
       </div>
     </div>
   );

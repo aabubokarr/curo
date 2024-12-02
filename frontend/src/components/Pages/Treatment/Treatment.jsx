@@ -58,56 +58,60 @@ export const Treatment = () => {
           <h1 className="text-[28px] font-semibold">Treatments</h1>
           <Profile />
         </div>
-        <div className="bg-[#FAFAFA] rounded-[20px] pt-5">
-          {role === "admin" && (
-            <div className="px-5 pb-3">
-              <Link
-                to="/create-treatment"
-                className="w-[120px] h-[48px] cursor-pointer bg-[#009BA9] text-[18px] font-normal rounded-[8px] flex items-center justify-center text-white"
-              >
-                Add New
-              </Link>
-            </div>
-          )}
-          <table className="w-full pt-3">
-            <thead>
-              <tr>
-                <th>Treatment ID</th>
-                <th>Patient ID</th>
-                <th>Diagnosis</th>
-                <th>Medications</th>
-                <th>View</th>
-                <th>Delete</th>
-              </tr>
-            </thead>
-            <tbody>
-              {treatmentList.map((treatment, index) => (
-                <tr
-                  key={treatment.treatment_id}
-                  className={`text-center h-[48px] ${
-                    index % 2 === 0 ? "bg-[#F1F1F1]" : "bg-[#FAFAFA]"
-                  }`}
+        {role === "admin" ? (
+          <div className="bg-[#FAFAFA] rounded-[20px] pt-5">
+            {role === "admin" && (
+              <div className="px-5 pb-3">
+                <Link
+                  to="/create-treatment"
+                  className="w-[120px] h-[48px] cursor-pointer bg-[#009BA9] text-[18px] font-normal rounded-[8px] flex items-center justify-center text-white"
                 >
-                  <td>{treatment.treatment_id}</td>
-                  <td>{treatment.patient_id}</td>
-                  <td>{treatment.diagnosis}</td>
-                  <td>{treatment.medications}</td>
-                  <td>
-                    <Link to={`/edit-treatment/${treatment.treatment_id}`}>
-                      <FontAwesomeIcon icon={faEye} />
-                    </Link>
-                  </td>
-                  <td
-                    onClick={() => handleDelete(treatment.treatment_id)}
-                    className="cursor-pointer"
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </td>
+                  Add New
+                </Link>
+              </div>
+            )}
+            <table className="w-full pt-3">
+              <thead>
+                <tr>
+                  <th>Treatment ID</th>
+                  <th>Patient ID</th>
+                  <th>Diagnosis</th>
+                  <th>Medications</th>
+                  <th>View</th>
+                  <th>Delete</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {treatmentList.map((treatment, index) => (
+                  <tr
+                    key={treatment.treatment_id}
+                    className={`text-center h-[48px] ${
+                      index % 2 === 0 ? "bg-[#F1F1F1]" : "bg-[#FAFAFA]"
+                    }`}
+                  >
+                    <td>{treatment.treatment_id}</td>
+                    <td>{treatment.patient_id}</td>
+                    <td>{treatment.diagnosis}</td>
+                    <td>{treatment.medications}</td>
+                    <td>
+                      <Link to={`/edit-treatment/${treatment.treatment_id}`}>
+                        <FontAwesomeIcon icon={faEye} />
+                      </Link>
+                    </td>
+                    <td
+                      onClick={() => handleDelete(treatment.treatment_id)}
+                      className="cursor-pointer"
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center">You don't have access to this page</div>
+        )}
       </div>
     </div>
   );

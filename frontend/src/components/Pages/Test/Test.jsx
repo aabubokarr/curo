@@ -56,8 +56,8 @@ export const Test = () => {
           <h1 className="text-[28px] font-semibold">Tests</h1>
           <Profile />
         </div>
-        <div className="bg-[#FAFAFA] rounded-[20px] pt-5">
-          {role === "admin" && (
+        {role === "admin" ? (
+          <div className="bg-[#FAFAFA] rounded-[20px] pt-5">
             <div className="px-5 pb-3">
               <Link
                 to="/create-test"
@@ -66,46 +66,46 @@ export const Test = () => {
                 Add New
               </Link>
             </div>
-          )}
-          <table className="w-full pt-3">
-            <thead>
-              <tr>
-                <th>Test ID</th>
-                <th>Patient ID</th>
-                <th>Test Name</th>
-                <th>Test Cost</th>
-                <th>View</th>
-                <th>Delete</th>
-              </tr>
-            </thead>
-            <tbody>
-              {testList.map((test, index) => (
-                <tr
-                  key={test.test_id}
-                  className={`text-center h-[48px] ${
-                    index % 2 === 0 ? "bg-[#F1F1F1]" : "bg-[#FAFAFA]"
-                  }`}
-                >
-                  <td>{test.test_id}</td>
-                  <td>{test.patient_id}</td>
-                  <td>{test.test_name}</td>
-                  <td>{test.test_cost}</td>
-                  <td>
-                    <Link to={`/edit-test/${test.test_id}`}>
-                      <FontAwesomeIcon icon={faEye} />
-                    </Link>
-                  </td>
-                  <td
-                    onClick={() => handleDelete(test.test_id)}
-                    className="cursor-pointer"
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </td>
+            <table className="w-full pt-3">
+              <thead>
+                <tr>
+                  <th>Treatment ID</th>
+                  <th>Test Name</th>
+                  <th>Test Cost</th>
+                  <th>View</th>
+                  <th>Delete</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {testList.map((test, index) => (
+                  <tr
+                    key={test.test_id}
+                    className={`text-center h-[48px] ${
+                      index % 2 === 0 ? "bg-[#F1F1F1]" : "bg-[#FAFAFA]"
+                    }`}
+                  >
+                    <td>{test.treatment_id}</td>
+                    <td>{test.test_name}</td>
+                    <td>{test.test_cost}</td>
+                    <td>
+                      <Link to={`/edit-test/${test.test_id}`}>
+                        <FontAwesomeIcon icon={faEye} />
+                      </Link>
+                    </td>
+                    <td
+                      onClick={() => handleDelete(test.test_id)}
+                      className="cursor-pointer"
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center">You don't have access to this page</div>
+        )}
       </div>
     </div>
   );

@@ -4,10 +4,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import IdCard from "../../Profile/IdCard";
 import { Sidebar } from "../../Bars/Sidebar";
 import { Profile } from "../../Profile/Profile";
+import Button from "../../Button/Button";
 
 export const EditDoctor = () => {
   const { doctorId } = useParams();
   const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
   const navigate = useNavigate();
   const [doctor, setDoctor] = useState({});
   const [error, setError] = useState("");
@@ -24,11 +26,6 @@ export const EditDoctor = () => {
   });
 
   useEffect(() => {
-    if (!token) {
-      navigate("/");
-      return;
-    }
-
     axios
       .get(`http://localhost:8081/doctor/${doctorId}`, {
         headers: {
@@ -89,123 +86,128 @@ export const EditDoctor = () => {
           <h1 className="text-[28px] font-semibold">Edit Doctor</h1>
           <Profile />
         </div>
-        <div className="flex gap-3">
-        <div className="bg-[#FAFAFA] rounded-[20px] p-5 w-full">
-          {error && (
-            <div className="bg-red-200 text-red-600 p-2 rounded mb-4">
-              {error}
+        {role === "admin" ? (
+          <div className="flex gap-3">
+            <div className="bg-[#FAFAFA] rounded-[20px] p-5 w-full">
+              {error && (
+                <div className="bg-red-200 text-red-600 p-2 rounded mb-4">
+                  {error}
+                </div>
+              )}
+              <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
+                    <label htmlFor="name">Name</label>
+                    <input
+                      onChange={handleChange}
+                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                      type="text"
+                      placeholder={doctor.name}
+                      name="name"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
+                    <label htmlFor="email">Email</label>
+                    <input
+                      onChange={handleChange}
+                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                      type="email"
+                      placeholder={doctor.email}
+                      name="email"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
+                    <label htmlFor="phone_no">Phone No.</label>
+                    <input
+                      onChange={handleChange}
+                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                      type="text"
+                      placeholder={doctor.phone_no}
+                      name="phone_no"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
+                    <label htmlFor="address">Address</label>
+                    <input
+                      onChange={handleChange}
+                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                      type="text"
+                      placeholder={doctor.address}
+                      name="address"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
+                    <label htmlFor="password">Password</label>
+                    <input
+                      onChange={handleChange}
+                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                      type="password"
+                      placeholder="**** ****"
+                      name="password"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
+                    <label htmlFor="gender">Gender</label>
+                    <select
+                      onChange={handleChange}
+                      name="gender"
+                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                    >
+                      <option>{doctor.gender}</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
+                    <label htmlFor="speciality">Speciality</label>
+                    <select
+                      onChange={handleChange}
+                      name="speciality"
+                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                    >
+                      <option>{doctor.speciality}</option>
+                      <option value="Opthalmologist">Opthalmologist</option>
+                      <option value="Cardiologist">Cardiologist</option>
+                      <option value="Radiologist">Radiologist</option>
+                      <option value="Oncologist">Oncologist</option>
+                      <option value="Psychiatrist">Psychiatrist</option>
+                    </select>
+                  </div>
+                  <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
+                    <label htmlFor="dept_id">Department Name</label>
+                    <select
+                      onChange={handleChange}
+                      name="dept_id"
+                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                    >
+                      <option>{doctor.dept_name}</option>
+                      <option value="1">Opthalmology</option>
+                      <option value="2">Cardiology</option>
+                      <option value="3">Radiology</option>
+                      <option value="4">Oncology</option>
+                      <option value="5">Psychiatry</option>
+                    </select>
+                  </div>
+                </div>
+                <Button name="UPDATE" />
+              </form>
             </div>
-          )}
-          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-            <div className="flex items-center gap-3">
-              <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                <label htmlFor="name">Name</label>
-                <input
-                  onChange={handleChange}
-                  className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
-                  type="text"
-                  placeholder={doctor.name}
-                  name="name"
-                />
-              </div>
-              <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                <label htmlFor="email">Email</label>
-                <input
-                  onChange={handleChange}
-                  className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
-                  type="email"
-                  placeholder={doctor.email}
-                  name="email"
-                />
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                <label htmlFor="phone_no">Phone No.</label>
-                <input
-                  onChange={handleChange}
-                  className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
-                  type="text"
-                  placeholder={doctor.phone_no}
-                  name="phone_no"
-                />
-              </div>
-              <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                <label htmlFor="address">Address</label>
-                <input
-                  onChange={handleChange}
-                  className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
-                  type="text"
-                  placeholder={doctor.address}
-                  name="address"
-                />
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                <label htmlFor="password">Password</label>
-                <input
-                  onChange={handleChange}
-                  className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
-                  type="password"
-                  placeholder="**** ****"
-                  name="password"
-                />
-              </div>
-              <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                <label htmlFor="gender">Gender</label>
-                <select
-                  onChange={handleChange}
-                  name="gender"
-                  className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
-                >
-                  <option>{doctor.gender}</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                </select>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                <label htmlFor="speciality">Speciality</label>
-                <select
-                  onChange={handleChange}
-                  name="speciality"
-                  className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
-                >
-                  <option>{doctor.speciality}</option>
-                  <option value="Cardiology">Cardiologist</option>
-                  <option value="Opthalmology">Opthalmologist</option>
-                </select>
-              </div>
-              <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                <label htmlFor="dept_id">Department Name</label>
-                <select
-                  onChange={handleChange}
-                  name="dept_id"
-                  className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
-                >
-                  <option>{doctor.dept_id}</option>
-                  <option value="1">Cardiology</option>
-                  <option value="2">Opthalmology</option>
-                </select>
-              </div>
-            </div>
-            <button
-              type="submit"
-              className="mt-2 w-full h-[48px] bg-[#009BA9] flex items-center justify-center text-[16px] text-white font-bold rounded-lg"
-            >
-              Update
-            </button>
-          </form>
-        </div>
-        <IdCard
-          name={doctor.name}
-          role={doctor.role}
-          id={doctor.doctor_id}
-          speciality={doctor.speciality}
-        />
-        </div>
+            <IdCard
+              name={doctor.name}
+              role={doctor.role}
+              id={doctor.doctor_id}
+              speciality={doctor.speciality}
+            />
+          </div>
+        ) : (
+          <div className="text-center">You don't have access to this page</div>
+        )}
       </div>
     </div>
   );

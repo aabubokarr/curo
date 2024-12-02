@@ -3,15 +3,18 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Sidebar } from "../../Bars/Sidebar";
 import { Profile } from "../../Profile/Profile";
+import Button from "../../Button/Button";
 
 export const EditTreatment = () => {
   const { planId } = useParams();
   const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
   const navigate = useNavigate();
   const [treatment, setTreatment] = useState({});
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     patient_id: "",
+    doctor_id: "",
     diagnosis: "",
     medications: "",
     plan_details: "",
@@ -82,65 +85,75 @@ export const EditTreatment = () => {
           <h1 className="text-[28px] font-semibold">Edit Treatment Plan</h1>
           <Profile />
         </div>
-        <div className="bg-[#FAFAFA] rounded-[20px] p-5 w-full">
-          {error && (
-            <div className="bg-red-200 text-red-600 p-2 rounded mb-4">
-              {error}
-            </div>
-          )}
-          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-            <div className="flex items-center gap-3">
-              <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                <label htmlFor="patient_id">Patient ID</label>
-                <input
-                  onChange={handleChange}
-                  className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
-                  type="number"
-                  placeholder={treatment.patient_id}
-                  name="patient_id"
-                />
+        {role === "admin" ? (
+          <div className="bg-[#FAFAFA] rounded-[20px] p-5 w-full">
+            {error && (
+              <div className="bg-red-200 text-red-600 p-2 rounded mb-4">
+                {error}
               </div>
-              <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                <label htmlFor="diagnosis">Diagnosis</label>
-                <input
-                  onChange={handleChange}
-                  className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
-                  type="text"
-                  placeholder={treatment.diagnosis}
-                  name="diagnosis"
-                />
+            )}
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
+                  <label htmlFor="patient_id">Patient ID</label>
+                  <input
+                    onChange={handleChange}
+                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                    type="number"
+                    placeholder={treatment.patient_id}
+                    name="patient_id"
+                  />
+                </div>
+                <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
+                  <label htmlFor="doctor_id">Doctor ID</label>
+                  <input
+                    onChange={handleChange}
+                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                    type="number"
+                    placeholder={treatment.doctor_id}
+                    name="doctor_id"
+                  />
+                </div>
               </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                <label htmlFor="medications">Medications</label>
-                <input
-                  onChange={handleChange}
-                  className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
-                  type="text"
-                  placeholder={treatment.medications}
-                  name="medications"
-                />
+              <div className="flex items-center gap-3">
+                <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
+                  <label htmlFor="diagnosis">Diagnosis</label>
+                  <input
+                    onChange={handleChange}
+                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                    type="text"
+                    placeholder={treatment.diagnosis}
+                    name="diagnosis"
+                  />
+                </div>
+                <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
+                  <label htmlFor="medications">Medications</label>
+                  <input
+                    onChange={handleChange}
+                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                    type="text"
+                    placeholder={treatment.medications}
+                    name="medications"
+                  />
+                </div>
               </div>
               <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
                 <label htmlFor="plan_details">Plan Details</label>
-                <input
-                  onChange={handleChange}
-                  className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
-                  type="text"
-                  placeholder={treatment.plan_details}
+                <textarea
                   name="plan_details"
-                />
+                  onChange={handleChange}
+                  placeholder={treatment.plan_details}
+                  className="p-3 w-full h-full rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                  cols="30"
+                  rows="5"
+                ></textarea>
               </div>
-            </div>
-            <button
-              type="submit"
-              className="mt-2 w-full h-[48px] bg-[#009BA9] flex items-center justify-center text-[16px] text-white font-bold rounded-lg"
-            >
-              Update
-            </button>
-          </form>
-        </div>
+              <Button name="UPDATE" />
+            </form>
+          </div>
+        ) : (
+          <div className="text-center">You don't have access to this page</div>
+        )}
       </div>
     </div>
   );
