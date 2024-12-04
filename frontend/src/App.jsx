@@ -33,7 +33,8 @@ import { CreateBill } from "./components/Pages/Bill/CreateBill";
 import { ViewBill } from "./components/Pages/Bill/ViewBill";
 import { MedicalRecord } from "./components/Pages/MedicalRecord/MedicalRecord";
 import { CreateMedicalRecord } from "./components/Pages/MedicalRecord/CreateMedicalRecord";
-import { EditMedicalRecord } from "./components/Pages/MedicalRecord/EditMedicalRecord";
+import { ViewMedicalRecord } from "./components/Pages/MedicalRecord/ViewMedicalRecord";
+import { Request } from "./components/Pages/Request/Request";
 import { EditProfile } from "./components/Profile/EditProfile";
 import { Error } from "./components/Pages/Error/Error";
 
@@ -75,7 +76,8 @@ function App() {
         <Route exact path="/view-bill/:billId" element={<ViewBill />} />
         <Route exact path="/medical-record" element={<MedicalRecord />} />
         <Route exact path="/create-record" element={<CreateMedicalRecord />} />
-        <Route exact path="/edit-record/:recordId" element={<EditMedicalRecord />} />
+        <Route exact path="/view-record/:recordId" element={<ViewMedicalRecord />} />
+        <Route exact path="/request" element={<Request />} />
         <Route exact path="/edit-profile" element={<EditProfile />} />
         <Route exact path="*" element={<Error />} />
       </Routes>

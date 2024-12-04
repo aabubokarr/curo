@@ -74,7 +74,7 @@ export const CreateBill = () => {
             )}
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
               <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                <label htmlFor="treatment_id">Treatment ID</label>
+                <label htmlFor="treatment_id">Generate bill for</label>
                 <input
                   onChange={handleChange}
                   value={formData.treatment_id}

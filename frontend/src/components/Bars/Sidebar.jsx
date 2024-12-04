@@ -24,20 +24,17 @@ export const Sidebar = () => {
         b.title === "Services" ||
         b.title === "Medicines" ||
         b.title === "Bills" ||
-        b.title === "Medical Records"
+        b.title === "Medical Records" ||
+        b.title === "Requests"
       );
     } else if (role === "doctor") {
       return (
-        b.title === "Dashboard" ||
         b.title === "Appointments" ||
-        b.title === "Prescriptions" ||
-        b.title === "Medical Records"
+        b.title === "Prescriptions"
       );
     } else if (role === "patient") {
       return (
-        b.title === "Dashboard" ||
-        b.title === "Prescriptions" ||
-        b.title === "Medical Records"
+        b.title === "Prescriptions"
       );
     } else {
       return false;

@@ -24,9 +24,18 @@ export const Login = () => {
       .post("http://localhost:8081/login", formData)
       .then((res) => {
         console.log("Login successful");
-        navigate("/dashboard");
+
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("role", res.data.role);
+        const role = localStorage.getItem("role");
+
+        if (role === "admin") {
+          navigate("/dashboard");
+        } else if (role === "doctor") {
+          navigate("/appointment");
+        } else {
+          navigate("/prescription");
+        }
       })
       .catch((error) => {
         console.error("Error while login:", error);

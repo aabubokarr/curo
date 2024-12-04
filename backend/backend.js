@@ -14,7 +14,7 @@ const db = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "",
-  database: "testdb",
+  database: "db",
 });
 
 // MIDDLEWARE
@@ -39,7 +39,7 @@ app.post("/register", (req, res) => {
   const { name, email, password, role } = req.body;
 
   const sql =
-    "INSERT INTO admin_details (name, email, password, role) VALUES (?, ?, ?, ?)";
+    "INSERT INTO admin_request (name, email, password, role) VALUES (?, ?, ?, ?)";
 
   const values = [name, email, password, role];
 
@@ -50,7 +50,7 @@ app.post("/register", (req, res) => {
     }
 
     res.status(201).json({
-      message: "Admin details inserted successfully",
+      message: "Admin request sent successfully",
       patientId: results.insertId,
     });
   });
@@ -704,6 +704,23 @@ app.get("/treatment-plan/:id", (req, res) => {
   });
 });
 
+// Get a treatment plan by patient ID
+app.get("/treatment-plan/patient/:id", (req, res) => {
+  const { id } = req.params;
+  const sql = "SELECT * FROM treatment_plan WHERE patient_id = ?";
+
+  db.query(sql, [id], (err, results) => {
+    if (err) {
+      console.error("Error fetching treatment plan: ", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ error: "Treatment plan not found" });
+    }
+    res.status(200).json(results);
+  });
+});
+
 // Update a treatment plan
 app.patch("/update/treatment-plan/:id", (req, res) => {
   const { id } = req.params;
@@ -1118,6 +1135,23 @@ app.get("/service/:id", (req, res) => {
   });
 });
 
+// Get a service by treatment ID
+app.get("/service/patient/:id", (req, res) => {
+  const { id } = req.params;
+  const sql = "SELECT * FROM service WHERE treatment_id = ?";
+
+  db.query(sql, [id], (err, results) => {
+    if (err) {
+      console.error("Error fetching service: ", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ error: "Service not found" });
+    }
+    res.status(200).json(results);
+  });
+});
+
 // Update a service
 app.patch("/update/service/:id", (req, res) => {
   const { id } = req.params;
@@ -1245,6 +1279,23 @@ app.get("/test/:id", (req, res) => {
   });
 });
 
+// Get a test by treatment ID
+app.get("/test/patient/:id", (req, res) => {
+  const { id } = req.params;
+  const sql = "SELECT * FROM test WHERE treatment_id = ?";
+
+  db.query(sql, [id], (err, results) => {
+    if (err) {
+      console.error("Error fetching test: ", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ error: "Test not found" });
+    }
+    res.status(200).json(results);
+  });
+});
+
 // Update a test
 app.patch("/update/test/:id", (req, res) => {
   const { id } = req.params;
@@ -1305,21 +1356,47 @@ app.delete("/delete/test/:id", (req, res) => {
 // PRESCRIPTION API's
 // Create a new prescription
 app.post("/create/prescription", (req, res) => {
-  const { patient_id, doctor_id, medicine_id } = req.body;
-  const sql =
-    "INSERT INTO prescription (patient_id, doctor_id, medicine_id) VALUES (?, ?, ?)";
+  const { patient_id, doctor_id, medicines } = req.body;
+  if (!Array.isArray(medicines) || medicines.length === 0) {
+    return res.status(400).json({ error: "At least one medicine must be provided." });
+  }
 
-  db.query(sql, [patient_id, doctor_id, medicine_id], (err, result) => {
+  const insertPrescriptionSql = "INSERT INTO prescription (patient_id, doctor_id) VALUES (?, ?)";
+  db.query(insertPrescriptionSql, [patient_id, doctor_id], (err, result) => {
     if (err) {
       console.error("Error creating prescription: ", err);
       return res.status(500).json({ error: "Database error" });
     }
-    res.status(201).json({
-      prescription_id: result.insertId,
-      patient_id,
-      doctor_id,
-      medicine_id,
+
+    const prescriptionId = result.insertId;
+
+    const medicineInserts = medicines.map(medicineName => {
+      const sql = "INSERT INTO prescription_medicines (prescription_id, medicine_name) VALUES (?, ?)";
+      return new Promise((resolve, reject) => {
+        db.query(sql, [prescriptionId, medicineName], (err, result) => {
+          if (err) {
+            console.error("Error inserting medicine: ", err);
+            reject(err);
+          } else {
+            resolve(result);
+          }
+        });
+      });
     });
+
+    Promise.all(medicineInserts)
+      .then(() => {
+        res.status(201).json({
+          prescription_id: prescriptionId,
+          patient_id,
+          doctor_id,
+          medicines,
+        });
+      })
+      .catch((err) => {
+        console.error("Error inserting medicines:", err);
+        res.status(500).json({ error: "Error adding medicines to prescription." });
+      });
   });
 });
 
@@ -1352,19 +1429,44 @@ app.get("/list/patient/prescription", authenticateJWT, (req, res) => {
 });
 
 // Get a prescription by ID
-app.get("/prescription/:id", (req, res) => {
-  const { id } = req.params;
-  const sql = "SELECT * FROM prescription WHERE prescription_id = ?";
+app.get("/prescription/test/:prescriptionId", (req, res) => {
+  const { prescriptionId } = req.params;
 
-  db.query(sql, [id], (err, results) => {
+  const sql = `
+    SELECT 
+      p.prescription_id, 
+      p.patient_id, 
+      p.doctor_id, 
+      pd.name AS patient_name,
+      dd.name AS doctor_name, 
+      pm.medicine_name
+    FROM prescription p
+    JOIN patient_details pd ON p.patient_id = pd.patient_id
+    JOIN doctor_details dd ON p.doctor_id = dd.doctor_id
+    LEFT JOIN prescription_medicines pm ON p.prescription_id = pm.prescription_id
+    WHERE p.prescription_id = ?
+  `;
+
+  db.query(sql, [prescriptionId], (err, results) => {
     if (err) {
-      console.error("Error fetching prescription: ", err);
+      console.error("Error fetching prescription details:", err);
       return res.status(500).json({ error: "Database error" });
     }
+
     if (results.length === 0) {
       return res.status(404).json({ error: "Prescription not found" });
     }
-    res.status(200).json(results[0]);
+
+    const prescription = {
+      prescription_id: results[0].prescription_id,
+      patient_id: results[0].patient_id,
+      doctor_id: results[0].doctor_id,
+      patient_name: results[0].patient_name,
+      doctor_name: results[0].doctor_name,
+      medicines: results.map(row => row.medicine_name).filter(name => name !== null),
+    };
+
+    res.status(200).json(prescription);
   });
 });
 
@@ -1521,11 +1623,11 @@ app.delete("/delete/bill/:id", (req, res) => {
 // MEDICAL RECORD API's
 // Create a new medical record
 app.post("/create/medical_record", (req, res) => {
-  const { patient_id, doctor_id } = req.body;
+  const { patient_id } = req.body;
   const sql =
-    "INSERT INTO medical_record (patient_id, doctor_id) VALUES (?, ?)";
+    "INSERT INTO medical_record (patient_id) VALUES (?)";
 
-  db.query(sql, [patient_id, doctor_id], (err, result) => {
+  db.query(sql, [patient_id], (err, result) => {
     if (err) {
       console.error("Error creating medical record: ", err);
       return res.status(500).json({ error: "Database error" });
@@ -1533,14 +1635,13 @@ app.post("/create/medical_record", (req, res) => {
     res.status(201).json({
       record_id: result.insertId,
       patient_id,
-      doctor_id,
     });
   });
 });
 
 // Get all medical records
 app.get("/list/medical_record", (req, res) => {
-  const sql = "SELECT * FROM medical_record";
+  const sql = "SELECT record_id, p.patient_id, name FROM medical_record m JOIN patient_details p ON p.patient_id = m.patient_id";
 
   db.query(sql, (err, results) => {
     if (err) {
@@ -1568,44 +1669,6 @@ app.get("/medical_record/:id", (req, res) => {
   });
 });
 
-// Update a medical record
-app.patch("/update/medical_record/:id", (req, res) => {
-  const { id } = req.params;
-  const { patient_id, doctor_id } = req.body;
-
-  const updates = [];
-  const values = [];
-
-  if (patient_id) {
-    updates.push("patient_id = ?");
-    values.push(patient_id);
-  }
-  if (doctor_id) {
-    updates.push("doctor_id = ?");
-    values.push(doctor_id);
-  }
-
-  if (updates.length === 0) {
-    return res.status(400).json({ error: "No fields to update" });
-  }
-
-  const sql = `UPDATE medical_record SET ${updates.join(
-    ", "
-  )} WHERE record_id = ?`;
-  values.push(id);
-
-  db.query(sql, values, (err, results) => {
-    if (err) {
-      console.error("Error updating medical record: ", err);
-      return res.status(500).json({ error: "Database error" });
-    }
-    if (results.affectedRows === 0) {
-      return res.status(404).json({ error: "Medical record not found" });
-    }
-    res.status(200).json({ message: "Medical record updated successfully" });
-  });
-});
-
 // Delete a medical record
 app.delete("/delete/medical_record/:id", (req, res) => {
   const { id } = req.params;
@@ -1620,6 +1683,78 @@ app.delete("/delete/medical_record/:id", (req, res) => {
       return res.status(404).json({ error: "Medical record not found" });
     }
     res.status(200).json({ message: "Medical record deleted successfully" });
+  });
+});
+
+// REQUEST API's
+// Get admin requests
+app.get("/list/request", (req, res) => {
+  const sql = "SELECT * FROM admin_request";
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Error fetching admin request: ", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    res.status(200).json(results);
+  });
+});
+
+// Accept a request
+app.post("/accept/request/:id", (req, res) => {
+  const { id } = req.params;
+  const fetchSql = "SELECT * FROM admin_request WHERE request_id = ?";
+  
+  db.query(fetchSql, [id], (fetchErr, fetchResults) => {
+    if (fetchErr) {
+      console.error("Error fetching request data: ", fetchErr);
+      return res.status(500).json({ error: "Database error" });
+    }
+    
+    if (fetchResults.length === 0) {
+      return res.status(404).json({ error: "Request not found" });
+    }
+
+    const { name, email, password, role } = fetchResults[0];
+    const insertSql = "INSERT INTO admin_details (name, email, password, role) VALUES (?, ?, ?, ?)";
+    const values = [name, email, password, role];
+
+    db.query(insertSql, values, (insertErr, insertResults) => {
+      if (insertErr) {
+        console.error("Error inserting data: ", insertErr);
+        return res.status(500).json({ error: "Database error" });
+      }
+
+      const deleteSql = "DELETE FROM admin_request WHERE request_id = ?";
+      db.query(deleteSql, [id], (deleteErr, deleteResults) => {
+        if (deleteErr) {
+          console.error("Error deleting request: ", deleteErr);
+          return res.status(500).json({ error: "Database error" });
+        }
+
+        res.status(201).json({
+          message: "Request accepted and transferred successfully",
+          adminId: insertResults.insertId,
+        });
+      });
+    });
+  });
+});
+
+// Delete a request
+app.delete("/delete/request/:id", (req, res) => {
+  const { id } = req.params;
+  const sql = "DELETE FROM admin_request WHERE request_id = ?";
+
+  db.query(sql, [id], (err, results) => {
+    if (err) {
+      console.error("Error deleting request: ", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ error: "Request not found" });
+    }
+    res.status(200).json({ message: "Request deleted successfully" });
   });
 });
 

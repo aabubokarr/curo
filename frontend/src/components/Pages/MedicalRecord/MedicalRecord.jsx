@@ -28,7 +28,9 @@ export const MedicalRecord = () => {
   }, [token]);
 
   const handleDelete = (recordId) => {
-    if (window.confirm("Are you sure you want to delete this medical record?")) {
+    if (
+      window.confirm("Are you sure you want to delete this medical record?")
+    ) {
       axios
         .delete(`http://localhost:8081/delete/medical_record/${recordId}`, {
           headers: {
@@ -39,11 +41,11 @@ export const MedicalRecord = () => {
           setRecordList((prevList) =>
             prevList.filter((record) => record.record_id !== recordId)
           );
-          alert("Medical record profile deleted successfully.");
+          alert("Medical record deleted successfully.");
         })
         .catch((err) => {
           console.error(err);
-          alert("Failed to delete medical record profile.");
+          alert("Failed to delete medical record.");
         });
     }
   };
@@ -56,8 +58,8 @@ export const MedicalRecord = () => {
           <h1 className="text-[28px] font-semibold">Medical Record</h1>
           <Profile />
         </div>
-        <div className="bg-[#FAFAFA] rounded-[20px] pt-5">
-          {role === "admin" && (
+        {role === "admin" ? (
+          <div className="bg-[#FAFAFA] rounded-[20px] pt-5">
             <div className="px-5 pb-3">
               <Link
                 to="/create-record"
@@ -66,44 +68,46 @@ export const MedicalRecord = () => {
                 Add New
               </Link>
             </div>
-          )}
-          <table className="w-full pt-3">
-            <thead>
-              <tr>
-                <th>Record ID</th>
-                <th>Patient ID</th>
-                <th>Doctor ID</th>
-                <th>View</th>
-                <th>Delete</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recordList.map((record, index) => (
-                <tr
-                  key={record.record_id}
-                  className={`text-center h-[48px] ${
-                    index % 2 === 0 ? "bg-[#F1F1F1]" : "bg-[#FAFAFA]"
-                  }`}
-                >
-                  <td>{record.record_id}</td>
-                  <td>{record.patient_id}</td>
-                  <td>{record.doctor_id}</td>
-                  <td>
-                    <Link to={`/edit-record/${record.record_id}`}>
-                      <FontAwesomeIcon icon={faEye} />
-                    </Link>
-                  </td>
-                  <td
-                    onClick={() => handleDelete(record.record_id)}
-                    className="cursor-pointer"
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </td>
+            <table className="w-full pt-3">
+              <thead>
+                <tr>
+                  <th>Record ID</th>
+                  <th>Patient ID</th>
+                  <th>Patient Name</th>
+                  <th>View</th>
+                  <th>Delete</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {recordList.map((record, index) => (
+                  <tr
+                    key={record.record_id}
+                    className={`text-center h-[48px] ${
+                      index % 2 === 0 ? "bg-[#F1F1F1]" : "bg-[#FAFAFA]"
+                    }`}
+                  >
+                    <td>{record.record_id}</td>
+                    <td>{record.patient_id}</td>
+                    <td>{record.name}</td>
+                    <td>
+                      <Link to={`/view-record/${record.record_id}`}>
+                        <FontAwesomeIcon icon={faEye} />
+                      </Link>
+                    </td>
+                    <td
+                      onClick={() => handleDelete(record.record_id)}
+                      className="cursor-pointer"
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center">You don't have access to this page</div>
+        )}
       </div>
     </div>
   );

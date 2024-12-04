@@ -67,7 +67,7 @@ export const Prescription = () => {
                   <tr>
                     <th scope="col">Prescription ID</th>
                     <th scope="col">Patient ID</th>
-                    <th scope="col">Patient Name</th>
+                    <th scope="col">Doctor ID</th>
                     <th scope="col">View</th>
                   </tr>
                 </thead>

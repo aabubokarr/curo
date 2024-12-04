@@ -1,16 +1,22 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export const Error = () => {
+  const navigate = useNavigate();
+  
   return (
     <div className="flex flex-col items-center">
-      <p className="text-[60px]">Oops! 404 Not Found</p>
-      <Link
-        className="w-[120px] h-[48px] bg-[#009BA9] rounded-lg text-white flex items-center justify-center"
-        to="/dashboard"
+      <p className="text-[60px]">Oops!404 Not Found</p>
+      <div
+        className="cursor-pointer hover:bg-opacity-20 hover:bg-[#c4c4c4] rounded-[6px] p-2"
+        onClick={() => {
+          localStorage.removeItem("token");
+          localStorage.removeItem("role");
+          navigate("/");
+        }}
       >
-        Dashboard
-      </Link>
+        Go back
+      </div>
     </div>
   );
 };

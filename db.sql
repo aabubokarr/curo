@@ -206,18 +206,16 @@ VALUES
 CREATE TABLE medical_record (
     record_id INT AUTO_INCREMENT,
     patient_id INT,
-    doctor_id INT,
     PRIMARY KEY (record_id),
-    FOREIGN KEY (patient_id) REFERENCES patient_details(patient_id),
-    FOREIGN KEY (doctor_id) REFERENCES doctor_details(doctor_id)
+    FOREIGN KEY (patient_id) REFERENCES patient_details(patient_id)
 );
 
 -- Insert into medical_record table
-INSERT INTO medical_record (patient_id, doctor_id)
+INSERT INTO medical_record (patient_id)
 VALUES
-(1, 1),
-(2, 2),
-(3, 1);
+(1),
+(2),
+(3);
 
 -- 13. Create dept_head table
 CREATE TABLE dept_head (
@@ -264,5 +262,22 @@ VALUES
 (1, 'Peanuts', 'Severe Headache'),
 (2, 'Dust, Pollen', 'Severe Asthma Attack'),
 (3, 'Bee Sting', 'Anaphylactic Shock');
+
+-- 16. Create admin request
+CREATE TABLE admin_request(
+    request_id INT AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL,
+    email VARCHAR(80) NOT NULL,
+    password VARCHAR(150) NOT NULL,
+    role VARCHAR(10) NOT NULL,
+    PRIMARY KEY(request_id)
+);
+
+-- 16. Create prescription medicines
+CREATE TABLE prescription_medicines (
+  prescription_id INT,
+  medicine_name varchar(50),
+  FOREIGN KEY (prescription_id) REFERENCES prescription(prescription_id)
+);
 
 COMMIT;

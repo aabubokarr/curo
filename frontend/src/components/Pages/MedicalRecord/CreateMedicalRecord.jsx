@@ -11,7 +11,6 @@ export const CreateMedicalRecord = () => {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
   const [formData, setFormData] = useState({
-    doctor_id: "",
     patient_id: "",
   });
 
@@ -78,27 +77,15 @@ export const CreateMedicalRecord = () => {
               </div>
             )}
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-              <div className="flex items-center gap-3">
-                <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                  <label htmlFor="doctor_id">Doctor ID</label>
-                  <input
-                    onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
-                    type="number"
-                    placeholder="Enter Doctor ID"
-                    name="doctor_id"
-                  />
-                </div>
-                <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                  <label htmlFor="patient_id">Patient ID</label>
-                  <input
-                    onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
-                    type="number"
-                    placeholder="Enter Patient ID"
-                    name="patient_id"
-                  />
-                </div>
+              <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
+                <label htmlFor="patient_id">Generate medical record for</label>
+                <input
+                  onChange={handleChange}
+                  className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                  type="number"
+                  placeholder="Enter Patient ID"
+                  name="patient_id"
+                />
               </div>
               <Button name="CREATE" />
             </form>
