@@ -21,7 +21,7 @@ export const Login = () => {
     e.preventDefault();
 
     axios
-      .post("http://localhost:8081/login", formData)
+      .post("http://localhost:8081/auth/login", formData)
       .then((res) => {
         console.log("Login successful");
 
@@ -56,7 +56,7 @@ export const Login = () => {
           <h1 className="text-white text-[40px] font-bold text-center">
             Welcome back
           </h1>
-          <img src="img/patient.png" alt="patient" />
+          <img src="images/patient.png" alt="patient" />
         </div>
       </div>
       <div className="w-[50vw] h-[100vh] p-10 flex items-center justify-center">

@@ -116,7 +116,7 @@ export const Register = () => {
           <h1 className="text-white text-[40px] font-bold text-center">
             Welcome
           </h1>
-          <img src="img/doctor.png" alt="doctor" />
+          <img src="images/doctor.png" alt="doctor" />
         </div>
       </div>
     </div>

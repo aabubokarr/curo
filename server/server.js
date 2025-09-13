@@ -1,21 +1,21 @@
 import express from "express";
-import mysql from "mysql2";
 import cors from "cors";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+import db from "./config/db.js";
+import authRoutes from "./routes/auth.routes.js";
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+  })
+);
+dotenv.config();
 
-const JWT_SECRET = "secret-cloud-jwt-clinic-1234";
-
-const db = mysql.createConnection({
-  port: 3307,
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "db",
-});
+const JWT_SECRET = process.env.JWT_SECRET_KEY;
 
 // MIDDLEWARE
 const authenticateJWT = (req, res, next) => {
@@ -56,41 +56,7 @@ app.post("/register", (req, res) => {
   });
 });
 
-// Login
-app.post("/login", (req, res) => {
-  const { email, password } = req.body;
-
-  const sql =
-    "SELECT admin_id AS user_id, name, email, password, role FROM admin_details WHERE email = ? UNION ALL SELECT doctor_id AS user_id, name, email, password, role FROM doctor_details WHERE email = ? UNION ALL SELECT patient_id AS user_id, name, email, password, role FROM patient_details WHERE email = ?";
-
-  db.query(sql, [email, email, email], (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: "Database error" });
-    }
-
-    if (results.length === 0) {
-      return res.status(401).json({ error: "Invalid email or password" });
-    }
-
-    const user = results[0];
-
-    if (user.password !== password) {
-      return res.status(401).json({ error: "Invalid email or password" });
-    }
-
-    const token = jwt.sign(
-      { userId: user.user_id, role: user.role },
-      JWT_SECRET,
-      { expiresIn: "1h" }
-    );
-
-    return res.status(200).json({
-      message: "Login successful",
-      token,
-      role: user.role,
-    });
-  });
-});
+app.use("/auth", authRoutes);
 
 // Get user by ID
 app.get("/user", authenticateJWT, (req, res) => {
@@ -183,7 +149,8 @@ app.post("/user/password", authenticateJWT, (req, res) => {
     } else if (role === "doctor") {
       updateSql = "UPDATE doctor_details SET password = ? WHERE doctor_id = ?;";
     } else if (role === "patient") {
-      updateSql = "UPDATE patient_details SET password = ? WHERE patient_id = ?;";
+      updateSql =
+        "UPDATE patient_details SET password = ? WHERE patient_id = ?;";
     }
 
     db.query(updateSql, [new_pass, userId], (err, updateResults) => {
@@ -808,11 +775,9 @@ app.post("/create/appointment", (req, res) => {
       }
 
       if (results.length > 0) {
-        return res
-          .status(400)
-          .json({
-            error: "Doctor already has an appointment at this date and time.",
-          });
+        return res.status(400).json({
+          error: "Doctor already has an appointment at this date and time.",
+        });
       }
 
       const sql =
@@ -1358,10 +1323,13 @@ app.delete("/delete/test/:id", (req, res) => {
 app.post("/create/prescription", (req, res) => {
   const { patient_id, doctor_id, medicines } = req.body;
   if (!Array.isArray(medicines) || medicines.length === 0) {
-    return res.status(400).json({ error: "At least one medicine must be provided." });
+    return res
+      .status(400)
+      .json({ error: "At least one medicine must be provided." });
   }
 
-  const insertPrescriptionSql = "INSERT INTO prescription (patient_id, doctor_id) VALUES (?, ?)";
+  const insertPrescriptionSql =
+    "INSERT INTO prescription (patient_id, doctor_id) VALUES (?, ?)";
   db.query(insertPrescriptionSql, [patient_id, doctor_id], (err, result) => {
     if (err) {
       console.error("Error creating prescription: ", err);
@@ -1370,8 +1338,9 @@ app.post("/create/prescription", (req, res) => {
 
     const prescriptionId = result.insertId;
 
-    const medicineInserts = medicines.map(medicineName => {
-      const sql = "INSERT INTO prescription_medicines (prescription_id, medicine_name) VALUES (?, ?)";
+    const medicineInserts = medicines.map((medicineName) => {
+      const sql =
+        "INSERT INTO prescription_medicines (prescription_id, medicine_name) VALUES (?, ?)";
       return new Promise((resolve, reject) => {
         db.query(sql, [prescriptionId, medicineName], (err, result) => {
           if (err) {
@@ -1395,7 +1364,9 @@ app.post("/create/prescription", (req, res) => {
       })
       .catch((err) => {
         console.error("Error inserting medicines:", err);
-        res.status(500).json({ error: "Error adding medicines to prescription." });
+        res
+          .status(500)
+          .json({ error: "Error adding medicines to prescription." });
       });
   });
 });
@@ -1463,7 +1434,9 @@ app.get("/prescription/test/:prescriptionId", (req, res) => {
       doctor_id: results[0].doctor_id,
       patient_name: results[0].patient_name,
       doctor_name: results[0].doctor_name,
-      medicines: results.map(row => row.medicine_name).filter(name => name !== null),
+      medicines: results
+        .map((row) => row.medicine_name)
+        .filter((name) => name !== null),
     };
 
     res.status(200).json(prescription);
@@ -1547,11 +1520,9 @@ app.post("/create/bill", (req, res) => {
 
     // If treatment_id does not exist
     if (result.length === 0) {
-      return res
-        .status(400)
-        .json({
-          error: "Invalid treatment ID. Please provide a valid treatment ID.",
-        });
+      return res.status(400).json({
+        error: "Invalid treatment ID. Please provide a valid treatment ID.",
+      });
     }
 
     // Proceed to insert the new service
@@ -1624,8 +1595,7 @@ app.delete("/delete/bill/:id", (req, res) => {
 // Create a new medical record
 app.post("/create/medical_record", (req, res) => {
   const { patient_id } = req.body;
-  const sql =
-    "INSERT INTO medical_record (patient_id) VALUES (?)";
+  const sql = "INSERT INTO medical_record (patient_id) VALUES (?)";
 
   db.query(sql, [patient_id], (err, result) => {
     if (err) {
@@ -1641,7 +1611,8 @@ app.post("/create/medical_record", (req, res) => {
 
 // Get all medical records
 app.get("/list/medical_record", (req, res) => {
-  const sql = "SELECT record_id, p.patient_id, name FROM medical_record m JOIN patient_details p ON p.patient_id = m.patient_id";
+  const sql =
+    "SELECT record_id, p.patient_id, name FROM medical_record m JOIN patient_details p ON p.patient_id = m.patient_id";
 
   db.query(sql, (err, results) => {
     if (err) {
@@ -1704,19 +1675,20 @@ app.get("/list/request", (req, res) => {
 app.post("/accept/request/:id", (req, res) => {
   const { id } = req.params;
   const fetchSql = "SELECT * FROM admin_request WHERE request_id = ?";
-  
+
   db.query(fetchSql, [id], (fetchErr, fetchResults) => {
     if (fetchErr) {
       console.error("Error fetching request data: ", fetchErr);
       return res.status(500).json({ error: "Database error" });
     }
-    
+
     if (fetchResults.length === 0) {
       return res.status(404).json({ error: "Request not found" });
     }
 
     const { name, email, password, role } = fetchResults[0];
-    const insertSql = "INSERT INTO admin_details (name, email, password, role) VALUES (?, ?, ?, ?)";
+    const insertSql =
+      "INSERT INTO admin_details (name, email, password, role) VALUES (?, ?, ?, ?)";
     const values = [name, email, password, role];
 
     db.query(insertSql, values, (insertErr, insertResults) => {
