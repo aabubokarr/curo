@@ -44,3 +44,23 @@ export const loginUser = (req, res) => {
     }
   });
 };
+
+export const registerUser = (req, res) => {
+  const { name, email, password, role } = req.body;
+
+  if (!name || !email || !password || !role) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
+  Auth.register({ name, email, password, role }, async (err, results) => {
+    if (err) {
+      console.log("Database error during registration", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    return res.status(201).json({
+      message: "User registration successful",
+      requestId: results.insertId,
+    });
+  });
+};

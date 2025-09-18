@@ -4,6 +4,7 @@ import axios from "axios";
 import Button from "../../Button/Button";
 
 export const Register = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -32,7 +33,7 @@ export const Register = () => {
     }
 
     axios
-      .post("http://localhost:8081/register", formData)
+      .post(`${API_URL}/auth/register`, formData)
       .then((res) => {
         console.log("Created successfully");
         navigate("/");

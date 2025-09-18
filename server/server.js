@@ -34,28 +34,6 @@ const authenticateJWT = (req, res, next) => {
   });
 };
 
-// Registration
-app.post("/register", (req, res) => {
-  const { name, email, password, role } = req.body;
-
-  const sql =
-    "INSERT INTO admin_request (name, email, password, role) VALUES (?, ?, ?, ?)";
-
-  const values = [name, email, password, role];
-
-  db.query(sql, values, (err, results) => {
-    if (err) {
-      console.error("Error inserting data: ", err);
-      return res.status(500).json({ error: "Database error" });
-    }
-
-    res.status(201).json({
-      message: "Admin request sent successfully",
-      patientId: results.insertId,
-    });
-  });
-});
-
 app.use("/auth", authRoutes);
 
 // Get user by ID
