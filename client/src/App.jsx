@@ -16,9 +16,6 @@ import { EditDepartment } from "./components/Pages/Department/EditDepartment";
 import { Test } from "./components/Pages/Test/Test";
 import { CreateTest } from "./components/Pages/Test/CreateTest";
 import { EditTest } from "./components/Pages/Test/EditTest";
-import { Treatment } from "./components/Pages/Treatment/Treatment";
-import { CreateTreatment } from "./components/Pages/Treatment/CreateTreatment";
-import { EditTreatment } from "./components/Pages/Treatment/EditTreatment";
 import { Service } from "./components/Pages/Service/Service";
 import { CreateService } from "./components/Pages/Service/CreateService";
 import { EditService } from "./components/Pages/Service/EditService";
@@ -28,12 +25,6 @@ import { EditMedicine } from "./components/Pages/Medicine/EditMedicine";
 import { Prescription } from "./components/Pages/Prescription/Prescription";
 import { CreatePrescription } from "./components/Pages/Prescription/CreatePrescription";
 import { ViewPrescription } from "./components/Pages/Prescription/ViewPrescription";
-import { Bill } from "./components/Pages/Bill/Bill";
-import { CreateBill } from "./components/Pages/Bill/CreateBill";
-import { ViewBill } from "./components/Pages/Bill/ViewBill";
-import { MedicalRecord } from "./components/Pages/MedicalRecord/MedicalRecord";
-import { CreateMedicalRecord } from "./components/Pages/MedicalRecord/CreateMedicalRecord";
-import { ViewMedicalRecord } from "./components/Pages/MedicalRecord/ViewMedicalRecord";
 import { Request } from "./components/Pages/Request/Request";
 import { EditProfile } from "./components/Profile/EditProfile";
 import { Error } from "./components/Pages/Error/Error";
@@ -59,9 +50,6 @@ function App() {
         <Route exact path="/test" element={<Test />} />
         <Route exact path="/create-test" element={<CreateTest />} />
         <Route exact path="/edit-test/:testId" element={<EditTest />} />
-        <Route exact path="/treatment" element={<Treatment />} />
-        <Route exact path="/create-treatment" element={<CreateTreatment />} />
-        <Route exact path="/edit-treatment/:planId" element={<EditTreatment />} />
         <Route exact path="/service" element={<Service />} />
         <Route exact path="/create-service" element={<CreateService />} />
         <Route exact path="/edit-service/:serviceId" element={<EditService />} />
@@ -71,12 +59,6 @@ function App() {
         <Route exact path="/prescription" element={<Prescription />} />
         <Route exact path="/create-prescription" element={<CreatePrescription />} />
         <Route exact path="/view-prescription/:prescriptionId" element={<ViewPrescription />} />
-        <Route exact path="/bill" element={<Bill />} />
-        <Route exact path="/create-bill" element={<CreateBill />} />
-        <Route exact path="/view-bill/:billId" element={<ViewBill />} />
-        <Route exact path="/medical-record" element={<MedicalRecord />} />
-        <Route exact path="/create-record" element={<CreateMedicalRecord />} />
-        <Route exact path="/view-record/:recordId" element={<ViewMedicalRecord />} />
         <Route exact path="/request" element={<Request />} />
         <Route exact path="/edit-profile" element={<EditProfile />} />
         <Route exact path="*" element={<Error />} />

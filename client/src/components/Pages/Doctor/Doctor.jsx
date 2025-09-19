@@ -7,13 +7,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 export const Doctor = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const role = localStorage.getItem("role");
   const token = localStorage.getItem("token");
   const [doctorList, setDoctorList] = useState([]);
 
   useEffect(() => {
     axios
-      .get("http://localhost:8081/list/doctor", {
+      .get(`${API_URL}/doctor/read`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -30,7 +31,7 @@ export const Doctor = () => {
   const handleDelete = (doctorId) => {
     if (window.confirm("Are you sure you want to delete this doctor?")) {
       axios
-        .delete(`http://localhost:8081/delete/doctor/${doctorId}`, {
+        .delete(`${API_URL}/doctor/delete/${doctorId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

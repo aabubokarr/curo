@@ -1,9 +1,9 @@
 import db from "../config/db.js";
 
-const Patient = {
+const Doctor = {
   create: (data, callback) => {
     const sql =
-      "INSERT INTO patient_details (name, email, phone_no, address, password, gender, blood_group, dob, height, weight, occupation, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      "INSERT INTO doctor_details (name, email, phone_no, address, password, gender, speciality, dept_id, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     db.query(
       sql,
       [
@@ -13,18 +13,15 @@ const Patient = {
         data.address,
         data.password,
         data.gender,
-        data.blood_group,
-        data.dob,
-        data.height,
-        data.weight,
-        data.occupation,
+        data.speciality,
+        data.dept_id,
         data.role,
       ],
       callback
     );
   },
   read: (callback) => {
-    const sql = "SELECT * FROM patient_details";
+    const sql = "SELECT * FROM doctor_details";
     db.query(sql, callback);
   },
   update: (id, data, callback) => {
@@ -42,16 +39,16 @@ const Patient = {
       return callback({ message: "No fields to update" });
     }
 
-    const sql = `UPDATE patient_details SET ${updates.join(
+    const sql = `UPDATE doctor_details SET ${updates.join(
       ", "
-    )} WHERE patient_id = ?`;
+    )} WHERE doctor_id = ?`;
     values.push(id);
     db.query(sql, values, callback);
   },
   delete: (id, callback) => {
-    const sql = "DELETE FROM patient_details WHERE patient_id = ?";
+    const sql = "DELETE FROM doctor_details WHERE doctor_id = ?";
     db.query(sql, [id], callback);
   },
 };
 
-export default Patient;
+export default Doctor;

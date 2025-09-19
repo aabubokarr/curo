@@ -20,11 +20,8 @@ export const Sidebar = () => {
         b.title === "Appointments" ||
         b.title === "Departments" ||
         b.title === "Tests" ||
-        b.title === "Treatments" ||
         b.title === "Services" ||
         b.title === "Medicines" ||
-        b.title === "Bills" ||
-        b.title === "Medical Records" ||
         b.title === "Requests"
       );
     } else if (role === "doctor") {

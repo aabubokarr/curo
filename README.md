@@ -1,10 +1,21 @@
-# CSE311L Project
+# Curo - Hospital Management System
 
-Project Structure
-Here’s an overview of the folder structure:
-
-To start frontend
-npm run dev
-
-To start backend
-npm start
+Backend folder structure
+project/
+├── config/
+│   └── db.js
+├── controllers/
+│   └── auth.controllers.js
+│   └── doctor.controllers.js
+│   └── patient.controllers.js
+├── middlewares/
+│   └── auth.middleware.js
+├── models/
+│   └── auth.models.js
+│   └── doctor.models.js
+│   └── patient.models.js
+├── routes/
+│   └── auth.routes.js
+│   └── doctor.routes.js
+│   └── patient.routes.js
+└── server.js

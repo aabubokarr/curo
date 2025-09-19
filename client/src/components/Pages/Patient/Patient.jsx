@@ -7,6 +7,7 @@ import { faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 
 export const Patient = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const role = localStorage.getItem("role");
   const token = localStorage.getItem("token");
   const [patientList, setPatientList] = useState([]);
@@ -14,7 +15,7 @@ export const Patient = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8081/list/patient", {
+      .get(`${API_URL}/patient/read`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -31,7 +32,7 @@ export const Patient = () => {
   const handleDelete = (patientId) => {
     if (window.confirm("Are you sure you want to delete this patient?")) {
       axios
-        .delete(`http://localhost:8081/delete/patient/${patientId}`, {
+        .delete(`${API_URL}/patient/delete/${patientId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
