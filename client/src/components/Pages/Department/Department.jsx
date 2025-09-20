@@ -7,13 +7,14 @@ import { faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 
 export const Department = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const role = localStorage.getItem("role");
   const token = localStorage.getItem("token");
   const [departmentList, setDepartmentList] = useState([]);
 
   useEffect(() => {
     axios
-      .get("http://localhost:8081/list/department", {
+      .get(`${API_URL}/department/read`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -30,7 +31,7 @@ export const Department = () => {
   const handleDelete = (deptId) => {
     if (window.confirm("Are you sure you want to delete this department?")) {
       axios
-        .delete(`http://localhost:8081/delete/department/${deptId}`, {
+        .delete(`${API_URL}/department/delete/${deptId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -70,7 +71,6 @@ export const Department = () => {
               <thead>
                 <tr>
                   <th>Department ID</th>
-                  <th>Head</th>
                   <th>Name</th>
                   <th>View</th>
                   <th>Delete</th>
@@ -85,7 +85,6 @@ export const Department = () => {
                     }`}
                   >
                     <td>{department.dept_id}</td>
-                    <td>{department.doc_name}</td>
                     <td>{department.dept_name}</td>
                     <td>
                       <Link to={`/edit-department/${department.dept_id}`}>

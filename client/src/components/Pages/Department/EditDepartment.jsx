@@ -6,6 +6,7 @@ import { Profile } from "../../Profile/Profile";
 import Button from "../../Button/Button";
 
 export const EditDepartment = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const { deptId } = useParams();
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
@@ -18,7 +19,7 @@ export const EditDepartment = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:8081/department/${deptId}`, {
+      .get(`${API_URL}/department/${deptId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -54,7 +55,7 @@ export const EditDepartment = () => {
       console.log(formData);
 
       axios
-        .patch(`http://localhost:8081/update/department/${deptId}`, formData, {
+        .patch(`${API_URL}/department/update/${deptId}`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

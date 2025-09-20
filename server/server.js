@@ -6,6 +6,8 @@ import db from "./config/db.js";
 import authRoutes from "./routes/auth.routes.js";
 import doctorRoutes from "./routes/doctor.routes.js";
 import patientRoutes from "./routes/patient.routes.js";
+import appointmentRoutes from "./routes/appointment.routes.js"
+import departmentRoutes from "./routes/department.routes.js"
 
 const app = express();
 app.use(express.json());
@@ -39,6 +41,8 @@ const authenticateJWT = (req, res, next) => {
 app.use("/auth", authRoutes);
 app.use("/doctor", doctorRoutes);
 app.use("/patient", patientRoutes);
+app.use("/appointment", appointmentRoutes)
+app.use("/department", departmentRoutes)
 
 // Get user by ID
 app.get("/user", authenticateJWT, (req, res) => {
@@ -191,16 +195,6 @@ app.get("/doctor/:id", authenticateJWT, (req, res) => {
 });
 
 // DEPARTMENT API's
-// Create a department
-app.post("/create/department", (req, res) => {
-  const { dept_name } = req.body;
-  const sql = "INSERT INTO department (dept_name) VALUES (?)";
-
-  db.query(sql, [dept_name], (err, result) => {
-    if (err) return res.status(500).send(err);
-    res.status(201).json({ dept_id: result.insertId, dept_name });
-  });
-});
 
 // Get a department by ID
 app.get("/department/:id", (req, res) => {
@@ -215,130 +209,8 @@ app.get("/department/:id", (req, res) => {
   });
 });
 
-// Update a department
-app.patch("/update/department/:id", (req, res) => {
-  const deptId = req.params.id;
-  const { dept_name } = req.body;
-
-  const updates = [];
-  const values = [];
-
-  if (dept_name) {
-    updates.push("dept_name = ?");
-    values.push(dept_name);
-  }
-
-  if (updates.length === 0) {
-    return res.status(400).json({ error: "No fields to update" });
-  }
-
-  const sql = `UPDATE department SET ${updates.join(", ")} WHERE dept_id = ?`;
-  values.push(deptId);
-
-  db.query(sql, values, (err, results) => {
-    if (err) {
-      console.error("Error updating data: ", err);
-      return res.status(500).json({ error: "Database error" });
-    }
-
-    if (results.affectedRows === 0) {
-      return res.status(404).json({ error: "Department not found" });
-    }
-
-    res.status(200).json({ message: "Department updated successfully" });
-  });
-});
-
-// Delete a department
-app.delete("/delete/department/:id", (req, res) => {
-  const { id } = req.params;
-  const sql = "DELETE FROM department WHERE dept_id = ?";
-
-  db.query(sql, [id], (err, result) => {
-    if (err) return res.status(500).send(err);
-    if (result.affectedRows === 0)
-      return res.status(404).json({ message: "Department not found" });
-    res.status(204).send();
-  });
-});
-
-// Get all departments
-app.get("/list/department", authenticateJWT, (req, res) => {
-  const sql =
-    "SELECT d.dept_id, doc.name AS doc_name, dept_name FROM department d, doctor_details doc, dept_head h WHERE d.dept_id = doc.dept_id AND doc.doctor_id = h.doctor_id;";
-
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error("Error fetching department details:", err);
-      return res.status(500).json({ error: "Database query failed" });
-    }
-
-    res.json(results);
-  });
-});
-
 // APPOINTMENT API's
 // Create a new appointment
-app.post("/create/appointment", (req, res) => {
-  const { doctor_id, patient_id, appointment_date, appointment_time } =
-    req.body;
-
-  const checkSql =
-    "SELECT * FROM appointment WHERE doctor_id = ? AND appointment_date = ? AND appointment_time = ?";
-
-  db.query(
-    checkSql,
-    [doctor_id, appointment_date, appointment_time],
-    (err, results) => {
-      if (err) {
-        console.error("Error checking appointments: ", err);
-        return res.status(500).json({ error: "Database error" });
-      }
-
-      if (results.length > 0) {
-        return res.status(400).json({
-          error: "Doctor already has an appointment at this date and time.",
-        });
-      }
-
-      const sql =
-        "INSERT INTO appointment (doctor_id, patient_id, appointment_date, appointment_time) VALUES (?, ?, ?, ?)";
-
-      db.query(
-        sql,
-        [doctor_id, patient_id, appointment_date, appointment_time],
-        (err, result) => {
-          if (err) {
-            console.error("Error creating appointment: ", err);
-            return res.status(500).json({ error: "Database error" });
-          }
-          res.status(201).json({
-            appointment_id: result.insertId,
-            doctor_id,
-            patient_id,
-            appointment_date,
-            appointment_time,
-          });
-        }
-      );
-    }
-  );
-});
-
-// Get all appointments
-app.get("/list/appointment", (req, res) => {
-  const sql =
-    "SELECT appointment_id, doc.name AS doctor_name, pat.name AS patient_name, appointment_date, appointment_time FROM appointment AS app, doctor_details AS doc, patient_details AS pat WHERE doc.doctor_id = app.doctor_id AND pat.patient_id = app.patient_id";
-
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error("Error fetching appointments: ", err);
-      return res.status(500).json({ error: "Database error" });
-    }
-    res.status(200).json(results);
-  });
-});
-
 app.get("/list/appointment/doctor", authenticateJWT, (req, res) => {
   const doctorId = req.user.userId;
   const sql =
@@ -367,70 +239,6 @@ app.get("/appointment/:id", (req, res) => {
       return res.status(404).json({ error: "Appointment not found" });
     }
     res.status(200).json(results[0]);
-  });
-});
-
-// Update an appointment
-app.patch("/update/appointment/:id", (req, res) => {
-  const { id } = req.params;
-  const { doctor_id, patient_id, appointment_date, appointment_time } =
-    req.body;
-
-  const updates = [];
-  const values = [];
-
-  if (doctor_id) {
-    updates.push("doctor_id = ?");
-    values.push(doctor_id);
-  }
-  if (patient_id) {
-    updates.push("patient_id = ?");
-    values.push(patient_id);
-  }
-  if (appointment_date) {
-    updates.push("appointment_date = ?");
-    values.push(appointment_date);
-  }
-  if (appointment_time) {
-    updates.push("appointment_time = ?");
-    values.push(appointment_time);
-  }
-
-  if (updates.length === 0) {
-    return res.status(400).json({ error: "No fields to update" });
-  }
-
-  const sql = `UPDATE appointment SET ${updates.join(
-    ", "
-  )} WHERE appointment_id = ?`;
-  values.push(id);
-
-  db.query(sql, values, (err, results) => {
-    if (err) {
-      console.error("Error updating appointment: ", err);
-      return res.status(500).json({ error: "Database error" });
-    }
-    if (results.affectedRows === 0) {
-      return res.status(404).json({ error: "Appointment not found" });
-    }
-    res.status(200).json({ message: "Appointment updated successfully" });
-  });
-});
-
-// Delete an appointment
-app.delete("/delete/appointment/:id", (req, res) => {
-  const { id } = req.params;
-  const sql = "DELETE FROM appointment WHERE appointment_id = ?";
-
-  db.query(sql, [id], (err, results) => {
-    if (err) {
-      console.error("Error deleting appointment: ", err);
-      return res.status(500).json({ error: "Database error" });
-    }
-    if (results.affectedRows === 0) {
-      return res.status(404).json({ error: "Appointment not found" });
-    }
-    res.status(200).json({ message: "Appointment deleted successfully" });
   });
 });
 

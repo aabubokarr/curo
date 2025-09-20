@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "../../Button/Button";
 
 export const CreateDepartment = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -34,7 +35,7 @@ export const CreateDepartment = () => {
 
     if (window.confirm("Are you sure you want to create this department?")) {
       axios
-        .post("http://localhost:8081/create/department", formData, {
+        .post(`${API_URL}/department/create`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

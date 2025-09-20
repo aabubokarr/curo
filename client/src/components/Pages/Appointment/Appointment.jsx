@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 
 export const Appointment = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
   const [appointmentList, setAppointmentList] = useState([]);
@@ -14,8 +15,8 @@ export const Appointment = () => {
   useEffect(() => {
     const api =
       role === "admin"
-        ? "http://localhost:8081/list/appointment"
-        : "http://localhost:8081/list/appointment/doctor";
+        ? `${API_URL}/appointment/read`
+        : `${API_URL}/list/appointment/doctor`;
 
     axios
       .get(api, {
@@ -35,7 +36,7 @@ export const Appointment = () => {
   const handleDelete = (appId) => {
     if (window.confirm("Are you sure you want to delete this appointment?")) {
       axios
-        .delete(`http://localhost:8081/delete/appointment/${appId}`, {
+        .delete(`${API_URL}/appointment/delete/${appId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
