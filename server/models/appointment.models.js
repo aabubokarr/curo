@@ -31,6 +31,10 @@ const Appointment = {
       }
     });
 
+    if(updates.length === 0){
+      return callback({message: "No fields to update"})
+    }
+
     const sql = `UPDATE appointment SET ${updates.join(
       ", "
     )} WHERE appointment_id = ?`;

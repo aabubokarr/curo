@@ -6,6 +6,7 @@ import { Profile } from "../../Profile/Profile";
 import Button from "../../Button/Button";
 
 export const EditTest = () => {
+  const API_URL = import.meta.env.VITE_API_URL
   const { testId } = useParams();
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
@@ -20,7 +21,7 @@ export const EditTest = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:8081/test/${testId}`, {
+      .get(`${API_URL}/test/${testId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -56,7 +57,7 @@ export const EditTest = () => {
       console.log(formData);
 
       axios
-        .patch(`http://localhost:8081/update/test/${testId}`, formData, {
+        .patch(`${API_URL}/test/update/${testId}`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

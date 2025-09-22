@@ -6,8 +6,9 @@ import db from "./config/db.js";
 import authRoutes from "./routes/auth.routes.js";
 import doctorRoutes from "./routes/doctor.routes.js";
 import patientRoutes from "./routes/patient.routes.js";
-import appointmentRoutes from "./routes/appointment.routes.js"
-import departmentRoutes from "./routes/department.routes.js"
+import appointmentRoutes from "./routes/appointment.routes.js";
+import departmentRoutes from "./routes/department.routes.js";
+import testRoutes from "./routes/test.routes.js";
 
 const app = express();
 app.use(express.json());
@@ -41,8 +42,9 @@ const authenticateJWT = (req, res, next) => {
 app.use("/auth", authRoutes);
 app.use("/doctor", doctorRoutes);
 app.use("/patient", patientRoutes);
-app.use("/appointment", appointmentRoutes)
-app.use("/department", departmentRoutes)
+app.use("/appointment", appointmentRoutes);
+app.use("/department", departmentRoutes);
+app.use("/test", testRoutes);
 
 // Get user by ID
 app.get("/user", authenticateJWT, (req, res) => {
