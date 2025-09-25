@@ -104,7 +104,7 @@ export const Register = () => {
               <Button name="REGISTER" />
               <p className="mt-2">
                 Already have an account?{" "}
-                <Link to="/" className="text-[#009BA9]">
+                <Link to="/login" className="text-[#009BA9]">
                   Login
                 </Link>
               </p>

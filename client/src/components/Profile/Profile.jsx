@@ -11,7 +11,7 @@ export const Profile = () => {
 
   useEffect(() => {
     if (!token) {
-      navigate("/");
+      navigate("/login");
       return;
     }
     axios
@@ -72,7 +72,7 @@ export const Profile = () => {
             onClick={() => {
               localStorage.removeItem("token");
               localStorage.removeItem("role");
-              navigate("/");
+              navigate("/login");
             }}
           >
             Logout
