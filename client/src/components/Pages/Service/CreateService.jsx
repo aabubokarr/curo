@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "../../Button/Button";
 
 export const CreateService = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -36,7 +37,7 @@ export const CreateService = () => {
 
     if (window.confirm("Are you sure you want to create this service?")) {
       axios
-        .post("http://localhost:8081/create/service", formData, {
+        .post(`${API_URL}/service/create`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

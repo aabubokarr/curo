@@ -7,13 +7,14 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 
 export const Medicine = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const role = localStorage.getItem("role");
   const token = localStorage.getItem("token");
   const [medicineList, setMedicineList] = useState([]);
 
   useEffect(() => {
     axios
-      .get("http://localhost:8081/list/medicine", {
+      .get(`${API_URL}/medicine/read`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -30,7 +31,7 @@ export const Medicine = () => {
   const handleDelete = (medicineId) => {
     if (window.confirm("Are you sure you want to delete this medicine?")) {
       axios
-        .delete(`http://localhost:8081/delete/medicine/${medicineId}`, {
+        .delete(`${API_URL}/medicine/delete/${medicineId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

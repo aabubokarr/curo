@@ -6,6 +6,7 @@ import { Profile } from "../../Profile/Profile";
 import Button from "../../Button/Button";
 
 export const EditService = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const { serviceId } = useParams();
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
@@ -25,7 +26,7 @@ export const EditService = () => {
     }
 
     axios
-      .get(`http://localhost:8081/service/${serviceId}`, {
+      .get(`${API_URL}/service/read/${serviceId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -61,7 +62,7 @@ export const EditService = () => {
       console.log(formData);
 
       axios
-        .patch(`http://localhost:8081/update/service/${serviceId}`, formData, {
+        .patch(`${API_URL}/service/update/${serviceId}`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

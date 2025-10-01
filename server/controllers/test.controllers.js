@@ -25,6 +25,21 @@ export const readTest = (req, res) => {
   });
 };
 
+export const readTestById = (req, res) => {
+  Test.readById(req.params.id, (err, results) => {
+    if (err) {
+      console.error("Error reading data:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    
+    if (results.length === 0) {
+      return res.status(404).json({ error: "Test not found" });
+    }
+
+    res.status(200).json(results[0]);
+  });
+};
+
 export const updateTest = (req, res) => {
   Test.update(req.params.id, req.body, (err, results) => {
     if (err) {

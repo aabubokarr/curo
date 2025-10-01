@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "../../Button/Button";
 
 export const CreateMedicine = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -36,7 +37,7 @@ export const CreateMedicine = () => {
 
     if (window.confirm("Are you sure you want to create this medicine?")) {
       axios
-        .post("http://localhost:8081/create/medicine", formData, {
+        .post(`${API_URL}/medicine/create`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

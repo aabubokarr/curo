@@ -21,7 +21,7 @@ export const EditTest = () => {
 
   useEffect(() => {
     axios
-      .get(`${API_URL}/test/${testId}`, {
+      .get(`${API_URL}/test/read/${testId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

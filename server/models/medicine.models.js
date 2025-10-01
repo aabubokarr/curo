@@ -1,27 +1,27 @@
 import db from "../config/db.js";
 
-const Test = {
+const Medicine = {
   create: (data, callback) => {
     const sql =
-      "INSERT INTO test (treatment_id, test_name, test_cost) VALUES (?, ?, ?)";
+      "INSERT INTO medicine (medicine_name, medicine_quantity, medicine_price) VALUES (?, ?, ?)";
     db.query(
       sql,
-      [data.treatment_id, data.test_name, data.test_cost],
+      [data.medicine_name, data.medicine_quantity, data.medicine_price],
       callback
     );
   },
   read: (callback) => {
-    const sql = "SELECT * FROM test";
+    const sql =
+      "SELECT medicine_id, medicine_name, medicine_quantity, medicine_price, (medicine_quantity*medicine_price) AS total FROM medicine";
     db.query(sql, callback);
   },
   readById: (id, callback) => {
-    const sql = "SELECT * FROM test WHERE test_id = ?";
+    const sql = "SELECT * FROM medicine WHERE medicine_id = ?";
     db.query(sql, [id], callback);
   },
   update: (id, data, callback) => {
     const updates = [];
     const values = [];
-
     Object.keys(data).forEach((key) => {
       if (data[key] !== "" && data[key] !== null && data[key] !== undefined) {
         updates.push(`${key} = ?`);
@@ -33,14 +33,16 @@ const Test = {
       return callback({ message: "No fields to update" });
     }
 
-    const sql = `UPDATE test SET ${updates.join(", ")} WHERE test_id = ?`;
+    const sql = `UPDATE medicine SET ${updates.join(
+      ", "
+    )} WHERE medicine_id = ?`;
     values.push(id);
     db.query(sql, values, callback);
   },
   delete: (id, callback) => {
-    const sql = "DELETE FROM test WHERE test_id = ?";
+    const sql = "DELETE FROM medicine WHERE medicine_id = ?";
     db.query(sql, [id], callback);
   },
 };
 
-export default Test;
+export default Medicine;

@@ -6,6 +6,7 @@ import { Profile } from "../../Profile/Profile";
 import Button from "../../Button/Button";
 
 export const EditMedicine = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const { medId } = useParams();
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
@@ -20,7 +21,7 @@ export const EditMedicine = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:8081/medicine/${medId}`, {
+      .get(`${API_URL}/medicine/read/${medId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

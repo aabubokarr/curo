@@ -6,13 +6,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faX } from "@fortawesome/free-solid-svg-icons";
 
 export const Request = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const role = localStorage.getItem("role");
   const token = localStorage.getItem("token");
   const [request, setRequest] = useState([]);
 
   useEffect(() => {
     axios
-      .get("http://localhost:8081/list/request", {
+      .get(`${API_URL}/request/read`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -30,7 +31,7 @@ export const Request = () => {
     if (window.confirm("Are you sure you want to accept this request?")) {
       axios
         .post(
-          `http://localhost:8081/accept/request/${requestId}`,
+          `${API_URL}/request/accept/${requestId}`,
           {},
           {
             headers: {
@@ -54,7 +55,7 @@ export const Request = () => {
   const handleReject = (requestId) => {
     if (window.confirm("Are you sure you want to delete this request?")) {
       axios
-        .delete(`http://localhost:8081/delete/request/${requestId}`, {
+        .delete(`${API_URL}/request/reject/${requestId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

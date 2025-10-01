@@ -7,13 +7,14 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 
 export const Service = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const role = localStorage.getItem("role");
   const token = localStorage.getItem("token");
   const [serviceList, setServiceList] = useState([]);
 
   useEffect(() => {
     axios
-      .get("http://localhost:8081/list/service", {
+      .get(`${API_URL}/service/read`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -30,7 +31,7 @@ export const Service = () => {
   const handleDelete = (serviceId) => {
     if (window.confirm("Are you sure you want to delete this service?")) {
       axios
-        .delete(`http://localhost:8081/delete/service/${serviceId}`, {
+        .delete(`${API_URL}/service/delete/${serviceId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
