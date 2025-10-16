@@ -20,7 +20,7 @@ export const Footer = () => {
         transition={{ ease: "linear", duration: 0.4, delay: 0.1 }}
         className="poppins text-[12px] md:text-[18px]"
       >
-        © {year} Healthcare Clinic. All rights reserved
+        Copyright © {year} Curo. All rights reserved.
       </motion.p>
     </div>
   );

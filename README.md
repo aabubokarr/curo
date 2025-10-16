@@ -40,7 +40,7 @@ Welcome to the **Curo** project! This README provides an overview of the project
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/imabu0/curo.git
+   git clone https://github.com/woabu0/curo.git
    ```
 2. Navigate to the project's frontend directory:
    ```bash
@@ -128,8 +128,8 @@ curo/
 ## Contributors
 
 <p align="center">
-  <a href="https://github.com/imabu0/Curo/graphs/contributors">
-    <img src="https://contrib.rocks/image?repo=imabu0/curo" alt="Contributors" />
+  <a href="https://github.com/woabu0/curo/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=woabu0/curo" alt="Contributors" />
   </a>
 </p>
 
