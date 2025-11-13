@@ -79,7 +79,7 @@ export const CreateDoctor = () => {
         {role === "admin" ? (
           <div className="bg-[#FAFAFA] rounded-[20px] p-5">
             {error && (
-              <div className="bg-red-200 text-red-600 p-2 rounded mb-4">
+              <div className="bg-red-200 text-red-600 p-2 rounded-sm mb-4">
                 {error}
               </div>
             )}
@@ -89,7 +89,7 @@ export const CreateDoctor = () => {
                   <label htmlFor="name">Name</label>
                   <input
                     onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                     type="text"
                     placeholder="Enter Doctor Name"
                     name="name"
@@ -99,7 +99,7 @@ export const CreateDoctor = () => {
                   <label htmlFor="email">Email</label>
                   <input
                     onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                     type="email"
                     placeholder="Enter Doctor Email"
                     name="email"
@@ -111,7 +111,7 @@ export const CreateDoctor = () => {
                   <label htmlFor="phone_no">Phone No.</label>
                   <input
                     onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                     type="text"
                     placeholder="Enter Doctor Phone No."
                     name="phone_no"
@@ -121,7 +121,7 @@ export const CreateDoctor = () => {
                   <label htmlFor="address">Address</label>
                   <input
                     onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                     type="text"
                     placeholder="Enter Doctor Email"
                     name="address"
@@ -133,7 +133,7 @@ export const CreateDoctor = () => {
                   <label htmlFor="password">Password</label>
                   <input
                     onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                     type="password"
                     placeholder="Enter Doctor Password"
                     name="password"
@@ -144,7 +144,7 @@ export const CreateDoctor = () => {
                   <select
                     onChange={handleChange}
                     name="gender"
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                   >
                     <option>-Select Gender-</option>
                     <option value="Male">Male</option>
@@ -158,7 +158,7 @@ export const CreateDoctor = () => {
                   <select
                     onChange={handleChange}
                     name="speciality"
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                   >
                     <option>-Select Speciality-</option>
                     <option value="Opthalmologist">Opthalmologist</option>
@@ -173,7 +173,7 @@ export const CreateDoctor = () => {
                   <select
                     onChange={handleChange}
                     name="dept_id"
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                   >
                     <option>-Select Department-</option>
                     <option value="1">Opthalmology</option>

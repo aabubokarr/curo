@@ -88,7 +88,7 @@ export const EditService = () => {
         {role === "admin" ? (
           <div className="bg-[#FAFAFA] rounded-[20px] p-5 w-full">
             {error && (
-              <div className="bg-red-200 text-red-600 p-2 rounded mb-4">
+              <div className="bg-red-200 text-red-600 p-2 rounded-sm mb-4">
                 {error}
               </div>
             )}
@@ -98,7 +98,7 @@ export const EditService = () => {
                   <label htmlFor="treatment_id">Treatment ID</label>
                   <input
                     onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                     type="number"
                     placeholder={service.treatment_id}
                     name="treatment_id"
@@ -110,7 +110,7 @@ export const EditService = () => {
                   <label htmlFor="service_name">Service Name</label>
                   <input
                     onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                     type="text"
                     placeholder={service.service_name}
                     name="service_name"
@@ -120,7 +120,7 @@ export const EditService = () => {
                   <label htmlFor="service_cost">Service Cost</label>
                   <input
                     onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                     type="number"
                     placeholder={service.service_cost}
                     name="service_cost"

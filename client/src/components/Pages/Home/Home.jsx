@@ -1,18 +1,22 @@
 import React from "react";
 import { Navbar } from "../../Bars/Navbar";
 import { Hero } from "./Hero";
+import { About } from "./About";
 import { Calculator } from "./Calculator";
 import { Contact } from "./Contact";
 import { Footer } from "./Footer";
 
 export const Home = () => {
   return (
-    <div>
+    <div className="min-h-screen">
       <Navbar />
-      <Hero />
-      <Calculator />
-      <Contact />
-      <Footer />
+      <main className="pt-14">
+        <Hero />
+        <About />
+        <Calculator />
+        <Contact />
+        <Footer />
+      </main>
     </div>
   );
 };

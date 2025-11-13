@@ -7,6 +7,7 @@ import { faBowlRice } from "@fortawesome/free-solid-svg-icons";
 import html2pdf from "html2pdf.js";
 import Button from "../../Button/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { API_URL } from "../../../constants/config";
 
 export const ViewPrescription = () => {
   const { prescriptionId } = useParams();
@@ -22,7 +23,7 @@ export const ViewPrescription = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:8081/prescription/test/${prescriptionId}`, {
+      .get(`${API_URL}/prescription/test/${prescriptionId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -69,7 +70,7 @@ export const ViewPrescription = () => {
           <Profile />
         </div>
         {error && (
-          <div className="bg-red-200 text-red-600 p-2 rounded mb-4">
+          <div className="bg-red-200 text-red-600 p-2 rounded-sm mb-4">
             {error}
           </div>
         )}
@@ -116,25 +117,25 @@ export const ViewPrescription = () => {
                               <div className="flex flex-col items-center">
                                 <h1>Breakfast</h1>
                                 <div className="flex items-center gap-x-1 text-[20px]">
-                                  <div className="w-[20px] h-[20px] border-[1px] border-[#c4c4c4]"></div>{" "}
+                                  <div className="w-[20px] h-[20px] border border-[#c4c4c4]"></div>{" "}
                                   <FontAwesomeIcon icon={faBowlRice} />
-                                  <div className="w-[20px] h-[20px] border-[1px] border-[#c4c4c4]"></div>
+                                  <div className="w-[20px] h-[20px] border border-[#c4c4c4]"></div>
                                 </div>
                               </div>
                               <div className="flex flex-col items-center">
                                 <h1>Lunch</h1>
                                 <div className="flex items-center gap-x-1 text-[20px]">
-                                  <div className="w-[20px] h-[20px] border-[1px] border-[#c4c4c4]"></div>{" "}
+                                  <div className="w-[20px] h-[20px] border border-[#c4c4c4]"></div>{" "}
                                   <FontAwesomeIcon icon={faBowlRice} />
-                                  <div className="w-[20px] h-[20px] border-[1px] border-[#c4c4c4]"></div>
+                                  <div className="w-[20px] h-[20px] border border-[#c4c4c4]"></div>
                                 </div>
                               </div>
                               <div className="flex flex-col items-center">
                                 <h1>Dinner</h1>
                                 <div className="flex items-center gap-x-1 text-[20px]">
-                                  <div className="w-[20px] h-[20px] border-[1px] border-[#c4c4c4]"></div>{" "}
+                                  <div className="w-[20px] h-[20px] border border-[#c4c4c4]"></div>{" "}
                                   <FontAwesomeIcon icon={faBowlRice} />
-                                  <div className="w-[20px] h-[20px] border-[1px] border-[#c4c4c4]"></div>
+                                  <div className="w-[20px] h-[20px] border border-[#c4c4c4]"></div>
                                 </div>
                               </div>
                             </div>

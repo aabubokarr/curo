@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import axios from "axios";
-import Button from "../../Button/Button";
+import { Button, Input, Card } from "../../UI";
+import { theme } from "../../../constants/theme";
 
 export const Login = () => {
   const API_URL = import.meta.env.VITE_API_URL;
@@ -10,22 +12,26 @@ export const Login = () => {
     password: "",
   });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+    setError("");
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
 
     axios
       .post(`${API_URL}/auth/login`, formData)
       .then((res) => {
         console.log("Login successful");
-
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("role", res.data.role);
         const role = localStorage.getItem("role");
@@ -42,68 +48,116 @@ export const Login = () => {
         console.error("Error while login:", error);
         if (error.response && error.response.data) {
           setError(
-            `Failed to login : ${error.response.data.error || "Unknown error"}`
+            `Failed to login: ${error.response.data.error || "Unknown error"}`
           );
         } else {
           setError("Failed to login due to network error.");
         }
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
   return (
-    <div className="flex h-[100vh]">
-      <div className="w-[50vw] h-[100vh] bg-[#009BA9] flex items-center justify-center">
-        <div>
-          <h1 className="text-white text-[40px] font-bold text-center">
+    <div className="min-h-screen flex flex-col lg:flex-row">
+      {/* Left Side - Image/Illustration */}
+      <div
+        className="hidden lg:flex lg:w-1/2 h-screen items-center justify-center p-8"
+        style={{ backgroundColor: theme.colors.primary.main }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center"
+        >
+          <h1 className="text-white text-4xl md:text-5xl font-bold mb-6">
             Welcome back
           </h1>
-          <img src="images/patient.png" alt="patient" />
-        </div>
+          <div className="flex justify-center">
+            <img
+              src="/images/patient.png"
+              alt="patient"
+              className="max-w-md w-full h-auto"
+            />
+          </div>
+          <p className="text-white text-lg mt-6 opacity-90">
+            Sign in to continue your healthcare journey
+          </p>
+        </motion.div>
       </div>
-      <div className="w-[50vw] h-[100vh] p-10 flex items-center justify-center">
-        <div className="w-full">
-          <h1 className="text-center text-[#009BA9] text-[50px] font-bold">
-            Login
-          </h1>
-          {error && (
-            <div className="bg-red-200 text-red-600 p-2 rounded mb-4">
-              {error}
+
+      {/* Right Side - Login Form */}
+      <div className="w-full lg:w-1/2 min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-10 bg-gradient-to-br from-[#EFF0F6] to-white">
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6 }}
+          className="w-full max-w-md"
+        >
+          <Card padding="lg" shadow="lg" className="w-full">
+            <div className="text-center mb-8">
+              <h1
+                className="text-3xl md:text-4xl font-bold mb-2"
+                style={{ color: theme.colors.primary.main }}
+              >
+                Login
+              </h1>
+              <p className="text-gray-600">Sign in to your account</p>
             </div>
-          )}
-          <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
-            <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-              <label htmlFor="email">Email</label>
-              <input
-                onChange={handleChange}
-                value={formData.email}
-                className="p-3 w-full h-[48px] rounded-[8px] bg-[#EFF0F6] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
-                type="email"
-                placeholder="Enter Your Email"
+
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+                {error}
+              </div>
+            )}
+
+            <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
+              <Input
+                label="Email"
                 name="email"
-              />
-            </div>
-            <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-              <label htmlFor="password">Password</label>
-              <input
+                type="email"
+                placeholder="Enter your email"
+                value={formData.email}
                 onChange={handleChange}
-                value={formData.password}
-                className="p-3 w-full h-[48px] rounded-[8px] bg-[#EFF0F6] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
-                type="password"
-                placeholder="Enter Your Password"
-                name="password"
+                required
               />
-            </div>
-            <div>
-              <Button name="LOGIN" />
-              <p className="mt-2">
-                Don't have an account?{" "}
-                <Link to="/register" className="text-[#009BA9]">
-                  Sign Up
-                </Link>
-              </p>
-            </div>
-          </form>
-        </div>
+
+              <Input
+                label="Password"
+                name="password"
+                type="password"
+                placeholder="Enter your password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+
+              <div>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  fullWidth
+                  disabled={loading}
+                >
+                  {loading ? "Logging in..." : "LOGIN"}
+                </Button>
+                <p className="mt-4 text-center text-sm text-gray-600">
+                  Don't have an account?{" "}
+                  <Link
+                    to="/register"
+                    className="font-medium hover:underline"
+                    style={{ color: theme.colors.primary.main }}
+                  >
+                    Sign Up
+                  </Link>
+                </p>
+              </div>
+            </form>
+          </Card>
+        </motion.div>
       </div>
     </div>
   );

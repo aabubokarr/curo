@@ -3,6 +3,7 @@ import axios from "axios";
 import { Sidebar } from "../Bars/Sidebar";
 import { Profile } from "./Profile";
 import Button from "../Button/Button";
+import { API_URL } from "../../constants/config";
 
 export const EditProfile = () => {
   const token = localStorage.getItem("token");
@@ -15,7 +16,7 @@ export const EditProfile = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8081/user", {
+      .get(`${API_URL}/user`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -49,7 +50,7 @@ export const EditProfile = () => {
 
     if (window.confirm("Are you sure you want to update you password?")) {
       axios
-        .post("http://localhost:8081/user/password", formData, {
+        .post(`${API_URL}/user/password`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -84,7 +85,7 @@ export const EditProfile = () => {
         </div>
         <div className="bg-[#FAFAFA] rounded-[20px] p-5 w-full">
           {error && (
-            <div className="bg-red-200 text-red-600 p-2 rounded mb-4">
+            <div className="bg-red-200 text-red-600 p-2 rounded-sm mb-4">
               {error}
             </div>
           )}
@@ -100,7 +101,7 @@ export const EditProfile = () => {
               <label htmlFor="old_pass">Enter Old Password</label>
               <input
                 onChange={handleChange}
-                className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                 type="password"
                 placeholder="Enter Your Old Password"
                 name="old_pass"
@@ -110,7 +111,7 @@ export const EditProfile = () => {
               <label htmlFor="new_pass">Enter New Password</label>
               <input
                 onChange={handleChange}
-                className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                 type="password"
                 placeholder="Enter Your New Password"
                 name="new_pass"

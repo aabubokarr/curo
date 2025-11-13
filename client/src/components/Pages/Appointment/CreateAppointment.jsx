@@ -74,7 +74,7 @@ export const CreateAppointment = () => {
         {role === "admin" ? (
           <div className="bg-[#FAFAFA] rounded-[20px] p-5">
             {error && (
-              <div className="bg-red-200 text-red-600 p-2 rounded mb-4">
+              <div className="bg-red-200 text-red-600 p-2 rounded-sm mb-4">
                 {error}
               </div>
             )}
@@ -84,7 +84,7 @@ export const CreateAppointment = () => {
                   <label htmlFor="doctor_id">Doctor ID</label>
                   <input
                     onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                     type="number"
                     placeholder="Enter Doctor ID"
                     name="doctor_id"
@@ -94,7 +94,7 @@ export const CreateAppointment = () => {
                   <label htmlFor="patient_id">Patient ID</label>
                   <input
                     onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                     type="number"
                     placeholder="Enter Patient ID"
                     name="patient_id"
@@ -106,7 +106,7 @@ export const CreateAppointment = () => {
                   <label htmlFor="appointment_date">Appointment Date</label>
                   <input
                     onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                     type="date"
                     placeholder="Enter Appointment Date"
                     name="appointment_date"
@@ -117,7 +117,7 @@ export const CreateAppointment = () => {
                   <select
                     name="appointment_time"
                     onChange={handleChange}
-                    className="p-3 w-full h-[48px] cursor-pointer rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                    className="p-3 w-full h-[48px] cursor-pointer rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                   >
                     <option>-Select Appointment Time-</option>
                     <option value="10:00 AM">10:00 AM</option>

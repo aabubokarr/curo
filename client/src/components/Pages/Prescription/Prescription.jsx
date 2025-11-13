@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
+import { API_URL } from "../../../constants/config";
 
 export const Prescription = () => {
   const navigate = useNavigate();
@@ -16,8 +17,8 @@ export const Prescription = () => {
   useEffect(() => {
     const api =
       role === "doctor"
-        ? "http://localhost:8081/list/doctor/prescription"
-        : "http://localhost:8081/list/patient/prescription";
+        ? `${API_URL}/list/doctor/prescription`
+        : `${API_URL}/list/patient/prescription`;
 
     axios
       .get(api, {

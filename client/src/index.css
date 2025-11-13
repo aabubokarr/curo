@@ -1,28 +1,71 @@
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap");
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap')
+layer(base);
+@import 'tailwindcss';
 
-* {
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-  scroll-behavior: smooth;
-  font-family: "Plus Jakarta Sans", sans-serif;
+@theme {
+  --breakpoint-*: initial;
+  --breakpoint-sm: 475px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
 }
 
-::-webkit-scrollbar {
-  display: none;
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
 }
 
-body {
-  background-color: #eff0f6;
-  color: #20211a;
-}
+@layer utilities {
+  * {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
 
-.times-roman {
-  font-family: "Times New Roman", Times, serif;
-  writing-mode: tb-rl;
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  body {
+    background-color: #EFF0F6;
+    color: #20211A;
+  }
+
+  :root {
+    --color-primary: #009BA9;
+    --color-primary-dark: #007A85;
+    --color-primary-light: #00B8C7;
+    --color-primary-hover: #298E9E;
+    --color-secondary: #EFF0F6;
+    --color-text-primary: #20211A;
+    --color-text-secondary: #4A4A4A;
+    --color-background: #EFF0F6;
+    --color-background-paper: #FFFFFF;
+    --color-background-dark: #0A0A0A;
+    --color-background-light: #FAF9F6;
+    --color-border: #C4C4C4;
+  }
+
+  .times-roman {
+    font-family: 'Times New Roman', Times, serif;
+    writing-mode: tb-rl;
+  }
 }
 
 @layer base {

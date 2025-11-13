@@ -91,7 +91,7 @@ export const EditDoctor = () => {
           <div className="flex gap-3">
             <div className="bg-[#FAFAFA] rounded-[20px] p-5 w-full">
               {error && (
-                <div className="bg-red-200 text-red-600 p-2 rounded mb-4">
+                <div className="bg-red-200 text-red-600 p-2 rounded-sm mb-4">
                   {error}
                 </div>
               )}
@@ -101,7 +101,7 @@ export const EditDoctor = () => {
                     <label htmlFor="name">Name</label>
                     <input
                       onChange={handleChange}
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                       type="text"
                       placeholder={doctor.name}
                       name="name"
@@ -111,7 +111,7 @@ export const EditDoctor = () => {
                     <label htmlFor="email">Email</label>
                     <input
                       onChange={handleChange}
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                       type="email"
                       placeholder={doctor.email}
                       name="email"
@@ -123,7 +123,7 @@ export const EditDoctor = () => {
                     <label htmlFor="phone_no">Phone No.</label>
                     <input
                       onChange={handleChange}
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                       type="text"
                       placeholder={doctor.phone_no}
                       name="phone_no"
@@ -133,7 +133,7 @@ export const EditDoctor = () => {
                     <label htmlFor="address">Address</label>
                     <input
                       onChange={handleChange}
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                       type="text"
                       placeholder={doctor.address}
                       name="address"
@@ -145,7 +145,7 @@ export const EditDoctor = () => {
                     <label htmlFor="password">Password</label>
                     <input
                       onChange={handleChange}
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                       type="password"
                       placeholder="**** ****"
                       name="password"
@@ -156,7 +156,7 @@ export const EditDoctor = () => {
                     <select
                       onChange={handleChange}
                       name="gender"
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                     >
                       <option>{doctor.gender}</option>
                       <option value="Male">Male</option>
@@ -170,7 +170,7 @@ export const EditDoctor = () => {
                     <select
                       onChange={handleChange}
                       name="speciality"
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                     >
                       <option>{doctor.speciality}</option>
                       <option value="Opthalmologist">Opthalmologist</option>
@@ -185,7 +185,7 @@ export const EditDoctor = () => {
                     <select
                       onChange={handleChange}
                       name="dept_id"
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                     >
                       <option>{doctor.dept_name}</option>
                       <option value="1">Opthalmology</option>

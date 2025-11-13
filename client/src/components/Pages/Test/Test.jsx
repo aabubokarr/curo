@@ -2,15 +2,20 @@ import React, { useEffect, useState } from "react";
 import { Sidebar } from "../../Bars/Sidebar";
 import { Profile } from "../../Profile/Profile";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faEye, faTrash, faFlask, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { Button, Card } from "../../UI";
+import { theme } from "../../../constants/theme";
+import { API_URL } from "../../../constants/config";
+import { motion } from "framer-motion";
 
 export const Test = () => {
-  const API_URL = import.meta.env.VITE_API_URL
   const role = localStorage.getItem("role");
   const token = localStorage.getItem("token");
   const [testList, setTestList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     axios
@@ -20,11 +25,13 @@ export const Test = () => {
         },
       })
       .then((res) => {
-        setTestList(res.data);
+        setTestList(res.data || []);
+        setLoading(false);
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
         setError("Failed to fetch test data.");
+        setLoading(false);
       });
   }, [token]);
 
@@ -49,63 +56,114 @@ export const Test = () => {
     }
   };
 
-  return (
-    <div className="flex">
-      <Sidebar />
-      <div className="px-3 w-full">
-        <div className="top-0 flex items-center justify-between sticky bg-[#EFF0F6] z-10 py-3">
-          <h1 className="text-[28px] font-semibold">Tests</h1>
-          <Profile />
+  if (role !== "admin") {
+    return (
+      <div className="flex min-h-screen">
+        <Sidebar />
+        <div className="flex-1 flex items-center justify-center">
+          <Card padding="lg" className="text-center">
+            <p className="text-lg text-gray-600">You don't have access to this page</p>
+          </Card>
         </div>
-        {role === "admin" ? (
-          <div className="bg-[#FAFAFA] rounded-[20px] pt-5">
-            <div className="px-5 pb-3">
-              <Link
-                to="/create-test"
-                className="w-[120px] h-[48px] cursor-pointer bg-[#009BA9] text-[18px] font-normal rounded-[8px] flex items-center justify-center text-white"
-              >
-                Add New
-              </Link>
-            </div>
-            <table className="w-full pt-3">
-              <thead>
-                <tr>
-                  <th>Treatment ID</th>
-                  <th>Test Name</th>
-                  <th>Test Cost</th>
-                  <th>View</th>
-                  <th>Delete</th>
-                </tr>
-              </thead>
-              <tbody>
-                {testList.map((test, index) => (
-                  <tr
-                    key={test.test_id}
-                    className={`text-center h-[48px] ${
-                      index % 2 === 0 ? "bg-[#F1F1F1]" : "bg-[#FAFAFA]"
-                    }`}
-                  >
-                    <td>{test.treatment_id}</td>
-                    <td>{test.test_name}</td>
-                    <td>{test.test_cost}</td>
-                    <td>
-                      <Link to={`/edit-test/${test.test_id}`}>
-                        <FontAwesomeIcon icon={faEye} />
-                      </Link>
-                    </td>
-                    <td
-                      onClick={() => handleDelete(test.test_id)}
-                      className="cursor-pointer"
-                    >
-                      <FontAwesomeIcon icon={faTrash} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex min-h-screen">
+      <Sidebar />
+      <div className="flex-1 lg:ml-0 px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        <div className="sticky top-0 flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[#EFF0F6] z-10 py-4 mb-6 rounded-lg px-4 gap-4">
+          <h1 className="text-2xl sm:text-3xl font-semibold" style={{ color: theme.colors.text.primary }}>
+            Tests
+          </h1>
+          <div className="flex items-center gap-4">
+            <Link to="/create-test">
+              <Button variant="primary" size="md" className="flex items-center gap-2">
+                <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
+                <span className="hidden sm:inline">Add New Test</span>
+                <span className="sm:hidden">Add</span>
+              </Button>
+            </Link>
+            <Profile />
           </div>
+        </div>
+
+        {error && (
+          <Card padding="md" className="mb-6 bg-red-50 border border-red-200">
+            <p className="text-red-600">{error}</p>
+          </Card>
+        )}
+
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#009BA9] mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading tests...</p>
+          </div>
+        ) : testList.length === 0 ? (
+          <Card padding="lg" className="text-center">
+            <FontAwesomeIcon icon={faFlask} className="text-4xl text-gray-400 mb-4" />
+            <p className="text-lg text-gray-600">No tests found</p>
+            <Link to="/create-test" className="mt-4 inline-block">
+              <Button variant="primary" size="md">Add First Test</Button>
+            </Link>
+          </Card>
         ) : (
-          <div className="text-center">You don't have access to this page</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+            {testList.map((test, index) => (
+              <motion.div
+                key={test.test_id}
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: index * 0.05 }}
+                whileHover={{ y: -5 }}
+              >
+                <Card padding="lg" shadow="md" className="h-full hover:shadow-lg transition-shadow duration-300">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: theme.colors.status.info + "20" }}>
+                      <FontAwesomeIcon
+                        icon={faFlask}
+                        className="text-xl"
+                        style={{ color: theme.colors.status.info }}
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Link to={`/edit-test/${test.test_id}`}>
+                        <button
+                          className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-colors"
+                          style={{ color: theme.colors.primary.main }}
+                          title="View/Edit"
+                        >
+                          <FontAwesomeIcon icon={faEye} />
+                        </button>
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(test.test_id)}
+                        className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-red-50 transition-colors text-red-500"
+                        title="Delete"
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h3 className="font-bold text-lg" style={{ color: theme.colors.text.primary }}>
+                      {test.test_name}
+                    </h3>
+                    <div className="space-y-1 text-sm">
+                      <p className="text-gray-600">
+                        <span className="font-medium">Treatment ID:</span> {test.treatment_id}
+                      </p>
+                      <p className="text-gray-600 font-semibold">
+                        <span className="font-medium">Cost:</span> {test.test_cost} TK
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
         )}
       </div>
     </div>

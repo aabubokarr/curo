@@ -83,7 +83,7 @@ export const EditPatient = () => {
         {role === "admin" ? (
           <div className="flex gap-3">
             {error && (
-              <div className="bg-red-200 text-red-600 p-2 rounded mb-4">
+              <div className="bg-red-200 text-red-600 p-2 rounded-sm mb-4">
                 {error}
               </div>
             )}
@@ -95,7 +95,7 @@ export const EditPatient = () => {
                     <input
                       onChange={handleChange}
                       placeholder={patient.name}
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                       type="text"
                       name="name"
                     />
@@ -105,7 +105,7 @@ export const EditPatient = () => {
                     <input
                       onChange={handleChange}
                       placeholder={patient.email}
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px]                   border-b-[#009BA9] focus:outline-none"
+                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b                   border-b-[#009BA9] focus:outline-hidden"
                       type="email"
                       name="email"
                     />
@@ -117,7 +117,7 @@ export const EditPatient = () => {
                     <input
                       onChange={handleChange}
                       placeholder={patient.phone_no}
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                       type="text"
                       name="phone_no"
                     />
@@ -127,7 +127,7 @@ export const EditPatient = () => {
                     <input
                       onChange={handleChange}
                       placeholder={patient.address}
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                       type="text"
                       name="address"
                     />
@@ -139,7 +139,7 @@ export const EditPatient = () => {
                     <input
                       onChange={handleChange}
                       placeholder="**** ****"
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                       type="password"
                       name="password"
                     />
@@ -150,7 +150,7 @@ export const EditPatient = () => {
                       onChange={handleChange}
                       placeholder={patient.gender}
                       name="gender"
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                     >
                       <option value="">{patient.gender}</option>
                       <option value="Male">Male</option>
@@ -165,7 +165,7 @@ export const EditPatient = () => {
                       onChange={handleChange}
                       placeholder={patient.blood_group}
                       name="blood_group"
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                     >
                       <option value="">{patient.blood_group}</option>
                       <option value="A+">A+</option>
@@ -183,7 +183,7 @@ export const EditPatient = () => {
                     <input
                       onChange={handleChange}
                       placeholder={patient.dob}
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                       type="date"
                       name="dob"
                     />
@@ -195,7 +195,7 @@ export const EditPatient = () => {
                     <input
                       onChange={handleChange}
                       placeholder={patient.height}
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                       type="number"
                       step="0.01"
                       name="height"
@@ -206,7 +206,7 @@ export const EditPatient = () => {
                     <input
                       onChange={handleChange}
                       placeholder={patient.weight}
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                       type="number"
                       name="weight"
                     />
@@ -217,7 +217,7 @@ export const EditPatient = () => {
                   <input
                     onChange={handleChange}
                     placeholder={patient.occupation}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                     type="text"
                     name="occupation"
                   />

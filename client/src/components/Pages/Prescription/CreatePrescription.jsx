@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "../../Button/Button";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { API_URL } from "../../../constants/config";
 
 export const CreatePrescription = () => {
   const [error, setError] = useState("");
@@ -50,7 +51,7 @@ export const CreatePrescription = () => {
 
     if (window.confirm("Are you sure you want to create this prescription?")) {
       axios
-        .post("http://localhost:8081/create/prescription", formData, {
+        .post(`${API_URL}/create/prescription`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -86,7 +87,7 @@ export const CreatePrescription = () => {
         {role === "doctor" ? (
           <div className="bg-[#FAFAFA] rounded-[20px] p-5">
             {error && (
-              <div className="bg-red-200 text-red-600 p-2 rounded mb-4">
+              <div className="bg-red-200 text-red-600 p-2 rounded-sm mb-4">
                 {error}
               </div>
             )}
@@ -96,7 +97,7 @@ export const CreatePrescription = () => {
                   <label htmlFor="doctor_id">Your ID</label>
                   <input
                     onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                     type="number"
                     placeholder="Enter Your ID"
                     name="doctor_id"
@@ -106,7 +107,7 @@ export const CreatePrescription = () => {
                   <label htmlFor="patient_id">Patient ID</label>
                   <input
                     onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                     type="number"
                     placeholder="Enter Patient ID"
                     name="patient_id"
@@ -119,7 +120,7 @@ export const CreatePrescription = () => {
                 <div className="flex items-center gap-3">
                   <input
                     onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l-[1px] border-l-[#009BA9] border-b-[1px] border-b-[#009BA9] focus:outline-none"
+                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
                     type="text"
                     placeholder="Enter Medicine Name"
                     name="medicine_id"
@@ -128,7 +129,7 @@ export const CreatePrescription = () => {
                   <button
                     type="button"
                     onClick={handleAddMedicine}
-                    className="mt-2 bg-[#009BA9] text-white text-[20px] w-[50px] rounded p-2"
+                    className="mt-2 bg-[#009BA9] text-white text-[20px] w-[50px] rounded-sm p-2"
                   >
                     <FontAwesomeIcon icon={faPlus} />
                   </button>
