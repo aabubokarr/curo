@@ -1,19 +1,13 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import IdCard from "../../Profile/IdCard";
-import { Sidebar } from "../../Bars/Sidebar";
-import { Profile } from "../../Profile/Profile";
-import Button from "../../Button/Button";
+import axios from "axios";
+import { API_URL } from "../../../constants/config";
 
-export const EditDoctor = () => {
-  const API_URL = import.meta.env.VITE_API_URL;
-  const { doctorId } = useParams();
+export const EditDoctor = ({ doctor, onSuccess, onCancel }) => {
   const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
-  const navigate = useNavigate();
-  const [doctor, setDoctor] = useState({});
+
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -26,190 +20,458 @@ export const EditDoctor = () => {
     role: "doctor",
   });
 
+  // Load doctor information into the form
   useEffect(() => {
-    axios
-      .get(`${API_URL}/doctor/${doctorId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((res) => {
-        setDoctor(res.data), console.log(res.data);
-      })
-      .catch((err) => {
-        setError("Failed to fetch doctor data");
-        console.error(err);
-      });
-  }, [doctorId, token, navigate]);
+    if (!doctor) return;
+
+    setFormData({
+      name: doctor.name || "",
+      email: doctor.email || "",
+      phone_no: doctor.phone_no || "",
+      address: doctor.address || "",
+      password: "",
+      gender: doctor.gender || "",
+      speciality: doctor.speciality || "",
+      dept_id: doctor.dept_id ? String(doctor.dept_id) : "",
+      role: doctor.role || "doctor",
+    });
+  }, [doctor]);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    setFormData((previousData) => ({
+      ...previousData,
+      [name]: value,
+    }));
+
+    if (error) {
+      setError("");
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const isFormComplete = Object.values(formData).some(
-      (field) => field !== ""
-    );
-    if (!isFormComplete) {
-      setError("Please fill in at least one required field.");
+    if (!doctor?.doctor_id) {
+      setError("Doctor information is missing.");
       return;
     }
 
-    if (window.confirm("Are you sure you want to update info?")) {
-      console.log(formData);
+    setError("");
 
-      axios
-        .patch(`${API_URL}/doctor/update/${doctorId}`, formData, {
+    // Password is optional while editing.
+    const dataToUpdate = {
+      name: formData.name,
+      email: formData.email,
+      phone_no: formData.phone_no,
+      address: formData.address,
+      gender: formData.gender,
+      speciality: formData.speciality,
+      dept_id: formData.dept_id,
+      role: formData.role,
+    };
+
+    // Only send password if the admin entered a new one
+    if (formData.password.trim() !== "") {
+      dataToUpdate.password = formData.password;
+    }
+
+    // Validate required fields
+    const requiredFields = [
+      "name",
+      "email",
+      "phone_no",
+      "address",
+      "gender",
+      "speciality",
+      "dept_id",
+    ];
+
+    const isFormComplete = requiredFields.every(
+      (field) => formData[field].trim() !== ""
+    );
+
+    if (!isFormComplete) {
+      setError("Please fill in all required fields.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await axios.patch(
+        `${API_URL}/doctor/update/${doctor.doctor_id}`,
+        dataToUpdate,
+        {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        })
-        .then((res) => {
-          console.log("Doctor updated successfully", res.data);
-          alert("Doctor updated successfully");
-        })
-        .catch((error) => {
-          console.error("Error updating doctor:", error);
-        });
+        }
+      );
+
+      console.log("Doctor updated successfully:", response.data);
+
+      if (onSuccess) {
+        onSuccess(response.data);
+      }
+    } catch (error) {
+      console.error("Error updating doctor:", error);
+
+      if (error.response?.data) {
+        setError(
+          error.response.data.error ||
+            error.response.data.message ||
+            "Failed to update doctor."
+        );
+      } else {
+        setError("Failed to update doctor due to network error.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex">
-      <Sidebar />
-      <div className="px-3 w-full">
-        <div className="top-0 flex items-center justify-between sticky bg-[#EFF0F6] z-10 py-3">
-          <h1 className="text-[28px] font-semibold">Edit Doctor</h1>
-          <Profile />
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      {/* Error */}
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+          <p className="text-sm text-red-600">{error}</p>
         </div>
-        {role === "admin" ? (
-          <div className="flex gap-3">
-            <div className="bg-[#FAFAFA] rounded-[20px] p-5 w-full">
-              {error && (
-                <div className="bg-red-200 text-red-600 p-2 rounded-sm mb-4">
-                  {error}
-                </div>
-              )}
-              <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                    <label htmlFor="name">Name</label>
-                    <input
-                      onChange={handleChange}
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                      type="text"
-                      placeholder={doctor.name}
-                      name="name"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                    <label htmlFor="email">Email</label>
-                    <input
-                      onChange={handleChange}
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                      type="email"
-                      placeholder={doctor.email}
-                      name="email"
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                    <label htmlFor="phone_no">Phone No.</label>
-                    <input
-                      onChange={handleChange}
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                      type="text"
-                      placeholder={doctor.phone_no}
-                      name="phone_no"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                    <label htmlFor="address">Address</label>
-                    <input
-                      onChange={handleChange}
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                      type="text"
-                      placeholder={doctor.address}
-                      name="address"
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                    <label htmlFor="password">Password</label>
-                    <input
-                      onChange={handleChange}
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                      type="password"
-                      placeholder="**** ****"
-                      name="password"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                    <label htmlFor="gender">Gender</label>
-                    <select
-                      onChange={handleChange}
-                      name="gender"
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                    >
-                      <option>{doctor.gender}</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                    <label htmlFor="speciality">Speciality</label>
-                    <select
-                      onChange={handleChange}
-                      name="speciality"
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                    >
-                      <option>{doctor.speciality}</option>
-                      <option value="Opthalmologist">Opthalmologist</option>
-                      <option value="Cardiologist">Cardiologist</option>
-                      <option value="Radiologist">Radiologist</option>
-                      <option value="Oncologist">Oncologist</option>
-                      <option value="Psychiatrist">Psychiatrist</option>
-                    </select>
-                  </div>
-                  <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                    <label htmlFor="dept_id">Department Name</label>
-                    <select
-                      onChange={handleChange}
-                      name="dept_id"
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                    >
-                      <option>{doctor.dept_name}</option>
-                      <option value="1">Opthalmology</option>
-                      <option value="2">Cardiology</option>
-                      <option value="3">Radiology</option>
-                      <option value="4">Oncology</option>
-                      <option value="5">Psychiatry</option>
-                    </select>
-                  </div>
-                </div>
-                <Button name="UPDATE" />
-              </form>
-            </div>
-            <IdCard
-              name={doctor.name}
-              role={doctor.role}
-              id={doctor.doctor_id}
-              speciality={doctor.speciality}
-            />
-          </div>
-        ) : (
-          <div className="text-center">You don't have access to this page</div>
-        )}
+      )}
+
+      {/* Name + Email */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="edit-doctor-name"
+            className="text-sm font-medium text-gray-700"
+          >
+            Name <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            id="edit-doctor-name"
+            name="name"
+            type="text"
+            value={formData.name}
+            onChange={handleChange}
+            disabled={loading}
+            placeholder="Enter doctor name"
+            className="
+              h-11 w-full rounded-lg
+              border border-gray-300
+              bg-white px-3
+              text-sm text-gray-800
+              outline-none
+              transition
+              placeholder:text-gray-400
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:cursor-not-allowed
+              disabled:bg-gray-100
+            "
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="edit-doctor-email"
+            className="text-sm font-medium text-gray-700"
+          >
+            Email <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            id="edit-doctor-email"
+            name="email"
+            type="email"
+            value={formData.email}
+            onChange={handleChange}
+            disabled={loading}
+            placeholder="Enter doctor email"
+            className="
+              h-11 w-full rounded-lg
+              border border-gray-300
+              bg-white px-3
+              text-sm text-gray-800
+              outline-none
+              transition
+              placeholder:text-gray-400
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:cursor-not-allowed
+              disabled:bg-gray-100
+            "
+          />
+        </div>
       </div>
-    </div>
+
+      {/* Phone + Address */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="edit-doctor-phone"
+            className="text-sm font-medium text-gray-700"
+          >
+            Phone Number <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            id="edit-doctor-phone"
+            name="phone_no"
+            type="tel"
+            value={formData.phone_no}
+            onChange={handleChange}
+            disabled={loading}
+            placeholder="Enter phone number"
+            className="
+              h-11 w-full rounded-lg
+              border border-gray-300
+              bg-white px-3
+              text-sm text-gray-800
+              outline-none
+              transition
+              placeholder:text-gray-400
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:cursor-not-allowed
+              disabled:bg-gray-100
+            "
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="edit-doctor-address"
+            className="text-sm font-medium text-gray-700"
+          >
+            Address <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            id="edit-doctor-address"
+            name="address"
+            type="text"
+            value={formData.address}
+            onChange={handleChange}
+            disabled={loading}
+            placeholder="Enter address"
+            className="
+              h-11 w-full rounded-lg
+              border border-gray-300
+              bg-white px-3
+              text-sm text-gray-800
+              outline-none
+              transition
+              placeholder:text-gray-400
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:cursor-not-allowed
+              disabled:bg-gray-100
+            "
+          />
+        </div>
+      </div>
+
+      {/* Password + Gender */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="edit-doctor-password"
+            className="text-sm font-medium text-gray-700"
+          >
+            New Password
+          </label>
+
+          <input
+            id="edit-doctor-password"
+            name="password"
+            type="password"
+            value={formData.password}
+            onChange={handleChange}
+            disabled={loading}
+            placeholder="Leave blank to keep current password"
+            className="
+              h-11 w-full rounded-lg
+              border border-gray-300
+              bg-white px-3
+              text-sm text-gray-800
+              outline-none
+              transition
+              placeholder:text-gray-400
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:cursor-not-allowed
+              disabled:bg-gray-100
+            "
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="edit-doctor-gender"
+            className="text-sm font-medium text-gray-700"
+          >
+            Gender <span className="text-red-500">*</span>
+          </label>
+
+          <select
+            id="edit-doctor-gender"
+            name="gender"
+            value={formData.gender}
+            onChange={handleChange}
+            disabled={loading}
+            className="
+              h-11 w-full rounded-lg
+              border border-gray-300
+              bg-white px-3
+              text-sm text-gray-800
+              outline-none
+              transition
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:cursor-not-allowed
+              disabled:bg-gray-100
+            "
+          >
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Speciality + Department */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="edit-doctor-speciality"
+            className="text-sm font-medium text-gray-700"
+          >
+            Speciality <span className="text-red-500">*</span>
+          </label>
+
+          <select
+            id="edit-doctor-speciality"
+            name="speciality"
+            value={formData.speciality}
+            onChange={handleChange}
+            disabled={loading}
+            className="
+              h-11 w-full rounded-lg
+              border border-gray-300
+              bg-white px-3
+              text-sm text-gray-800
+              outline-none
+              transition
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:cursor-not-allowed
+              disabled:bg-gray-100
+            "
+          >
+            <option value="">Select Speciality</option>
+            <option value="Opthalmologist">Opthalmologist</option>
+            <option value="Cardiologist">Cardiologist</option>
+            <option value="Radiologist">Radiologist</option>
+            <option value="Oncologist">Oncologist</option>
+            <option value="Psychiatrist">Psychiatrist</option>
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="edit-doctor-department"
+            className="text-sm font-medium text-gray-700"
+          >
+            Department <span className="text-red-500">*</span>
+          </label>
+
+          <select
+            id="edit-doctor-department"
+            name="dept_id"
+            value={formData.dept_id}
+            onChange={handleChange}
+            disabled={loading}
+            className="
+              h-11 w-full rounded-lg
+              border border-gray-300
+              bg-white px-3
+              text-sm text-gray-800
+              outline-none
+              transition
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:cursor-not-allowed
+              disabled:bg-gray-100
+            "
+          >
+            <option value="">Select Department</option>
+            <option value="1">Opthalmology</option>
+            <option value="2">Cardiology</option>
+            <option value="3">Radiology</option>
+            <option value="4">Oncology</option>
+            <option value="5">Psychiatry</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Buttons */}
+      <div className="flex justify-end gap-3 border-t border-gray-200 pt-5">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={loading}
+          className="
+            rounded-lg
+            border border-gray-300
+            bg-white
+            px-5 py-2.5
+            text-sm font-medium
+            text-gray-700
+            transition
+            hover:bg-gray-50
+            disabled:cursor-not-allowed
+            disabled:opacity-50
+          "
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="
+            rounded-lg
+            bg-[#009BA9]
+            px-5 py-2.5
+            text-sm font-semibold
+            text-white
+            shadow-sm
+            transition
+            hover:bg-[#008894]
+            focus:outline-none
+            focus:ring-2
+            focus:ring-[#009BA9]/30
+            disabled:cursor-not-allowed
+            disabled:opacity-60
+          "
+        >
+          {loading ? "Updating..." : "Update Doctor"}
+        </button>
+      </div>
+    </form>
   );
 };
+
+export default EditDoctor;

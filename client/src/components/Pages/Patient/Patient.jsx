@@ -1,7 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import axios from "axios";
+
 import { Layout } from "../../Layout/Layout";
 import { Profile } from "../../Profile/Profile";
-import axios from "axios";
+
+import Modal from "../../UI/Modals/Modal";
+import CreatePatient from "./CreatePatient";
+import EditPatient from "./EditPatient";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -10,8 +15,6 @@ import {
   faUser,
   faPlus,
 } from "@fortawesome/free-solid-svg-icons";
-
-import { Link } from "react-router-dom";
 
 import { Button, Card } from "../../UI";
 import { theme } from "../../../constants/theme";
@@ -24,12 +27,39 @@ export const Patient = () => {
   const token = localStorage.getItem("token");
 
   const [patientList, setPatientList] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  /* =========================================================
-     FETCH PATIENTS
-  ========================================================== */
+  const [showPatientModal, setShowPatientModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+
+  const [selectedPatient, setSelectedPatient] = useState(null);
+
+  const fetchPatients = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await axios.get(`${API_URL}/patient/read`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setPatientList(response.data || []);
+    } catch (error) {
+      console.error("Failed to fetch patients:", error);
+
+      setError(
+        error.response?.data?.error ||
+          error.response?.data?.message ||
+          "Failed to fetch patient data."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
 
   useEffect(() => {
     if (role !== "admin") {
@@ -37,28 +67,22 @@ export const Patient = () => {
       return;
     }
 
-    axios
-      .get(`${API_URL}/patient/read`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((res) => {
-        setPatientList(res.data || []);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch patients:", err);
-        setError("Failed to fetch patient data.");
-        setLoading(false);
-      });
-  }, [token, role]);
+    fetchPatients();
+  }, [fetchPatients, role]);
 
-  /* =========================================================
-     DELETE PATIENT
-  ========================================================== */
+  const handleEditPatient = (patient) => {
+    setSelectedPatient(patient);
+    setShowEditModal(true);
+  };
 
-  const handleDelete = (patientId) => {
+  const handlePatientUpdated = async () => {
+    setShowEditModal(false);
+    setSelectedPatient(null);
+
+    await fetchPatients();
+  };
+
+  const handleDelete = async (patientId) => {
     const confirmed = window.confirm(
       "Are you sure you want to delete this patient?"
     );
@@ -67,28 +91,34 @@ export const Patient = () => {
       return;
     }
 
-    axios
-      .delete(`${API_URL}/patient/delete/${patientId}`, {
+    try {
+      await axios.delete(`${API_URL}/patient/delete/${patientId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
-      .then(() => {
-        setPatientList((prevList) =>
-          prevList.filter((patient) => patient.patient_id !== patientId)
-        );
-
-        alert("Patient profile deleted successfully.");
-      })
-      .catch((err) => {
-        console.error("Failed to delete patient:", err);
-        alert("Failed to delete patient profile.");
       });
+
+      setPatientList((previousList) =>
+        previousList.filter((patient) => patient.patient_id !== patientId)
+      );
+
+      alert("Patient profile deleted successfully.");
+    } catch (error) {
+      console.error("Failed to delete patient:", error);
+
+      alert(
+        error.response?.data?.error ||
+          error.response?.data?.message ||
+          "Failed to delete patient profile."
+      );
+    }
   };
 
-  /* =========================================================
-     ACCESS DENIED
-  ========================================================== */
+  const handlePatientCreated = async () => {
+    setShowPatientModal(false);
+
+    await fetchPatients();
+  };
 
   if (role !== "admin") {
     return (
@@ -104,17 +134,11 @@ export const Patient = () => {
     );
   }
 
-  /* =========================================================
-     MAIN PAGE
-  ========================================================== */
-
   return (
     <Layout>
-      {/* =====================================================
-          HEADER
-      ====================================================== */}
+      {/* Header */}
 
-      <header
+      <div
         className="
           flex
           flex-col
@@ -130,11 +154,7 @@ export const Patient = () => {
 
         <div>
           <h1
-            className="
-              text-3xl
-              font-bold
-              tracking-tight
-            "
+            className="text-2xl sm:text-3xl font-bold"
             style={{
               color: theme.colors.text.primary,
             }}
@@ -142,46 +162,32 @@ export const Patient = () => {
             Patients
           </h1>
 
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="text-sm text-gray-500 mt-1">
             Manage and view all registered patients
           </p>
         </div>
 
         {/* Header Actions */}
 
-        <div
-          className="
-            flex
-            items-center
-            gap-4
-          "
-        >
-          <Link to="/create-patient">
-            <Button
-              variant="primary"
-              size="md"
-              className="
-                flex
-                items-center
-                gap-2
-                whitespace-nowrap
-              "
-            >
-              <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
+        <div className="flex items-center gap-4">
+          <Button
+            variant="primary"
+            size="md"
+            onClick={() => setShowPatientModal(true)}
+            className="flex items-center gap-2"
+          >
+            <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
 
-              <span className="hidden sm:inline">Add New Patient</span>
+            <span className="hidden sm:inline">Add New Patient</span>
 
-              <span className="sm:hidden">Add</span>
-            </Button>
-          </Link>
+            <span className="sm:hidden">Add</span>
+          </Button>
 
           <Profile />
         </div>
-      </header>
+      </div>
 
-      {/* =====================================================
-          ERROR
-      ====================================================== */}
+      {/* Error */}
 
       {error && (
         <Card
@@ -193,87 +199,73 @@ export const Patient = () => {
             border-red-200
           "
         >
-          <p className="text-red-600 text-sm">{error}</p>
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-red-600">{error}</p>
+
+            <button
+              type="button"
+              onClick={fetchPatients}
+              className="
+                text-sm
+                font-medium
+                text-red-700
+                hover:underline
+              "
+            >
+              Try Again
+            </button>
+          </div>
         </Card>
       )}
 
-      {/* =====================================================
-          LOADING
-      ====================================================== */}
+      {/* Loading */}
 
       {loading ? (
-        <div
-          className="
-            flex
-            flex-col
-            items-center
-            justify-center
-            py-24
-          "
-        >
+        <div className="text-center py-12">
           <div
             className="
               animate-spin
               rounded-full
               h-12
               w-12
-              border-4
-              border-gray-200
-              border-t-[#009BA9]
+              border-b-2
+              border-[#009BA9]
+              mx-auto
               mb-4
             "
           />
 
-          <p className="text-gray-500">Loading patients...</p>
+          <p className="text-gray-600">Loading patients...</p>
         </div>
       ) : patientList.length === 0 ? (
-        /* ===================================================
-           EMPTY STATE
-        ==================================================== */
+        /* Empty State */
 
         <Card padding="lg" shadow="md" className="text-center">
-          <div className="py-12">
-            <div
+          <div className="py-8">
+            <FontAwesomeIcon
+              icon={faUser}
               className="
-                w-20
-                h-20
-                rounded-full
-                mx-auto
-                mb-5
-                flex
-                items-center
-                justify-center
-                bg-gray-100
+                text-4xl
+                text-gray-400
+                mb-4
               "
+            />
+
+            <p className="text-lg text-gray-600">No patients found</p>
+
+            <Button
+              variant="primary"
+              size="md"
+              onClick={() => setShowPatientModal(true)}
+              className="mt-4"
             >
-              <FontAwesomeIcon
-                icon={faUser}
-                className="
-                  text-3xl
-                  text-gray-400
-                "
-              />
-            </div>
-
-            <h2 className="text-xl font-semibold text-gray-700">
-              No patients found
-            </h2>
-
-            <p className="mt-2 text-sm text-gray-500">
-              Start by adding your first patient.
-            </p>
-
-            <Link to="/create-patient" className="mt-6 inline-block">
-              <Button variant="primary" size="md">
-                Add First Patient
-              </Button>
-            </Link>
+              <FontAwesomeIcon icon={faPlus} className="mr-2" />
+              Add First Patient
+            </Button>
           </div>
         </Card>
       ) : (
-        /* ===================================================
-           PATIENT GRID
-        ==================================================== */
+        /* Patient Grid */
 
         <div
           className="
@@ -309,24 +301,22 @@ export const Patient = () => {
                 shadow="md"
                 className="
                   h-full
-                  hover:shadow-xl
+                  hover:shadow-lg
                   transition-shadow
                   duration-300
                 "
               >
-                {/* ==========================================
-                    CARD HEADER
-                =========================================== */}
+                {/* Card Header */}
 
                 <div
                   className="
                     flex
-                    items-start
+                    items-center
                     justify-between
-                    mb-5
+                    mb-3
                   "
                 >
-                  {/* Patient Avatar */}
+                  {/* Patient Icon */}
 
                   <div
                     className="
@@ -353,29 +343,29 @@ export const Patient = () => {
                   {/* Actions */}
 
                   <div className="flex gap-2">
-                    {/* View / Edit */}
+                    {/* Edit */}
 
-                    <Link to={`/edit-patient/${patient.patient_id}`}>
-                      <button
-                        type="button"
-                        className="
-                          w-9
-                          h-9
-                          rounded-lg
-                          flex
-                          items-center
-                          justify-center
-                          hover:bg-gray-100
-                          transition-colors
-                        "
-                        style={{
-                          color: theme.colors.primary.main,
-                        }}
-                        title="View/Edit"
-                      >
-                        <FontAwesomeIcon icon={faEye} />
-                      </button>
-                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => handleEditPatient(patient)}
+                      className="
+                        w-9
+                        h-9
+                        rounded-lg
+                        flex
+                        items-center
+                        justify-center
+                        hover:bg-gray-100
+                        transition-colors
+                        cursor-pointer
+                      "
+                      style={{
+                        color: theme.colors.primary.main,
+                      }}
+                      title="View/Edit"
+                    >
+                      <FontAwesomeIcon icon={faEye} />
+                    </button>
 
                     {/* Delete */}
 
@@ -392,6 +382,7 @@ export const Patient = () => {
                         hover:bg-red-50
                         transition-colors
                         text-red-500
+                        cursor-pointer
                       "
                       title="Delete"
                     >
@@ -400,9 +391,7 @@ export const Patient = () => {
                   </div>
                 </div>
 
-                {/* ==========================================
-                    PATIENT INFORMATION
-                =========================================== */}
+                {/* Patient Information */}
 
                 <div className="space-y-2">
                   <h3
@@ -419,50 +408,48 @@ export const Patient = () => {
                     {patient.name}
                   </h3>
 
-                  <div
-                    className="
-                      space-y-1.5
-                      text-sm
-                    "
-                  >
+                  <div className="space-y-1.5 text-sm">
                     <p className="text-gray-600">
-                      <span className="font-medium text-gray-700">ID:</span>{" "}
+                      <span className="font-medium">ID:</span>{" "}
                       {patient.patient_id}
                     </p>
 
-                    <p
-                      className="
-                        text-gray-600
-                        truncate
-                      "
-                      title={patient.email}
-                    >
-                      <span className="font-medium text-gray-700">Email:</span>{" "}
+                    <p className="text-gray-600 truncate" title={patient.email}>
+                      <span className="font-medium">Email:</span>{" "}
                       {patient.email}
                     </p>
 
                     <p className="text-gray-600">
-                      <span className="font-medium text-gray-700">Phone:</span>{" "}
+                      <span className="font-medium">Phone:</span>{" "}
                       {patient.phone_no}
                     </p>
 
                     <p className="text-gray-600">
-                      <span className="font-medium text-gray-700">Gender:</span>{" "}
+                      <span className="font-medium">Gender:</span>{" "}
                       {patient.gender}
                     </p>
 
+                    {patient.blood_group && (
+                      <p className="text-gray-600">
+                        <span className="font-medium">Blood Group:</span>{" "}
+                        {patient.blood_group}
+                      </p>
+                    )}
+
                     {patient.address && (
                       <p
-                        className="
-                          text-gray-600
-                          truncate
-                        "
+                        className="text-gray-600 truncate"
                         title={patient.address}
                       >
-                        <span className="font-medium text-gray-700">
-                          Address:
-                        </span>{" "}
+                        <span className="font-medium">Address:</span>{" "}
                         {patient.address}
+                      </p>
+                    )}
+
+                    {patient.occupation && (
+                      <p className="text-gray-600">
+                        <span className="font-medium">Occupation:</span>{" "}
+                        {patient.occupation}
                       </p>
                     )}
                   </div>
@@ -472,6 +459,39 @@ export const Patient = () => {
           ))}
         </div>
       )}
+
+      <Modal
+        isOpen={showPatientModal}
+        onClose={() => setShowPatientModal(false)}
+        title="Add New Patient"
+        maxWidth="max-w-3xl"
+      >
+        <CreatePatient
+          onCancel={() => setShowPatientModal(false)}
+          onSuccess={handlePatientCreated}
+        />
+      </Modal>
+
+      <Modal
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setSelectedPatient(null);
+        }}
+        title="Edit Patient"
+        maxWidth="max-w-3xl"
+      >
+        {selectedPatient && (
+          <EditPatient
+            patient={selectedPatient}
+            onCancel={() => {
+              setShowEditModal(false);
+              setSelectedPatient(null);
+            }}
+            onSuccess={handlePatientUpdated}
+          />
+        )}
+      </Modal>
     </Layout>
   );
 };

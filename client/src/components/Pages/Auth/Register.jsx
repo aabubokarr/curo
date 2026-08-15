@@ -188,7 +188,7 @@ export const Register = () => {
           </h1>
           <div className="flex justify-center">
             <img
-              src="/images/doctor.png"
+              src="./images/doctor.png"
               alt="doctor"
               className="max-w-md w-full h-auto"
             />

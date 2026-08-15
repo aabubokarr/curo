@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { API_URL } from "../../constants/config";
@@ -17,7 +17,7 @@ export const Profile = () => {
       navigate("/login");
       return;
     }
-    
+
     axios
       .get(`${API_URL}/user`, {
         headers: {
@@ -52,7 +52,10 @@ export const Profile = () => {
         className="w-12 h-12 rounded-full flex items-center justify-center animate-pulse"
         style={{ backgroundColor: theme.colors.secondary.main }}
       >
-        <span className="text-sm font-semibold" style={{ color: theme.colors.text.secondary }}>
+        <span
+          className="text-sm font-semibold"
+          style={{ color: theme.colors.text.secondary }}
+        >
           ...
         </span>
       </div>
@@ -99,13 +102,6 @@ export const Profile = () => {
               <div className="px-3 py-2 text-sm font-medium text-gray-700 border-b border-gray-200">
                 {name || "User"}
               </div>
-              <Link
-                to="/edit-profile"
-                onClick={() => setProfileMenu(false)}
-                className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors duration-200"
-              >
-                Edit Profile
-              </Link>
               <button
                 onClick={handleLogout}
                 className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded transition-colors duration-200"

@@ -1,16 +1,14 @@
 import React, { useState } from "react";
-import { Sidebar } from "../../Bars/Sidebar";
-import { Profile } from "../../Profile/Profile";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import Button from "../../Button/Button";
 
-export const CreateTest = () => {
-  const API_URL = import.meta.env.VITE_API_URL;
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
+import { API_URL } from "../../../constants/config";
+
+export const CreateTest = ({ onSuccess, onCancel }) => {
   const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const [formData, setFormData] = useState({
     treatment_id: "",
     test_name: "",
@@ -18,107 +16,247 @@ export const CreateTest = () => {
   });
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    setFormData((previousData) => ({
+      ...previousData,
+      [name]: value,
+    }));
+
+    if (error) {
+      setError("");
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const isFormComplete = Object.values(formData).every(
-      (field) => field !== ""
+    setError("");
+
+    const requiredFields = ["treatment_id", "test_name", "test_cost"];
+
+    const isFormComplete = requiredFields.every(
+      (field) => String(formData[field]).trim() !== ""
     );
+
     if (!isFormComplete) {
       setError("Please fill in all required fields.");
       return;
     }
 
-    if (window.confirm("Are you sure you want to create this test?")) {
-      axios
-        .post(`${API_URL}/test/create`, formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((res) => {
-          console.log("Test created successfully", res.data);
-          alert("Test created successfully!");
-          navigate("/test");
-        })
-        .catch((error) => {
-          console.error("Error creating test :", error);
-          if (error.response && error.response.data) {
-            setError(
-              `Failed to create test : ${
-                error.response.data.error || "Unknown error"
-              }`
-            );
-          } else {
-            setError("Failed to create test due to network error.");
-          }
-        });
+    if (!token) {
+      setError("Authentication token not found. Please login again.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Are you sure you want to create this test?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await axios.post(`${API_URL}/test/create`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      console.log("Test created successfully:", response.data);
+
+      if (onSuccess) {
+        onSuccess(response.data);
+      }
+    } catch (error) {
+      console.error("Error creating test:", error);
+
+      if (error.response?.data) {
+        setError(
+          error.response.data.error ||
+            error.response.data.message ||
+            "Failed to create test."
+        );
+      } else {
+        setError("Failed to create test due to network error.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex">
-      <Sidebar />
-      <div className="px-3 w-full">
-        <div className="top-0 flex items-center justify-between sticky bg-[#EFF0F6] z-10 py-3">
-          <h1 className="text-[28px] font-semibold">Create Test</h1>
-          <Profile />
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      {/* ERROR */}
+
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+          <p className="text-sm text-red-600">{error}</p>
         </div>
-        {role === "admin" ? (
-          <div className="bg-[#FAFAFA] rounded-[20px] p-5">
-            {error && (
-              <div className="bg-red-200 text-red-600 p-2 rounded-sm mb-4">
-                {error}
-              </div>
-            )}
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-              <div className="flex items-center gap-3">
-                <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                  <label htmlFor="treatment_id">Treatment ID</label>
-                  <input
-                    onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                    type="number"
-                    placeholder="Enter Treatment ID"
-                    name="treatment_id"
-                  />
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                  <label htmlFor="test_name">Test Name</label>
-                  <input
-                    onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                    type="text"
-                    placeholder="Enter Test Name"
-                    name="test_name"
-                  />
-                </div>
-                <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                  <label htmlFor="test_cost">Test Cost</label>
-                  <input
-                    onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                    type="number"
-                    placeholder="Enter Test Cost"
-                    name="test_cost"
-                  />
-                </div>
-              </div>
-              <Button name="CREATE" />
-            </form>
-          </div>
-        ) : (
-          <div className="text-center">You don't have access to this page</div>
-        )}
+      )}
+
+      {/* TREATMENT ID */}
+
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-medium text-gray-700">
+          Treatment ID <span className="text-red-500">*</span>
+        </label>
+
+        <input
+          name="treatment_id"
+          type="number"
+          value={formData.treatment_id}
+          onChange={handleChange}
+          disabled={loading}
+          placeholder="Enter treatment ID"
+          className="
+            h-11
+            w-full
+            rounded-lg
+            border
+            border-gray-300
+            bg-white
+            px-3
+            text-sm
+            text-gray-800
+            outline-none
+            transition
+            focus:border-[#009BA9]
+            focus:ring-2
+            focus:ring-[#009BA9]/20
+            disabled:bg-gray-100
+          "
+        />
       </div>
-    </div>
+
+      {/* TEST NAME + TEST COST */}
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {/* TEST NAME */}
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">
+            Test Name <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            name="test_name"
+            type="text"
+            value={formData.test_name}
+            onChange={handleChange}
+            disabled={loading}
+            placeholder="Enter test name"
+            className="
+              h-11
+              w-full
+              rounded-lg
+              border
+              border-gray-300
+              bg-white
+              px-3
+              text-sm
+              text-gray-800
+              outline-none
+              transition
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:bg-gray-100
+            "
+          />
+        </div>
+
+        {/* TEST COST */}
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">
+            Test Cost <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            name="test_cost"
+            type="number"
+            step="0.01"
+            value={formData.test_cost}
+            onChange={handleChange}
+            disabled={loading}
+            placeholder="Enter test cost"
+            className="
+              h-11
+              w-full
+              rounded-lg
+              border
+              border-gray-300
+              bg-white
+              px-3
+              text-sm
+              text-gray-800
+              outline-none
+              transition
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:bg-gray-100
+            "
+          />
+        </div>
+      </div>
+
+      {/* BUTTONS */}
+
+      <div className="flex justify-end gap-3 border-t border-gray-200 pt-5">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={loading}
+          className="
+            rounded-lg
+            border
+            border-gray-300
+            bg-white
+            px-5
+            py-2.5
+            text-sm
+            font-medium
+            text-gray-700
+            transition
+            hover:bg-gray-50
+            disabled:cursor-not-allowed
+            disabled:opacity-50
+          "
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="
+            rounded-lg
+            bg-[#009BA9]
+            px-5
+            py-2.5
+            text-sm
+            font-semibold
+            text-white
+            shadow-sm
+            transition
+            hover:bg-[#008894]
+            focus:outline-none
+            focus:ring-2
+            focus:ring-[#009BA9]/30
+            disabled:cursor-not-allowed
+            disabled:opacity-60
+          "
+        >
+          {loading ? "Creating..." : "Create Test"}
+        </button>
+      </div>
+    </form>
   );
 };
+
+export default CreateTest;

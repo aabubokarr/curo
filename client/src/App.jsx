@@ -27,7 +27,6 @@ import { Prescription } from "./components/Pages/Prescription/Prescription";
 import { CreatePrescription } from "./components/Pages/Prescription/CreatePrescription";
 import { ViewPrescription } from "./components/Pages/Prescription/ViewPrescription";
 import { Request } from "./components/Pages/Request/Request";
-import { EditProfile } from "./components/Profile/EditProfile";
 import { Error } from "./components/Pages/Error/Error";
 
 function App() {
@@ -73,7 +72,6 @@ function App() {
         element={<ViewPrescription />}
       />
       <Route exact path="/request" element={<Request />} />
-      <Route exact path="/edit-profile" element={<EditProfile />} />
       <Route exact path="*" element={<Error />} />
     </Routes>
   );

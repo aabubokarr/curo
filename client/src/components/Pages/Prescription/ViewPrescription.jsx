@@ -1,162 +1,306 @@
-import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { Sidebar } from "../../Bars/Sidebar";
-import { Profile } from "../../Profile/Profile";
-import { faBowlRice } from "@fortawesome/free-solid-svg-icons";
-import html2pdf from "html2pdf.js";
-import Button from "../../Button/Button";
+import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { API_URL } from "../../../constants/config";
+import {
+  faBowlRice,
+  faDownload,
+  faPrint,
+  faTimes,
+} from "@fortawesome/free-solid-svg-icons";
+import html2pdf from "html2pdf.js";
 
-export const ViewPrescription = () => {
-  const { prescriptionId } = useParams();
-  const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
-  const navigate = useNavigate();
-  const [prescription, setPrescription] = useState(null);
-  const [error, setError] = useState("");
+export const ViewPrescription = ({ prescription, onClose }) => {
+  const [isDownloading, setIsDownloading] = useState(false);
+
   const today = new Date();
   const date = `${today.getDate()}/${
     today.getMonth() + 1
   }/${today.getFullYear()}`;
 
-  useEffect(() => {
-    axios
-      .get(`${API_URL}/prescription/test/${prescriptionId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((res) => {
-        setPrescription(res.data);
-        console.log(res.data);
-      })
-      .catch((err) => {
-        setError("Failed to fetch prescription data");
-        console.error(err);
-      });
-  }, [prescriptionId, token, navigate]);
+  /* =========================================================
+     HANDLE DOWNLOAD PDF
+  ========================================================== */
 
   const handleDownload = (e) => {
     e.preventDefault();
+    setIsDownloading(true);
+
     const downloadPrescription = document.getElementById(
       "downloadPrescription"
     );
 
     const options = {
       margin: 1,
-      filename: "prescription.pdf",
+      filename: `prescription_${prescription.prescription_id}.pdf`,
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { scale: 2 },
       jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
     };
 
-    html2pdf().from(downloadPrescription).set(options).save();
+    html2pdf()
+      .from(downloadPrescription)
+      .set(options)
+      .save()
+      .then(() => {
+        setIsDownloading(false);
+      });
   };
 
-  if (role === "admin") {
-    return (
-      <div className="text-center">You don't have access to this page</div>
-    );
-  }
+  /* =========================================================
+     HANDLE PRINT
+  ========================================================== */
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  /* =========================================================
+     RENDER
+  ========================================================== */
 
   return (
-    <div className="flex">
-      <Sidebar />
-      <div className="px-3 w-full">
-        <div className="top-0 flex items-center justify-between sticky bg-[#EFF0F6] z-10 py-3">
-          <h1 className="text-[28px] font-semibold">View Prescription</h1>
-          <Profile />
-        </div>
-        {error && (
-          <div className="bg-red-200 text-red-600 p-2 rounded-sm mb-4">
-            {error}
-          </div>
-        )}
+    <div className="flex flex-col gap-4">
+      {/* Action Buttons */}
 
-        {prescription ? (
-          <div className="bg-[#FAFAFA] rounded-[20px] p-5 w-full">
-            <form onSubmit={handleDownload}>
-              <div id="downloadPrescription" className="flex flex-col gap-3">
-                <div className="flex flex-col items-center justify-between bg-[#009BA9] rounded-lg p-3">
-                  <div className="bg-white cursor-pointer w-[60px] h-[50px] rounded-[100px] flex items-center justify-center my-3 border-[.5px] border-[#c4c4c4]">
-                    <div className="flex items-center">
-                      <div className="w-[15px] h-[15px] rounded-[100px] bg-black"></div>
-                      <div className="w-[20px] h-[5px] bg-black"></div>
-                      <div className="w-[15px] h-[15px] rounded-[100px] bg-black"></div>
+      <div className="flex items-center justify-between pb-3 border-b border-gray-200 print:hidden">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleDownload}
+            disabled={isDownloading}
+            className="
+              px-4
+              py-2
+              rounded-lg
+              bg-[#009BA9]
+              text-white
+              font-semibold
+              transition
+              hover:bg-[#008894]
+              disabled:opacity-60
+              disabled:cursor-not-allowed
+              flex
+              items-center
+              gap-2
+            "
+          >
+            <FontAwesomeIcon icon={faDownload} />
+            {isDownloading ? "Downloading..." : "Download PDF"}
+          </button>
+
+          <button
+            type="button"
+            onClick={handlePrint}
+            className="
+              px-4
+              py-2
+              rounded-lg
+              border
+              border-gray-300
+              bg-white
+              text-gray-700
+              font-semibold
+              transition
+              hover:bg-gray-50
+              flex
+              items-center
+              gap-2
+            "
+          >
+            <FontAwesomeIcon icon={faPrint} />
+            Print
+          </button>
+        </div>
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="
+            w-9
+            h-9
+            rounded-lg
+            flex
+            items-center
+            justify-center
+            hover:bg-gray-100
+            transition-colors
+            text-gray-500
+          "
+        >
+          <FontAwesomeIcon icon={faTimes} />
+        </button>
+      </div>
+
+      {/* Prescription Content */}
+
+      <div
+        id="downloadPrescription"
+        className="bg-white rounded-lg p-6 print:p-4"
+      >
+        {/* Header */}
+
+        <div className="bg-[#009BA9] rounded-lg p-4 mb-6 text-white text-center">
+          <div className="flex flex-col items-center">
+            <div className="bg-white rounded-full w-16 h-16 flex items-center justify-center mb-3 shadow-lg">
+              <div className="flex items-center gap-1">
+                <div className="w-4 h-4 rounded-full bg-black"></div>
+                <div className="w-5 h-1.5 bg-black"></div>
+                <div className="w-4 h-4 rounded-full bg-black"></div>
+              </div>
+            </div>
+
+            <h1 className="text-2xl font-bold">
+              Curo Health Care
+            </h1>
+
+            <p className="text-blue-100 text-sm mt-1">
+              Plot: 15, Block: B, Bashundhara, Dhaka-1229, Bangladesh
+            </p>
+
+            <p className="text-blue-100 text-sm">Helpline: 16667</p>
+          </div>
+        </div>
+
+        {/* Prescription Info */}
+
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-lg font-bold text-gray-800">
+              Prescription #{prescription.prescription_id}
+            </h2>
+            <p className="text-sm text-gray-500">Date: {date}</p>
+          </div>
+
+          <div className="text-right">
+            <p className="text-sm text-gray-600">
+              <span className="font-semibold">Status:</span>{" "}
+              <span className="text-green-600 font-semibold">Active</span>
+            </p>
+          </div>
+        </div>
+
+        {/* Doctor & Patient Info */}
+
+        <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+          <div>
+            <h3 className="text-xs text-gray-500 font-medium uppercase tracking-wider">
+              Doctor Information
+            </h3>
+            <p className="text-sm font-semibold text-gray-800 mt-1">
+              ID: {prescription.doctor_id}
+            </p>
+            <p className="text-sm text-gray-600">
+              {prescription.doctor_name || "Doctor Name Not Available"}
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-xs text-gray-500 font-medium uppercase tracking-wider">
+              Patient Information
+            </h3>
+            <p className="text-sm font-semibold text-gray-800 mt-1">
+              ID: {prescription.patient_id}
+            </p>
+            <p className="text-sm text-gray-600">
+              {prescription.patient_name || "Patient Name Not Available"}
+            </p>
+          </div>
+        </div>
+
+        {/* Medicines */}
+
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-800 mb-3">
+            Medicines Prescribed
+          </h3>
+
+          {prescription.medicines && prescription.medicines.length > 0 ? (
+            <div className="space-y-2">
+              {prescription.medicines.map((medicine, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:border-[#009BA9] transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-semibold text-gray-400">
+                      #{index + 1}
+                    </span>
+                    <span className="font-medium text-gray-800">
+                      {medicine}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    {/* Breakfast */}
+                    <div className="flex flex-col items-center">
+                      <span className="text-xs text-gray-500">Breakfast</span>
+                      <div className="flex items-center gap-1 mt-1">
+                        <div className="w-4 h-4 border border-gray-300 rounded"></div>
+                        <FontAwesomeIcon
+                          icon={faBowlRice}
+                          className="text-gray-600 text-sm"
+                        />
+                        <div className="w-4 h-4 border border-gray-300 rounded"></div>
+                      </div>
+                    </div>
+
+                    {/* Lunch */}
+                    <div className="flex flex-col items-center">
+                      <span className="text-xs text-gray-500">Lunch</span>
+                      <div className="flex items-center gap-1 mt-1">
+                        <div className="w-4 h-4 border border-gray-300 rounded"></div>
+                        <FontAwesomeIcon
+                          icon={faBowlRice}
+                          className="text-gray-600 text-sm"
+                        />
+                        <div className="w-4 h-4 border border-gray-300 rounded"></div>
+                      </div>
+                    </div>
+
+                    {/* Dinner */}
+                    <div className="flex flex-col items-center">
+                      <span className="text-xs text-gray-500">Dinner</span>
+                      <div className="flex items-center gap-1 mt-1">
+                        <div className="w-4 h-4 border border-gray-300 rounded"></div>
+                        <FontAwesomeIcon
+                          icon={faBowlRice}
+                          className="text-gray-600 text-sm"
+                        />
+                        <div className="w-4 h-4 border border-gray-300 rounded"></div>
+                      </div>
                     </div>
                   </div>
-                  <h1 className="text-[28px] text-white font-bold">
-                    Patient and Treatment Management
-                  </h1>
-                  <p className="text-[#e5e5e5]">
-                    Plot : 15, Block : B, Bashundhara, Dhaka-1229, Bangladesh
-                  </p>
-                  <p className="text-[#e5e5e5]">Helpline : 16667</p>
                 </div>
-                <h1>Date : {date}</h1>
-                <div>
-                  <h1>Doctor ID : {prescription.doctor_id}</h1>
-                  <h1>Patient ID : {prescription.patient_id}</h1>
-                  <h1>Patient Name : {prescription.patient_name}</h1>
-                </div>
-                <div>
-                  <h2 className="text-[20px] font-semibold">Medicines:</h2>
-                  <div>
-                    {prescription.medicines &&
-                    prescription.medicines.length > 0 ? (
-                      prescription.medicines.map((medicine, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center justify-between"
-                        >
-                          <h1>{medicine}</h1>
-                          <div>
-                            <div className="flex items-center gap-5">
-                              <div className="flex flex-col items-center">
-                                <h1>Breakfast</h1>
-                                <div className="flex items-center gap-x-1 text-[20px]">
-                                  <div className="w-[20px] h-[20px] border border-[#c4c4c4]"></div>{" "}
-                                  <FontAwesomeIcon icon={faBowlRice} />
-                                  <div className="w-[20px] h-[20px] border border-[#c4c4c4]"></div>
-                                </div>
-                              </div>
-                              <div className="flex flex-col items-center">
-                                <h1>Lunch</h1>
-                                <div className="flex items-center gap-x-1 text-[20px]">
-                                  <div className="w-[20px] h-[20px] border border-[#c4c4c4]"></div>{" "}
-                                  <FontAwesomeIcon icon={faBowlRice} />
-                                  <div className="w-[20px] h-[20px] border border-[#c4c4c4]"></div>
-                                </div>
-                              </div>
-                              <div className="flex flex-col items-center">
-                                <h1>Dinner</h1>
-                                <div className="flex items-center gap-x-1 text-[20px]">
-                                  <div className="w-[20px] h-[20px] border border-[#c4c4c4]"></div>{" "}
-                                  <FontAwesomeIcon icon={faBowlRice} />
-                                  <div className="w-[20px] h-[20px] border border-[#c4c4c4]"></div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <p>No medicines found for this prescription.</p>
-                    )}
-                  </div>
-                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 text-center py-4">
+              No medicines found for this prescription.
+            </p>
+          )}
+        </div>
 
-                <u className="font-black text-end">Seal & Signature</u>
-              </div>
-              <Button name="DOWNLOAD" />
-            </form>
+        {/* Footer */}
+
+        <div className="border-t border-gray-200 pt-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-gray-400">
+                This is a computer-generated prescription.
+              </p>
+              <p className="text-xs text-gray-400">
+                Valid for 30 days from the date of issue.
+              </p>
+            </div>
+
+            <div className="text-right">
+              <u className="font-bold text-gray-700 block">Seal & Signature</u>
+              <p className="text-xs text-gray-500 mt-1">Authorized Physician</p>
+            </div>
           </div>
-        ) : (
-          <div className="text-center">Loading prescription details...</div>
-        )}
+        </div>
       </div>
     </div>
   );
 };
+
+export default ViewPrescription;

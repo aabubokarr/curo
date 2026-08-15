@@ -1,19 +1,13 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import IdCard from "../../Profile/IdCard";
-import { Sidebar } from "../../Bars/Sidebar";
-import { Profile } from "../../Profile/Profile";
-import Button from "../../Button/Button";
+import axios from "axios";
+import { API_URL } from "../../../constants/config";
 
-export const EditPatient = () => {
-  const API_URL = import.meta.env.VITE_API_URL;
-  const { patientId } = useParams();
+export const EditPatient = ({ patient, onSuccess, onCancel }) => {
   const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
-  const navigate = useNavigate();
-  const [patient, setPatient] = useState({});
-  const [error, setError] = useState(null);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -30,212 +24,516 @@ export const EditPatient = () => {
   });
 
   useEffect(() => {
-    axios
-      .get(`${API_URL}/patient/${patientId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((res) => {
-        setPatient(res.data), console.log(res.data);
-      })
-      .catch((err) => {
-        setError("Failed to fetch patient data");
-        console.error(err);
-      });
-  }, [patientId, token, navigate]);
+    if (!patient) return;
+
+    setFormData({
+      name: patient.name || "",
+      email: patient.email || "",
+      phone_no: patient.phone_no || "",
+      address: patient.address || "",
+      password: "",
+      gender: patient.gender || "",
+      blood_group: patient.blood_group || "",
+      dob: patient.dob ? String(patient.dob).split("T")[0] : "",
+      height:
+        patient.height !== null && patient.height !== undefined
+          ? String(patient.height)
+          : "",
+      weight:
+        patient.weight !== null && patient.weight !== undefined
+          ? String(patient.weight)
+          : "",
+      occupation: patient.occupation || "",
+      role: patient.role || "patient",
+    });
+  }, [patient]);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    setFormData((previousData) => ({
+      ...previousData,
+      [name]: value,
+    }));
+
+    if (error) {
+      setError("");
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (window.confirm("Are you sure you want to update info?")) {
-      axios
-        .patch(`${API_URL}/patient/update/${patientId}`, formData, {
+    if (!patient?.patient_id) {
+      setError("Patient information is missing.");
+      return;
+    }
+
+    setError("");
+
+    const requiredFields = [
+      "name",
+      "email",
+      "phone_no",
+      "address",
+      "gender",
+      "blood_group",
+      "dob",
+      "height",
+      "weight",
+      "occupation",
+    ];
+
+    const isFormComplete = requiredFields.every(
+      (field) => String(formData[field]).trim() !== ""
+    );
+
+    if (!isFormComplete) {
+      setError("Please fill in all required fields.");
+      return;
+    }
+
+    const dataToUpdate = {
+      name: formData.name,
+      email: formData.email,
+      phone_no: formData.phone_no,
+      address: formData.address,
+      gender: formData.gender,
+      blood_group: formData.blood_group,
+      dob: formData.dob,
+      height: formData.height,
+      weight: formData.weight,
+      occupation: formData.occupation,
+      role: formData.role,
+    };
+
+    // Password is optional when editing
+    if (formData.password.trim() !== "") {
+      dataToUpdate.password = formData.password;
+    }
+
+    const confirmed = window.confirm(
+      "Are you sure you want to update this patient?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await axios.patch(
+        `${API_URL}/patient/update/${patient.patient_id}`,
+        dataToUpdate,
+        {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        })
-        .then((res) => {
-          console.log("Patient updated successfully", res.data),
-            alert("Patient profile updated successfully");
-        })
-        .catch((error) => {
-          console.error("Error updating patient:", error);
-        });
+        }
+      );
+
+      console.log("Patient updated successfully:", response.data);
+
+      if (onSuccess) {
+        onSuccess(response.data);
+      }
+    } catch (error) {
+      console.error("Error updating patient:", error);
+
+      if (error.response?.data) {
+        setError(
+          error.response.data.error ||
+            error.response.data.message ||
+            "Failed to update patient."
+        );
+      } else {
+        setError("Failed to update patient due to network error.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex">
-      <Sidebar />
-      <div className="px-3 w-full">
-        <div className="top-0 flex items-center justify-between sticky bg-[#EFF0F6] z-10 py-3">
-          <h1 className="text-[28px] font-semibold">Edit Patient</h1>
-          <Profile />
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      {/* Error */}
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+          <p className="text-sm text-red-600">{error}</p>
         </div>
-        {role === "admin" ? (
-          <div className="flex gap-3">
-            {error && (
-              <div className="bg-red-200 text-red-600 p-2 rounded-sm mb-4">
-                {error}
-              </div>
-            )}
-            <div className="bg-[#FAFAFA] rounded-[20px] p-5 w-full">
-              <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                    <label htmlFor="name">Name</label>
-                    <input
-                      onChange={handleChange}
-                      placeholder={patient.name}
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                      type="text"
-                      name="name"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                    <label htmlFor="email">Email</label>
-                    <input
-                      onChange={handleChange}
-                      placeholder={patient.email}
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b                   border-b-[#009BA9] focus:outline-hidden"
-                      type="email"
-                      name="email"
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                    <label htmlFor="phone_no">Phone No.</label>
-                    <input
-                      onChange={handleChange}
-                      placeholder={patient.phone_no}
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                      type="text"
-                      name="phone_no"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                    <label htmlFor="address">Address</label>
-                    <input
-                      onChange={handleChange}
-                      placeholder={patient.address}
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                      type="text"
-                      name="address"
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                    <label htmlFor="password">Password</label>
-                    <input
-                      onChange={handleChange}
-                      placeholder="**** ****"
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                      type="password"
-                      name="password"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                    <label htmlFor="gender">Gender</label>
-                    <select
-                      onChange={handleChange}
-                      placeholder={patient.gender}
-                      name="gender"
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                    >
-                      <option value="">{patient.gender}</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                    <label htmlFor="blood_group">Blood Group</label>
-                    <select
-                      onChange={handleChange}
-                      placeholder={patient.blood_group}
-                      name="blood_group"
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                    >
-                      <option value="">{patient.blood_group}</option>
-                      <option value="A+">A+</option>
-                      <option value="A-">A-</option>
-                      <option value="B+">B+</option>
-                      <option value="B-">B-</option>
-                      <option value="AB+">AB+</option>
-                      <option value="AB-">AB-</option>
-                      <option value="O+">O+</option>
-                      <option value="O-">O-</option>
-                    </select>
-                  </div>
-                  <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                    <label htmlFor="dob">Date of Birth</label>
-                    <input
-                      onChange={handleChange}
-                      placeholder={patient.dob}
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                      type="date"
-                      name="dob"
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                    <label htmlFor="height">Height (CM)</label>
-                    <input
-                      onChange={handleChange}
-                      placeholder={patient.height}
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                      type="number"
-                      step="0.01"
-                      name="height"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                    <label htmlFor="weight">Weight (KG)</label>
-                    <input
-                      onChange={handleChange}
-                      placeholder={patient.weight}
-                      className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                      type="number"
-                      name="weight"
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                  <label htmlFor="occupation">Occupation</label>
-                  <input
-                    onChange={handleChange}
-                    placeholder={patient.occupation}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                    type="text"
-                    name="occupation"
-                  />
-                </div>
-                <Button name="UPDATE" />
-              </form>
-            </div>
-            <IdCard
-              name={patient.name}
-              role={patient.role}
-              id={patient.patient_id}
-              speciality={patient.occupation}
-            />
-          </div>
-        ) : (
-          <div className="text-center">You don't have access to this page</div>
-        )}
+      )}
+
+      {/* Name + Email */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">
+            Name <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            name="name"
+            type="text"
+            value={formData.name}
+            onChange={handleChange}
+            disabled={loading}
+            placeholder="Enter patient name"
+            className="
+              h-11 w-full rounded-lg
+              border border-gray-300
+              bg-white px-3
+              text-sm text-gray-800
+              outline-none
+              transition
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:bg-gray-100
+            "
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">
+            Email <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            name="email"
+            type="email"
+            value={formData.email}
+            onChange={handleChange}
+            disabled={loading}
+            placeholder="Enter patient email"
+            className="
+              h-11 w-full rounded-lg
+              border border-gray-300
+              bg-white px-3
+              text-sm text-gray-800
+              outline-none
+              transition
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:bg-gray-100
+            "
+          />
+        </div>
       </div>
-    </div>
+
+      {/* Phone + Address */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">
+            Phone Number <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            name="phone_no"
+            type="tel"
+            value={formData.phone_no}
+            onChange={handleChange}
+            disabled={loading}
+            placeholder="Enter phone number"
+            className="
+              h-11 w-full rounded-lg
+              border border-gray-300
+              bg-white px-3
+              text-sm text-gray-800
+              outline-none
+              transition
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:bg-gray-100
+            "
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">
+            Address <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            name="address"
+            type="text"
+            value={formData.address}
+            onChange={handleChange}
+            disabled={loading}
+            placeholder="Enter address"
+            className="
+              h-11 w-full rounded-lg
+              border border-gray-300
+              bg-white px-3
+              text-sm text-gray-800
+              outline-none
+              transition
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:bg-gray-100
+            "
+          />
+        </div>
+      </div>
+
+      {/* Password + Gender */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">
+            New Password
+          </label>
+
+          <input
+            name="password"
+            type="password"
+            value={formData.password}
+            onChange={handleChange}
+            disabled={loading}
+            placeholder="Leave blank to keep current password"
+            className="
+              h-11 w-full rounded-lg
+              border border-gray-300
+              bg-white px-3
+              text-sm text-gray-800
+              outline-none
+              transition
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:bg-gray-100
+            "
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">
+            Gender <span className="text-red-500">*</span>
+          </label>
+
+          <select
+            name="gender"
+            value={formData.gender}
+            onChange={handleChange}
+            disabled={loading}
+            className="
+              h-11 w-full rounded-lg
+              border border-gray-300
+              bg-white px-3
+              text-sm text-gray-800
+              outline-none
+              transition
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:bg-gray-100
+            "
+          >
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Blood Group + DOB */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">
+            Blood Group <span className="text-red-500">*</span>
+          </label>
+
+          <select
+            name="blood_group"
+            value={formData.blood_group}
+            onChange={handleChange}
+            disabled={loading}
+            className="
+              h-11 w-full rounded-lg
+              border border-gray-300
+              bg-white px-3
+              text-sm text-gray-800
+              outline-none
+              transition
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:bg-gray-100
+            "
+          >
+            <option value="">Select Blood Group</option>
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">
+            Date of Birth <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            name="dob"
+            type="date"
+            value={formData.dob}
+            onChange={handleChange}
+            disabled={loading}
+            className="
+              h-11 w-full rounded-lg
+              border border-gray-300
+              bg-white px-3
+              text-sm text-gray-800
+              outline-none
+              transition
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:bg-gray-100
+            "
+          />
+        </div>
+      </div>
+
+      {/* Height + Weight */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">
+            Height (CM) <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            name="height"
+            type="number"
+            step="0.01"
+            value={formData.height}
+            onChange={handleChange}
+            disabled={loading}
+            placeholder="Enter height"
+            className="
+              h-11 w-full rounded-lg
+              border border-gray-300
+              bg-white px-3
+              text-sm text-gray-800
+              outline-none
+              transition
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:bg-gray-100
+            "
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">
+            Weight (KG) <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            name="weight"
+            type="number"
+            step="0.01"
+            value={formData.weight}
+            onChange={handleChange}
+            disabled={loading}
+            placeholder="Enter weight"
+            className="
+              h-11 w-full rounded-lg
+              border border-gray-300
+              bg-white px-3
+              text-sm text-gray-800
+              outline-none
+              transition
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:bg-gray-100
+            "
+          />
+        </div>
+      </div>
+
+      {/* Occupation */}
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-medium text-gray-700">
+          Occupation <span className="text-red-500">*</span>
+        </label>
+
+        <input
+          name="occupation"
+          type="text"
+          value={formData.occupation}
+          onChange={handleChange}
+          disabled={loading}
+          placeholder="Enter occupation"
+          className="
+            h-11 w-full rounded-lg
+            border border-gray-300
+            bg-white px-3
+            text-sm text-gray-800
+            outline-none
+            transition
+            focus:border-[#009BA9]
+            focus:ring-2
+            focus:ring-[#009BA9]/20
+            disabled:bg-gray-100
+          "
+        />
+      </div>
+
+      {/* Buttons */}
+      <div className="flex justify-end gap-3 border-t border-gray-200 pt-5">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={loading}
+          className="
+            rounded-lg
+            border border-gray-300
+            bg-white
+            px-5 py-2.5
+            text-sm font-medium
+            text-gray-700
+            transition
+            hover:bg-gray-50
+            disabled:cursor-not-allowed
+            disabled:opacity-50
+          "
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="
+            rounded-lg
+            bg-[#009BA9]
+            px-5 py-2.5
+            text-sm font-semibold
+            text-white
+            shadow-sm
+            transition
+            hover:bg-[#008894]
+            focus:outline-none
+            focus:ring-2
+            focus:ring-[#009BA9]/30
+            disabled:cursor-not-allowed
+            disabled:opacity-60
+          "
+        >
+          {loading ? "Updating..." : "Update Patient"}
+        </button>
+      </div>
+    </form>
   );
 };
+
+export default EditPatient;

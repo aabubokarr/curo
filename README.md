@@ -1,6 +1,6 @@
 # Curo - Hospital Management Application
 
-Welcome to **Curo**, a modern, comprehensive hospital management system designed to streamline healthcare operations and improve patient care delivery.
+Welcome to the **Curo** project! This README provides an overview of the project, setup instructions, and other relevant details.
 
 ## Table of Contents
 
@@ -15,199 +15,134 @@ Welcome to **Curo**, a modern, comprehensive hospital management system designed
 
 ## Visit
 
-- [Repository](https://curo0.vercel.app/)
-- [Website](https://curo0.vercel.app/)
+- [Repository](https://github.com/aabubokarr/curo)
+- [Website](https://aabubokarr.github.io/curo/)
 
 ## About
 
-**Curo** is a full-stack hospital management system built with modern web technologies. The platform provides a comprehensive solution for managing various aspects of healthcare operations, including patient records, doctor appointments, medical prescriptions, department management, and more. The system is designed with scalability and maintainability in mind, featuring a clean architecture, reusable components, and a consistent design system.
+**Curo** is a full-stack hospital management system built with modern web technologies. The platform provides a comprehensive solution for managing various aspects of healthcare operations. The system is designed with scalability and maintainability in mind.
 
 ## Features
 
-- **Authentication & Authorization**
-  - Secure login and registration
-  - Role-based access control (Admin, Doctor, Patient)
-  - Protected routes and API endpoints
-
-- **Dashboard**
-  - Visual statistics and charts
-  - User count analytics
-  - Gender-based demographics
-  - Role-specific dashboards for all user types
-
-- **Doctor Management**
-  - Create, view, edit, and manage doctor profiles
-  - Department assignments
-  - Specialization tracking
-
-- **Patient Management**
-  - Complete patient records
-  - Medical history tracking
-  - Profile management
-
-- **Appointment System**
-  - Schedule and manage appointments
-  - Doctor-patient matching
-  - Appointment history
-
-- **Department Management**
-  - Organize hospital departments
-  - Department-specific configurations
-
-- **Medical Services**
-  - Test management
-  - Service catalog
-  - Medicine inventory
-
-- **Prescription Management**
-  - Create and view prescriptions
-  - Medicine assignment
-  - Prescription history
-
-- **Additional Features**
-  - BMI Calculator
-  - Contact form
-  - Request management
-  - Profile editing
+- Modern UI/UX
+- Responsive Design
+- Visual Statistics and Charts
+- JWT Authentication
+- Hospital Management
 
 ## Installation
 
-### Prerequisites
-
-- Node.js (v14 or higher)
-- npm or yarn
-- MySQL database
-
-### Setup Instructions
-
-1. **Clone the repository:**
+1. Clone the repository:
    ```bash
    git clone https://github.com/aabubokarr/curo.git
-   cd curo
    ```
-
-2. **Setup Backend:**
-   ```bash
-   cd server
-   npm install
-   ```
-   
-   - Create a `.env` file in the `server` directory:
-     ```env
-     JWT_SECRET_KEY=your_secret_key_here
-     DB_HOST=localhost
-     DB_USER=your_db_user
-     DB_PASSWORD=your_db_password
-     DB_NAME=curo_db
-     ```
-   
-   - Import the database schema from `database/db.sql`
-   - Start the server:
-     ```bash
-     npm start
-     ```
-
-3. **Setup Frontend:**
+2. Navigate to the project's frontend directory:
    ```bash
    cd client
-   npm install
    ```
-   
-   - Create a `.env` file in the `client` directory:
-     ```env
-     VITE_API_URL=http://localhost:8081
-     ```
-   
-   - Start the development server:
-     ```bash
-     npm run dev
-     ```
+3. Install dependencies & start the frontend:
+   ```bash
+   npm i
+   npm run dev
+   ```
+4. Navigate to the project's backend directory:
+   ```bash
+   cd server
+   ```
+5. Install dependencies & start the backend:
+   ```bash
+   npm i
+   npm start
+   ```
+6. Open your browser and navigate to:
+   ```
+   http://localhost:5173
+   ``` 
 
 ## Structure
 
 ```
 curo/
-├── client/                          # Frontend (React/Vite)
+├── client/                                 # Frontend (React/Vite)
 │   ├── public/
-│   │   └── images/                  # Static images (doctor.png, patient.png)
+│   │   └── images/                         # Static images (doctor.png, patient.png)
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── Bars/                # Navigation components
-│   │   │   │   ├── Navbar.jsx       # Main navigation bar (landing page)
-│   │   │   │   ├── Sidebar.jsx      # Sidebar navigation (dashboard)
-│   │   │   │   └── barData.json     # Navigation menu data
-│   │   │   ├── UI/                  # Reusable UI components
-│   │   │   │   ├── Button/          # Button component
+│   │   │   ├── Bars/                       # Navigation components
+│   │   │   │   ├── Navbar.jsx              # Main navigation bar (landing page)
+│   │   │   │   ├── Sidebar.jsx             # Sidebar navigation (dashboard)
+│   │   │   │   └── barData.json            # Navigation menu data
+│   │   │   ├── UI/                         # Reusable UI components
+│   │   │   │   ├── Button/                 # Button component
 │   │   │   │   │   └── Button.jsx
-│   │   │   │   ├── Input/           # Input component
+│   │   │   │   ├── Input/                  # Input component
 │   │   │   │   │   └── Input.jsx
-│   │   │   │   ├── Card/            # Card component
+│   │   │   │   ├── Card/                   # Card component
 │   │   │   │   │   └── Card.jsx
-│   │   │   │   └── index.js         # Barrel export
-│   │   │   ├── Pages/               # Page components
-│   │   │   │   ├── Home/            # Landing page
-│   │   │   │   │   ├── Hero.jsx     # Hero section
-│   │   │   │   │   ├── About.jsx    # About section
-│   │   │   │   │   ├── Calculator.jsx  # BMI Calculator
-│   │   │   │   │   ├── Contact.jsx  # Contact form
-│   │   │   │   │   ├── Footer.jsx   # Footer
-│   │   │   │   │   └── Home.jsx     # Home page container
-│   │   │   │   ├── Auth/            # Authentication pages
+│   │   │   │   └── index.js                # Barrel export
+│   │   │   ├── Pages/                      # Page components
+│   │   │   │   ├── Home/                   # Landing page
+│   │   │   │   │   ├── Hero.jsx            # Hero section
+│   │   │   │   │   ├── About.jsx           # About section
+│   │   │   │   │   ├── Calculator.jsx      # BMI Calculator
+│   │   │   │   │   ├── Contact.jsx         # Contact form
+│   │   │   │   │   ├── Footer.jsx          # Footer
+│   │   │   │   │   └── Home.jsx            # Home page container
+│   │   │   │   ├── Auth/                   # Authentication pages
 │   │   │   │   │   ├── Login.jsx
 │   │   │   │   │   └── Register.jsx
-│   │   │   │   ├── Dashboard/       # Dashboard page
+│   │   │   │   ├── Dashboard/              # Dashboard page
 │   │   │   │   │   └── Dashboard.jsx
-│   │   │   │   ├── Doctor/          # Doctor management
-│   │   │   │   │   ├── Doctor.jsx   # Doctor list
+│   │   │   │   ├── Doctor/                 # Doctor management
+│   │   │   │   │   ├── Doctor.jsx          # Doctor list
 │   │   │   │   │   ├── CreateDoctor.jsx
 │   │   │   │   │   └── EditDoctor.jsx
-│   │   │   │   ├── Patient/         # Patient management
+│   │   │   │   ├── Patient/                # Patient management
 │   │   │   │   │   ├── Patient.jsx
 │   │   │   │   │   ├── CreatePatient.jsx
 │   │   │   │   │   └── EditPatient.jsx
-│   │   │   │   ├── Appointment/     # Appointment management
+│   │   │   │   ├── Appointment/            # Appointment management
 │   │   │   │   │   ├── Appointment.jsx
 │   │   │   │   │   └── CreateAppointment.jsx
-│   │   │   │   ├── Department/      # Department management
+│   │   │   │   ├── Department/             # Department management
 │   │   │   │   │   ├── Department.jsx
 │   │   │   │   │   ├── CreateDepartment.jsx
 │   │   │   │   │   └── EditDepartment.jsx
-│   │   │   │   ├── Test/            # Test management
+│   │   │   │   ├── Test/                   # Test management
 │   │   │   │   │   ├── Test.jsx
 │   │   │   │   │   ├── CreateTest.jsx
 │   │   │   │   │   └── EditTest.jsx
-│   │   │   │   ├── Service/         # Service management
+│   │   │   │   ├── Service/                # Service management
 │   │   │   │   │   ├── Service.jsx
 │   │   │   │   │   ├── CreateService.jsx
 │   │   │   │   │   └── EditService.jsx
-│   │   │   │   ├── Medicine/        # Medicine management
+│   │   │   │   ├── Medicine/               # Medicine management
 │   │   │   │   │   ├── Medicine.jsx
 │   │   │   │   │   ├── CreateMedicine.jsx
 │   │   │   │   │   └── EditMedicine.jsx
-│   │   │   │   ├── Prescription/    # Prescription management
+│   │   │   │   ├── Prescription/           # Prescription management
 │   │   │   │   │   ├── Prescription.jsx
 │   │   │   │   │   ├── CreatePrescription.jsx
 │   │   │   │   │   └── ViewPrescription.jsx
-│   │   │   │   ├── Request/         # Request management
+│   │   │   │   ├── Request/                # Request management
 │   │   │   │   │   └── Request.jsx
-│   │   │   │   └── Error/           # Error page
+│   │   │   │   └── Error/                  # Error page
 │   │   │   │       └── Error.jsx
-│   │   │   └── Profile/             # Profile components
+│   │   │   └── Profile/                    # Profile components
 │   │   │       ├── Profile.jsx
-│   │   │       ├── EditProfile.jsx
 │   │   │       └── IdCard.jsx
-│   │   ├── constants/              # Application constants
-│   │   │   ├── theme.js             # Design system & theme
-│   │   │   └── config.js            # Configuration constants (API_URL, ROUTES, ROLES)
-│   │   ├── App.jsx                  # Main app component with routes
-│   │   ├── main.jsx                 # Entry point
-│   │   └── index.css                # Global styles
+│   │   ├── constants/                      # Application constants
+│   │   │   ├── theme.js                    # Design system & theme
+│   │   │   └── config.js                   # Configuration constants (API_URL, ROUTES, ROLES)
+│   │   ├── App.jsx                         # Main app component with routes
+│   │   ├── main.jsx                        # Entry point
+│   │   └── index.css                       # Global styles
 │   ├── package.json
 │   └── vite.config.js
-├── server/                          # Backend (Node.js/Express)
+├── server/                                 # Backend (Node.js/Express)
 │   ├── config/
-│   │   └── db.js                    # Database configuration
-│   ├── controllers/                 # Route controllers
+│   │   └── db.js                           # Database configuration
+│   ├── controllers/                        # Route controllers
 │   │   ├── appointment.controllers.js
 │   │   ├── auth.controllers.js
 │   │   ├── department.controllers.js
@@ -218,8 +153,8 @@ curo/
 │   │   ├── service.controllers.js
 │   │   └── test.controllers.js
 │   ├── middlewares/
-│   │   └── auth.middleware.js       # Authentication middleware
-│   ├── models/                      # Data models
+│   │   └── auth.middleware.js              # Authentication middleware
+│   ├── models/                             # Data models
 │   │   ├── appointment.models.js
 │   │   ├── auth.models.js
 │   │   ├── department.models.js
@@ -229,7 +164,7 @@ curo/
 │   │   ├── request.models.js
 │   │   ├── service.models.js
 │   │   └── test.models.js
-│   ├── routes/                      # API routes
+│   ├── routes/                             # API routes
 │   │   ├── appointment.routes.js
 │   │   ├── auth.routes.js
 │   │   ├── department.routes.js
@@ -239,10 +174,10 @@ curo/
 │   │   ├── request.routes.js
 │   │   ├── service.routes.js
 │   │   └── test.routes.js
-│   ├── server.js                   # Express server entry point
+│   ├── server.js                           # Express server entry point
 │   └── package.json
 ├── database/
-│   └── db.sql                      # Database schema
+│   └── db.sql                              # Database schema
 ├── README.md
 └── LICENSE
 ```

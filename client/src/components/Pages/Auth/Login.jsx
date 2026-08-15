@@ -77,7 +77,7 @@ export const Login = () => {
           </h1>
           <div className="flex justify-center">
             <img
-              src="/images/patient.png"
+              src="./images/patient.png"
               alt="patient"
               className="max-w-md w-full h-auto"
             />

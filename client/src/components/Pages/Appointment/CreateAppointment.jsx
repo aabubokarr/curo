@@ -1,16 +1,14 @@
 import React, { useState } from "react";
-import { Sidebar } from "../../Bars/Sidebar";
-import { Profile } from "../../Profile/Profile";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import Button from "../../Button/Button";
 
-export const CreateAppointment = () => {
-  const API_URL = import.meta.env.VITE_API_URL;
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
+import { API_URL } from "../../../constants/config";
+
+export const CreateAppointment = ({ onSuccess, onCancel }) => {
   const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const [formData, setFormData] = useState({
     doctor_id: "",
     patient_id: "",
@@ -19,127 +17,310 @@ export const CreateAppointment = () => {
   });
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    setFormData((previousData) => ({
+      ...previousData,
+      [name]: value,
+    }));
+
+    if (error) {
+      setError("");
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const isFormComplete = Object.values(formData).every(
-      (field) => field !== ""
+    setError("");
+
+    const requiredFields = [
+      "doctor_id",
+      "patient_id",
+      "appointment_date",
+      "appointment_time",
+    ];
+
+    const isFormComplete = requiredFields.every(
+      (field) => String(formData[field]).trim() !== ""
     );
+
     if (!isFormComplete) {
       setError("Please fill in all required fields.");
       return;
     }
 
-    if (window.confirm("Are you sure you want to create this appointment?")) {
-      axios
-        .post(`${API_URL}/appointment/create`, formData, {
+    if (!token) {
+      setError("Authentication token not found. Please login again.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Are you sure you want to create this appointment?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await axios.post(
+        `${API_URL}/appointment/create`,
+        formData,
+        {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        })
-        .then((res) => {
-          console.log("Appointment created successfully", res.data);
-          alert("Appointment created successfully!");
-          navigate("/appointment");
-        })
-        .catch((error) => {
-          console.error("Error creating appointment :", error);
-          if (error.response && error.response.data) {
-            setError(
-              `Failed to create appointment : ${
-                error.response.data.error || "Unknown error"
-              }`
-            );
-          } else {
-            setError("Failed to create appointment due to network error.");
-          }
-        });
+        }
+      );
+
+      console.log("Appointment created successfully:", response.data);
+
+      if (onSuccess) {
+        onSuccess(response.data);
+      }
+    } catch (error) {
+      console.error("Error creating appointment:", error);
+
+      if (error.response?.data) {
+        setError(
+          error.response.data.error ||
+            error.response.data.message ||
+            "Failed to create appointment."
+        );
+      } else {
+        setError("Failed to create appointment due to network error.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
+  /* =========================================================
+     FORM
+  ========================================================== */
+
   return (
-    <div className="flex">
-      <Sidebar />
-      <div className="px-3 w-full">
-        <div className="top-0 flex items-center justify-between sticky bg-[#EFF0F6] z-10 py-3">
-          <h1 className="text-[28px] font-semibold">Create Appointment</h1>
-          <Profile />
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      {/* ERROR */}
+
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+          <p className="text-sm text-red-600">{error}</p>
         </div>
-        {role === "admin" ? (
-          <div className="bg-[#FAFAFA] rounded-[20px] p-5">
-            {error && (
-              <div className="bg-red-200 text-red-600 p-2 rounded-sm mb-4">
-                {error}
-              </div>
-            )}
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-              <div className="flex items-center gap-3">
-                <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                  <label htmlFor="doctor_id">Doctor ID</label>
-                  <input
-                    onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                    type="number"
-                    placeholder="Enter Doctor ID"
-                    name="doctor_id"
-                  />
-                </div>
-                <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                  <label htmlFor="patient_id">Patient ID</label>
-                  <input
-                    onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                    type="number"
-                    placeholder="Enter Patient ID"
-                    name="patient_id"
-                  />
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                  <label htmlFor="appointment_date">Appointment Date</label>
-                  <input
-                    onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                    type="date"
-                    placeholder="Enter Appointment Date"
-                    name="appointment_date"
-                  />
-                </div>
-                <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                  <label htmlFor="appointment_time">Appointment Time</label>
-                  <select
-                    name="appointment_time"
-                    onChange={handleChange}
-                    className="p-3 w-full h-[48px] cursor-pointer rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                  >
-                    <option>-Select Appointment Time-</option>
-                    <option value="10:00 AM">10:00 AM</option>
-                    <option value="10:30 AM">10:30 AM</option>
-                    <option value="11:00 AM">11:00 AM</option>
-                    <option value="12:00 PM">12:00 PM</option>
-                    <option value="02:00 PM">02:00 PM</option>
-                    <option value="02:30 PM">02:30 PM</option>
-                    <option value="03:00 PM">03:00 PM</option>
-                    <option value="03:30 PM">03:30 PM</option>
-                    <option value="04:00 PM">04:00 PM</option>
-                    <option value="04:30 PM">04:30 PM</option>
-                  </select>
-                </div>
-              </div>
-              <Button name="CREATE" />
-            </form>
-          </div>
-        ) : (
-          <div className="text-center">You don't have access to this page</div>
-        )}
+      )}
+
+      {/* DOCTOR ID + PATIENT ID */}
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {/* DOCTOR ID */}
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">
+            Doctor ID <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            name="doctor_id"
+            type="number"
+            value={formData.doctor_id}
+            onChange={handleChange}
+            disabled={loading}
+            placeholder="Enter doctor ID"
+            className="
+              h-11
+              w-full
+              rounded-lg
+              border
+              border-gray-300
+              bg-white
+              px-3
+              text-sm
+              text-gray-800
+              outline-none
+              transition
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:bg-gray-100
+            "
+          />
+        </div>
+
+        {/* PATIENT ID */}
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">
+            Patient ID <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            name="patient_id"
+            type="number"
+            value={formData.patient_id}
+            onChange={handleChange}
+            disabled={loading}
+            placeholder="Enter patient ID"
+            className="
+              h-11
+              w-full
+              rounded-lg
+              border
+              border-gray-300
+              bg-white
+              px-3
+              text-sm
+              text-gray-800
+              outline-none
+              transition
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:bg-gray-100
+            "
+          />
+        </div>
       </div>
-    </div>
+
+      {/* APPOINTMENT DATE + TIME */}
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {/* APPOINTMENT DATE */}
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">
+            Appointment Date <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            name="appointment_date"
+            type="date"
+            value={formData.appointment_date}
+            onChange={handleChange}
+            disabled={loading}
+            className="
+              h-11
+              w-full
+              rounded-lg
+              border
+              border-gray-300
+              bg-white
+              px-3
+              text-sm
+              text-gray-800
+              outline-none
+              transition
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:bg-gray-100
+            "
+          />
+        </div>
+
+        {/* APPOINTMENT TIME */}
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">
+            Appointment Time <span className="text-red-500">*</span>
+          </label>
+
+          <select
+            name="appointment_time"
+            value={formData.appointment_time}
+            onChange={handleChange}
+            disabled={loading}
+            className="
+              h-11
+              w-full
+              rounded-lg
+              border
+              border-gray-300
+              bg-white
+              px-3
+              text-sm
+              text-gray-800
+              outline-none
+              transition
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:bg-gray-100
+              cursor-pointer
+            "
+          >
+            <option value="">Select Appointment Time</option>
+            <option value="10:00 AM">10:00 AM</option>
+            <option value="10:30 AM">10:30 AM</option>
+            <option value="11:00 AM">11:00 AM</option>
+            <option value="11:30 AM">11:30 AM</option>
+            <option value="12:00 PM">12:00 PM</option>
+            <option value="12:30 PM">12:30 PM</option>
+            <option value="02:00 PM">02:00 PM</option>
+            <option value="02:30 PM">02:30 PM</option>
+            <option value="03:00 PM">03:00 PM</option>
+            <option value="03:30 PM">03:30 PM</option>
+            <option value="04:00 PM">04:00 PM</option>
+            <option value="04:30 PM">04:30 PM</option>
+            <option value="05:00 PM">05:00 PM</option>
+          </select>
+        </div>
+      </div>
+
+      {/* BUTTONS */}
+
+      <div className="flex justify-end gap-3 border-t border-gray-200 pt-5">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={loading}
+          className="
+            rounded-lg
+            border
+            border-gray-300
+            bg-white
+            px-5
+            py-2.5
+            text-sm
+            font-medium
+            text-gray-700
+            transition
+            hover:bg-gray-50
+            disabled:cursor-not-allowed
+            disabled:opacity-50
+          "
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="
+            rounded-lg
+            bg-[#009BA9]
+            px-5
+            py-2.5
+            text-sm
+            font-semibold
+            text-white
+            shadow-sm
+            transition
+            hover:bg-[#008894]
+            focus:outline-none
+            focus:ring-2
+            focus:ring-[#009BA9]/30
+            disabled:cursor-not-allowed
+            disabled:opacity-60
+          "
+        >
+          {loading ? "Creating..." : "Create Appointment"}
+        </button>
+      </div>
+    </form>
   );
 };
+
+export default CreateAppointment;

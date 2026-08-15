@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Layout } from "../../Layout/Layout";
 import { Profile } from "../../Profile/Profile";
-import { Link } from "react-router-dom";
 import axios from "axios";
+
+import Modal from "../../UI/Modals/Modal";
+import CreateDoctor from "./CreateDoctor";
+import EditDoctor from "./EditDoctor";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -25,47 +28,102 @@ export const Doctor = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    axios
-      .get(`${API_URL}/doctor/read`, {
+  const [showDoctorModal, setShowDoctorModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
+
+  // FETCH DOCTORS
+
+  const fetchDoctors = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await axios.get(`${API_URL}/doctor/read`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
-      .then((res) => {
-        setDoctorList(res.data || []);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError("Failed to fetch doctor data.");
-        setLoading(false);
       });
+
+      setDoctorList(response.data || []);
+    } catch (error) {
+      console.error("Failed to fetch doctors:", error);
+
+      setError(
+        error.response?.data?.error ||
+          error.response?.data?.message ||
+          "Failed to fetch doctor data."
+      );
+    } finally {
+      setLoading(false);
+    }
   }, [token]);
 
-  const handleDelete = (doctorId) => {
-    if (window.confirm("Are you sure you want to delete this doctor?")) {
-      axios
-        .delete(`${API_URL}/doctor/delete/${doctorId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then(() => {
-          setDoctorList((prevList) =>
-            prevList.filter((doctor) => doctor.doctor_id !== doctorId)
-          );
+  // LOAD DOCTORS
 
-          alert("Doctor profile deleted successfully.");
-        })
-        .catch((err) => {
-          console.error(err);
-          alert("Failed to delete doctor profile.");
-        });
+  useEffect(() => {
+    fetchDoctors();
+  }, [fetchDoctors]);
+
+  // UPDATE DOCTOR
+
+  const handleEditDoctor = (doctor) => {
+    setSelectedDoctor(doctor);
+    setShowEditModal(true);
+  };
+
+  const handleDoctorUpdated = async () => {
+    setShowEditModal(false);
+    setSelectedDoctor(null);
+
+    await fetchDoctors();
+  };
+
+  // DELETE DOCTOR
+
+  const handleDelete = async (doctorId) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this doctor?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await axios.delete(`${API_URL}/doctor/delete/${doctorId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setDoctorList((previousList) =>
+        previousList.filter((doctor) => doctor.doctor_id !== doctorId)
+      );
+
+      alert("Doctor profile deleted successfully.");
+    } catch (error) {
+      console.error("Failed to delete doctor:", error);
+
+      alert(
+        error.response?.data?.error ||
+          error.response?.data?.message ||
+          "Failed to delete doctor profile."
+      );
     }
   };
 
-  // Access control
+  // DOCTOR CREATED SUCCESSFULLY
+
+  const handleDoctorCreated = async () => {
+    setShowDoctorModal(false);
+
+    // Refresh doctor list
+    await fetchDoctors();
+  };
+
+  // ACCESS CONTROL
+
   if (role !== "admin") {
     return (
       <Layout>
@@ -82,9 +140,7 @@ export const Doctor = () => {
 
   return (
     <Layout>
-      {/* ==================================================
-          HEADER
-      =================================================== */}
+      {/* Header */}
 
       <div
         className="
@@ -98,6 +154,7 @@ export const Doctor = () => {
           mb-8
         "
       >
+        {/* Page Title */}
         <div>
           <h1
             className="text-2xl sm:text-3xl font-bold"
@@ -113,28 +170,26 @@ export const Doctor = () => {
           </p>
         </div>
 
+        {/* Header Actions */}
         <div className="flex items-center gap-4">
-          <Link to="/create-doctor">
-            <Button
-              variant="primary"
-              size="md"
-              className="flex items-center gap-2"
-            >
-              <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
+          <Button
+            variant="primary"
+            size="md"
+            onClick={() => setShowDoctorModal(true)}
+            className="flex items-center gap-2"
+          >
+            <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
 
-              <span className="hidden sm:inline">Add New Doctor</span>
+            <span className="hidden sm:inline">Add New Doctor</span>
 
-              <span className="sm:hidden">Add</span>
-            </Button>
-          </Link>
+            <span className="sm:hidden">Add</span>
+          </Button>
 
           <Profile />
         </div>
       </div>
 
-      {/* ==================================================
-          ERROR
-      =================================================== */}
+      {/* Error */}
 
       {error && (
         <Card
@@ -146,13 +201,26 @@ export const Doctor = () => {
             border-red-200
           "
         >
-          <p className="text-red-600">{error}</p>
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-red-600">{error}</p>
+
+            <button
+              type="button"
+              onClick={fetchDoctors}
+              className="
+                text-sm
+                font-medium
+                text-red-700
+                hover:underline
+              "
+            >
+              Try Again
+            </button>
+          </div>
         </Card>
       )}
 
-      {/* ==================================================
-          LOADING
-      =================================================== */}
+      {/* Loading */}
 
       {loading ? (
         <div className="text-center py-12">
@@ -172,10 +240,6 @@ export const Doctor = () => {
           <p className="text-gray-600">Loading doctors...</p>
         </div>
       ) : doctorList.length === 0 ? (
-        /* =================================================
-           EMPTY STATE
-        ================================================== */
-
         <Card padding="lg" shadow="md" className="text-center">
           <div className="py-8">
             <FontAwesomeIcon
@@ -189,27 +253,26 @@ export const Doctor = () => {
 
             <p className="text-lg text-gray-600">No doctors found</p>
 
-            <Link to="/create-doctor" className="mt-4 inline-block">
-              <Button variant="primary" size="md">
-                Add First Doctor
-              </Button>
-            </Link>
+            <Button
+              variant="primary"
+              size="md"
+              onClick={() => setShowDoctorModal(true)}
+              className="mt-4"
+            >
+              <FontAwesomeIcon icon={faPlus} className="mr-2" />
+              Add First Doctor
+            </Button>
           </div>
         </Card>
       ) : (
-        /* =================================================
-           DOCTOR GRID
-        ================================================== */
-
         <div
           className="
             grid
             grid-cols-1
-            sm:grid-cols-2
-            lg:grid-cols-3
-            xl:grid-cols-4
-            gap-4
-            md:gap-6
+            md:grid-cols-2
+            xl:grid-cols-3
+            2xl:grid-cols-4
+            gap-5
           "
         >
           {doctorList.map((doctor, index) => (
@@ -234,31 +297,32 @@ export const Doctor = () => {
                 padding="lg"
                 shadow="md"
                 className="
-                    h-full
-                    hover:shadow-lg
-                    transition-shadow
-                    duration-300
-                  "
+                  h-full
+                  hover:shadow-lg
+                  transition-shadow
+                  duration-300
+                "
               >
                 {/* Card Header */}
 
                 <div
                   className="
-                      flex
-                      items-start
-                      justify-between
-                      mb-4
-                    "
+                    flex
+                    items-center
+                    justify-between
+                    mb-3
+                  "
                 >
+                  {/* Doctor Icon */}
                   <div
                     className="
-                        w-12
-                        h-12
-                        rounded-full
-                        flex
-                        items-center
-                        justify-center
-                      "
+                      w-12
+                      h-12
+                      rounded-full
+                      flex
+                      items-center
+                      justify-center
+                    "
                     style={{
                       backgroundColor: theme.colors.primary.main + "20",
                     }}
@@ -273,44 +337,44 @@ export const Doctor = () => {
                   </div>
 
                   {/* Actions */}
-
-                  <div className="flex gap-2">
-                    <Link to={`/edit-doctor/${doctor.doctor_id}`}>
-                      <button
-                        type="button"
-                        className="
-                            w-8
-                            h-8
-                            rounded-lg
-                            flex
-                            items-center
-                            justify-center
-                            hover:bg-gray-100
-                            transition-colors
-                          "
-                        style={{
-                          color: theme.colors.primary.main,
-                        }}
-                        title="View/Edit"
-                      >
-                        <FontAwesomeIcon icon={faEye} />
-                      </button>
-                    </Link>
+                  <div className="flex flex-col justify-between">
+                    <button
+                      type="button"
+                      onClick={() => handleEditDoctor(doctor)}
+                      className="
+                          w-7
+                          h-7
+                          rounded-lg
+                          flex
+                          items-center
+                          justify-center
+                          hover:bg-gray-100
+                          transition-colors
+                          cursor-pointer
+                        "
+                      style={{
+                        color: theme.colors.primary.main,
+                      }}
+                      title="View/Edit"
+                    >
+                      <FontAwesomeIcon icon={faEye} />
+                    </button>
 
                     <button
                       type="button"
                       onClick={() => handleDelete(doctor.doctor_id)}
                       className="
-                          w-8
-                          h-8
-                          rounded-lg
-                          flex
-                          items-center
-                          justify-center
-                          hover:bg-red-50
-                          transition-colors
-                          text-red-500
-                        "
+                        w-7
+                        h-7
+                        rounded-lg
+                        flex
+                        items-center
+                        justify-center
+                        hover:bg-red-50
+                        transition-colors
+                        text-red-500
+                        cursor-pointer
+                      "
                       title="Delete"
                     >
                       <FontAwesomeIcon icon={faTrash} />
@@ -338,9 +402,9 @@ export const Doctor = () => {
 
                     <p
                       className="
-                          text-gray-600
-                          truncate
-                        "
+                        text-gray-600
+                        truncate
+                      "
                       title={doctor.email}
                     >
                       <span className="font-medium">Email:</span> {doctor.email}
@@ -376,6 +440,42 @@ export const Doctor = () => {
           ))}
         </div>
       )}
+
+      {/* Add Doctor Modal */}
+
+      <Modal
+        isOpen={showDoctorModal}
+        onClose={() => setShowDoctorModal(false)}
+        title="Add New Doctor"
+        maxWidth="max-w-3xl"
+      >
+        <CreateDoctor
+          onCancel={() => setShowDoctorModal(false)}
+          onSuccess={handleDoctorCreated}
+        />
+      </Modal>
+
+      {/* Edit Doctor Modal */}
+      <Modal
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setSelectedDoctor(null);
+        }}
+        title="Edit Doctor"
+        maxWidth="max-w-3xl"
+      >
+        {selectedDoctor && (
+          <EditDoctor
+            doctor={selectedDoctor}
+            onCancel={() => {
+              setShowEditModal(false);
+              setSelectedDoctor(null);
+            }}
+            onSuccess={handleDoctorUpdated}
+          />
+        )}
+      </Modal>
     </Layout>
   );
 };

@@ -71,22 +71,6 @@ export const Sidebar = () => {
     return false;
   });
 
-  const getRoleTitle = () => {
-    switch (role) {
-      case "admin":
-        return "Administrator";
-
-      case "doctor":
-        return "Medical Professional";
-
-      case "patient":
-        return "Patient";
-
-      default:
-        return "Guest";
-    }
-  };
-
   return (
     <Box
       component="aside"
@@ -110,10 +94,6 @@ export const Sidebar = () => {
         boxShadow: "8px 0 30px rgba(0, 0, 0, 0.08)",
       }}
     >
-      {/* =====================================================
-          LOGO
-      ====================================================== */}
-
       <Box
         sx={{
           px: 3,
@@ -177,10 +157,6 @@ export const Sidebar = () => {
           </Typography>
         </Box>
       </Box>
-
-      {/* =====================================================
-          NAVIGATION
-      ====================================================== */}
 
       <Box
         component="nav"
@@ -329,78 +305,6 @@ export const Sidebar = () => {
               </motion.div>
             );
           })}
-        </Box>
-      </Box>
-
-      {/* =====================================================
-          USER PROFILE
-      ====================================================== */}
-
-      <Box
-        sx={{
-          px: 2,
-          pb: 2,
-          flexShrink: 0,
-        }}
-      >
-        <Box
-          sx={{
-            p: 1.5,
-            display: "flex",
-            alignItems: "center",
-            gap: 1.5,
-            borderRadius: "16px",
-            backgroundColor: alpha("#ffffff", 0.1),
-            border: `1px solid ${alpha("#ffffff", 0.1)}`,
-          }}
-        >
-          <Avatar
-            sx={{
-              width: 42,
-              height: 42,
-              flexShrink: 0,
-              backgroundColor: "#ffffff",
-              color: theme.colors.primary.main,
-              fontSize: "14px",
-              fontWeight: 700,
-            }}
-          >
-            {role ? role.charAt(0).toUpperCase() : "G"}
-          </Avatar>
-
-          <Box
-            sx={{
-              minWidth: 0,
-              flex: 1,
-            }}
-          >
-            <Typography
-              sx={{
-                color: "#ffffff",
-                fontSize: "13px",
-                fontWeight: 700,
-                textTransform: "capitalize",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {role || "Guest"}
-            </Typography>
-
-            <Typography
-              sx={{
-                color: alpha("#ffffff", 0.55),
-                fontSize: "10px",
-                mt: 0.2,
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {getRoleTitle()}
-            </Typography>
-          </Box>
         </Box>
       </Box>
     </Box>

@@ -15,7 +15,6 @@ export const ROUTES = {
   MEDICINE: "/medicine",
   PRESCRIPTION: "/prescription",
   REQUEST: "/request",
-  EDIT_PROFILE: "/edit-profile",
 };
 
 export const ROLES = {

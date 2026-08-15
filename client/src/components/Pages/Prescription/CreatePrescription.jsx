@@ -1,169 +1,419 @@
 import React, { useState } from "react";
-import { Sidebar } from "../../Bars/Sidebar";
-import { Profile } from "../../Profile/Profile";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import Button from "../../Button/Button";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
+
 import { API_URL } from "../../../constants/config";
 
-export const CreatePrescription = () => {
+export const CreatePrescription = ({ onSuccess, onCancel }) => {
+  const token = localStorage.getItem("token");
+
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
   const [formData, setFormData] = useState({
     patient_id: "",
     doctor_id: "",
     medicines: [],
+    medicine_input: "",
   });
-  const navigate = useNavigate();
-  const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
+
+  /* =========================================================
+     HANDLE CHANGE
+  ========================================================== */
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+    const { name, value } = e.target;
 
-  const handleAddMedicine = () => {
-    const medicineId = formData.medicine_id;
-    if (medicineId && !formData.medicines.includes(medicineId)) {
-      setFormData({
-        ...formData,
-        medicines: [...formData.medicines, medicineId],
-        medicine_id: "",
-      });
-    } else {
-      setError("Please enter a valid medicine name.");
+    setFormData((previousData) => ({
+      ...previousData,
+      [name]: value,
+    }));
+
+    if (error) {
+      setError("");
     }
   };
 
-  const handleRemoveMedicine = (medicineId) => {
-    setFormData({
-      ...formData,
-      medicines: formData.medicines.filter((id) => id !== medicineId),
-    });
+  /* =========================================================
+     ADD MEDICINE
+  ========================================================== */
+
+  const handleAddMedicine = () => {
+    const medicineName = formData.medicine_input.trim();
+
+    if (!medicineName) {
+      setError("Please enter a medicine name.");
+      return;
+    }
+
+    if (formData.medicines.includes(medicineName)) {
+      setError("This medicine is already added.");
+      return;
+    }
+
+    setFormData((previousData) => ({
+      ...previousData,
+      medicines: [...previousData.medicines, medicineName],
+      medicine_input: "",
+    }));
+
+    setError("");
   };
 
-  const handleSubmit = (e) => {
+  /* =========================================================
+     REMOVE MEDICINE
+  ========================================================== */
+
+  const handleRemoveMedicine = (medicineName) => {
+    setFormData((previousData) => ({
+      ...previousData,
+      medicines: previousData.medicines.filter((m) => m !== medicineName),
+    }));
+  };
+
+  /* =========================================================
+     HANDLE SUBMIT
+  ========================================================== */
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (window.confirm("Are you sure you want to create this prescription?")) {
-      axios
-        .post(`${API_URL}/create/prescription`, formData, {
+    setError("");
+
+    const requiredFields = ["patient_id", "doctor_id"];
+
+    const isFormComplete = requiredFields.every(
+      (field) => String(formData[field]).trim() !== ""
+    );
+
+    if (!isFormComplete) {
+      setError("Please fill in all required fields.");
+      return;
+    }
+
+    if (formData.medicines.length === 0) {
+      setError("Please add at least one medicine.");
+      return;
+    }
+
+    if (!token) {
+      setError("Authentication token not found. Please login again.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Are you sure you want to create this prescription?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const submitData = {
+        patient_id: formData.patient_id,
+        doctor_id: formData.doctor_id,
+        medicines: formData.medicines,
+      };
+
+      const response = await axios.post(
+        `${API_URL}/create/prescription`,
+        submitData,
+        {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        })
-        .then((res) => {
-          console.log("Prescription created successfully", res.data);
-          alert("Prescription created successfully!");
-          navigate("/prescription");
-        })
-        .catch((error) => {
-          console.error("Error creating prescription:", error);
-          if (error.response && error.response.data) {
-            setError(
-              `Failed to create prescription : ${
-                error.response.data.error || "Unknown error"
-              }`
-            );
-          } else {
-            setError("Failed to create prescription due to network error.");
-          }
-        });
+        }
+      );
+
+      console.log("Prescription created successfully:", response.data);
+
+      if (onSuccess) {
+        onSuccess(response.data);
+      }
+    } catch (error) {
+      console.error("Error creating prescription:", error);
+
+      if (error.response?.data) {
+        setError(
+          error.response.data.error ||
+            error.response.data.message ||
+            "Failed to create prescription."
+        );
+      } else {
+        setError("Failed to create prescription due to network error.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
-  return (
-    <div className="flex">
-      <Sidebar />
-      <div className="px-3 w-full">
-        <div className="top-0 flex items-center justify-between sticky bg-[#EFF0F6] z-10 py-3">
-          <h1 className="text-[28px] font-semibold">Create Prescription</h1>
-          <Profile />
-        </div>
-        {role === "doctor" ? (
-          <div className="bg-[#FAFAFA] rounded-[20px] p-5">
-            {error && (
-              <div className="bg-red-200 text-red-600 p-2 rounded-sm mb-4">
-                {error}
-              </div>
-            )}
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-              <div className="flex items-center gap-3">
-                <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                  <label htmlFor="doctor_id">Your ID</label>
-                  <input
-                    onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                    type="number"
-                    placeholder="Enter Your ID"
-                    name="doctor_id"
-                  />
-                </div>
-                <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                  <label htmlFor="patient_id">Patient ID</label>
-                  <input
-                    onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                    type="number"
-                    placeholder="Enter Patient ID"
-                    name="patient_id"
-                  />
-                </div>
-              </div>
+  /* =========================================================
+     HANDLE KEY PRESS
+  ========================================================== */
 
-              <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                <label htmlFor="medicine_id">Medicine Name</label>
-                <div className="flex items-center gap-3">
-                  <input
-                    onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                    type="text"
-                    placeholder="Enter Medicine Name"
-                    name="medicine_id"
-                    value={formData.medicine_id}
-                  />
-                  <button
-                    type="button"
-                    onClick={handleAddMedicine}
-                    className="mt-2 bg-[#009BA9] text-white text-[20px] w-[50px] rounded-sm p-2"
-                  >
-                    <FontAwesomeIcon icon={faPlus} />
-                  </button>
-                </div>
-              </div>
-              {formData.medicines.length > 0 && (
-                <div className="mt-4">
-                  <h3 className="text-[#009BA9]">Medicines :</h3>
-                  <ul>
-                    {formData.medicines.map((medicine, index) => (
-                      <li
-                        key={index}
-                        className="flex justify-between items-center"
-                      >
-                        <span>{medicine}</span>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveMedicine(medicine)}
-                          className="text-red-500"
-                        >
-                          Remove
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              <Button name="CREATE" />
-            </form>
-          </div>
-        ) : (
-          <div className="text-center">You don't have access to this page</div>
-        )}
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleAddMedicine();
+    }
+  };
+
+  /* =========================================================
+     FORM
+  ========================================================== */
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      {/* ERROR */}
+
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+          <p className="text-sm text-red-600">{error}</p>
+        </div>
+      )}
+
+      {/* DOCTOR ID + PATIENT ID */}
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {/* DOCTOR ID */}
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">
+            Doctor ID <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            name="doctor_id"
+            type="number"
+            value={formData.doctor_id}
+            onChange={handleChange}
+            disabled={loading}
+            placeholder="Enter doctor ID"
+            className="
+              h-11
+              w-full
+              rounded-lg
+              border
+              border-gray-300
+              bg-white
+              px-3
+              text-sm
+              text-gray-800
+              outline-none
+              transition
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:bg-gray-100
+            "
+          />
+        </div>
+
+        {/* PATIENT ID */}
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">
+            Patient ID <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            name="patient_id"
+            type="number"
+            value={formData.patient_id}
+            onChange={handleChange}
+            disabled={loading}
+            placeholder="Enter patient ID"
+            className="
+              h-11
+              w-full
+              rounded-lg
+              border
+              border-gray-300
+              bg-white
+              px-3
+              text-sm
+              text-gray-800
+              outline-none
+              transition
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:bg-gray-100
+            "
+          />
+        </div>
       </div>
-    </div>
+
+      {/* MEDICINE INPUT */}
+
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-medium text-gray-700">
+          Add Medicines <span className="text-red-500">*</span>
+          <span className="text-xs text-gray-400 ml-2">
+            (Press Enter or click Add)
+          </span>
+        </label>
+
+        <div className="flex items-center gap-3">
+          <input
+            name="medicine_input"
+            type="text"
+            value={formData.medicine_input}
+            onChange={handleChange}
+            onKeyPress={handleKeyPress}
+            disabled={loading}
+            placeholder="Enter medicine name"
+            className="
+              h-11
+              w-full
+              rounded-lg
+              border
+              border-gray-300
+              bg-white
+              px-3
+              text-sm
+              text-gray-800
+              outline-none
+              transition
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:bg-gray-100
+            "
+          />
+
+          <button
+            type="button"
+            onClick={handleAddMedicine}
+            disabled={loading}
+            className="
+              h-11
+              px-4
+              rounded-lg
+              bg-[#009BA9]
+              text-white
+              font-semibold
+              transition
+              hover:bg-[#008894]
+              disabled:opacity-60
+              disabled:cursor-not-allowed
+              flex
+              items-center
+              gap-2
+            "
+          >
+            <FontAwesomeIcon icon={faPlus} />
+            Add
+          </button>
+        </div>
+      </div>
+
+      {/* MEDICINE LIST */}
+
+      {formData.medicines.length > 0 && (
+        <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <h4 className="text-sm font-semibold text-gray-700 mb-3">
+            Added Medicines ({formData.medicines.length})
+          </h4>
+
+          <div className="flex flex-wrap gap-2">
+            {formData.medicines.map((medicine, index) => (
+              <span
+                key={index}
+                className="
+                  inline-flex
+                  items-center
+                  gap-2
+                  bg-white
+                  px-3
+                  py-1.5
+                  rounded-full
+                  text-sm
+                  text-gray-700
+                  border
+                  border-gray-200
+                  shadow-sm
+                "
+              >
+                {medicine}
+
+                <button
+                  type="button"
+                  onClick={() => handleRemoveMedicine(medicine)}
+                  disabled={loading}
+                  className="
+                    text-red-500
+                    hover:text-red-700
+                    transition-colors
+                    disabled:opacity-50
+                    disabled:cursor-not-allowed
+                  "
+                >
+                  <FontAwesomeIcon icon={faTimes} />
+                </button>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* BUTTONS */}
+
+      <div className="flex justify-end gap-3 border-t border-gray-200 pt-5">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={loading}
+          className="
+            rounded-lg
+            border
+            border-gray-300
+            bg-white
+            px-5
+            py-2.5
+            text-sm
+            font-medium
+            text-gray-700
+            transition
+            hover:bg-gray-50
+            disabled:cursor-not-allowed
+            disabled:opacity-50
+          "
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="
+            rounded-lg
+            bg-[#009BA9]
+            px-5
+            py-2.5
+            text-sm
+            font-semibold
+            text-white
+            shadow-sm
+            transition
+            hover:bg-[#008894]
+            focus:outline-none
+            focus:ring-2
+            focus:ring-[#009BA9]/30
+            disabled:cursor-not-allowed
+            disabled:opacity-60
+          "
+        >
+          {loading ? "Creating..." : "Create Prescription"}
+        </button>
+      </div>
+    </form>
   );
 };
+
+export default CreatePrescription;

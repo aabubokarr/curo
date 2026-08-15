@@ -11,7 +11,7 @@ import {
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 
-import { Card, Button } from "../../UI";
+import { Card } from "../../UI";
 import { theme } from "../../../constants/theme";
 
 import { motion } from "framer-motion";
@@ -53,10 +53,6 @@ export const Request = () => {
       });
   }, [API_URL, token, role]);
 
-  /* =========================================================
-     ACCEPT REQUEST
-  ========================================================== */
-
   const handleAccept = (requestId) => {
     const confirmed = window.confirm(
       "Are you sure you want to accept this request?"
@@ -89,10 +85,6 @@ export const Request = () => {
       });
   };
 
-  /* =========================================================
-     REJECT REQUEST
-  ========================================================== */
-
   const handleReject = (requestId) => {
     const confirmed = window.confirm(
       "Are you sure you want to reject this request?"
@@ -120,10 +112,6 @@ export const Request = () => {
         alert("Failed to reject request.");
       });
   };
-
-  /* =========================================================
-     ACCESS DENIED
-  ========================================================== */
 
   if (role !== "admin") {
     return (
@@ -160,16 +148,8 @@ export const Request = () => {
     );
   }
 
-  /* =========================================================
-     MAIN PAGE
-  ========================================================== */
-
   return (
     <Layout>
-      {/* =====================================================
-          HEADER
-      ====================================================== */}
-
       <header
         className="
           flex
@@ -200,10 +180,6 @@ export const Request = () => {
         <Profile />
       </header>
 
-      {/* =====================================================
-          ERROR
-      ====================================================== */}
-
       {error && (
         <Card
           padding="md"
@@ -217,10 +193,6 @@ export const Request = () => {
           <p className="text-red-600 text-sm">{error}</p>
         </Card>
       )}
-
-      {/* =====================================================
-          LOADING
-      ====================================================== */}
 
       {loading ? (
         <div
@@ -248,10 +220,6 @@ export const Request = () => {
           <p className="text-gray-500">Loading requests...</p>
         </div>
       ) : request.length === 0 ? (
-        /* ===================================================
-           EMPTY STATE
-        ==================================================== */
-
         <Card padding="lg" shadow="md" className="text-center">
           <div className="py-12">
             <div
@@ -286,10 +254,6 @@ export const Request = () => {
           </div>
         </Card>
       ) : (
-        /* ===================================================
-           REQUEST TABLE
-        ==================================================== */
-
         <Card
           padding="none"
           shadow="md"

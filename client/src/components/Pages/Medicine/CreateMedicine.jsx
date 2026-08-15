@@ -1,16 +1,14 @@
 import React, { useState } from "react";
-import { Sidebar } from "../../Bars/Sidebar";
-import { Profile } from "../../Profile/Profile";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import Button from "../../Button/Button";
 
-export const CreateMedicine = () => {
-  const API_URL = import.meta.env.VITE_API_URL;
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
+import { API_URL } from "../../../constants/config";
+
+export const CreateMedicine = ({ onSuccess, onCancel }) => {
   const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const [formData, setFormData] = useState({
     medicine_name: "",
     medicine_quantity: "",
@@ -18,105 +16,255 @@ export const CreateMedicine = () => {
   });
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    setFormData((previousData) => ({
+      ...previousData,
+      [name]: value,
+    }));
+
+    if (error) {
+      setError("");
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const isFormComplete = Object.values(formData).every(
-      (field) => field !== ""
+    setError("");
+
+    const requiredFields = [
+      "medicine_name",
+      "medicine_quantity",
+      "medicine_price",
+    ];
+
+    const isFormComplete = requiredFields.every(
+      (field) => String(formData[field]).trim() !== ""
     );
+
     if (!isFormComplete) {
       setError("Please fill in all required fields.");
       return;
     }
 
-    if (window.confirm("Are you sure you want to create this medicine?")) {
-      axios
-        .post(`${API_URL}/medicine/create`, formData, {
+    if (!token) {
+      setError("Authentication token not found. Please login again.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Are you sure you want to create this medicine?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await axios.post(
+        `${API_URL}/medicine/create`,
+        formData,
+        {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        })
-        .then((res) => {
-          console.log("Medicine created successfully", res.data);
-          alert("Medicine created successfully!");
-          navigate("/medicine");
-        })
-        .catch((error) => {
-          console.error("Error creating medicine :", error);
-          if (error.response && error.response.data) {
-            setError(
-              `Failed to create medicine : ${
-                error.response.data.error || "Unknown error"
-              }`
-            );
-          } else {
-            setError("Failed to create medicine due to network error.");
-          }
-        });
+        }
+      );
+
+      console.log("Medicine created successfully:", response.data);
+
+      if (onSuccess) {
+        onSuccess(response.data);
+      }
+    } catch (error) {
+      console.error("Error creating medicine:", error);
+
+      if (error.response?.data) {
+        setError(
+          error.response.data.error ||
+            error.response.data.message ||
+            "Failed to create medicine."
+        );
+      } else {
+        setError("Failed to create medicine due to network error.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex">
-      <Sidebar />
-      <div className="px-3 w-full">
-        <div className="top-0 flex items-center justify-between sticky bg-[#EFF0F6] z-10 py-3">
-          <h1 className="text-[28px] font-semibold">Create Medicine</h1>
-          <Profile />
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      {/* ERROR */}
+
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+          <p className="text-sm text-red-600">{error}</p>
         </div>
-        {role === "admin" ? (
-          <div className="bg-[#FAFAFA] rounded-[20px] p-5">
-            {error && (
-              <div className="bg-red-200 text-red-600 p-2 rounded-sm mb-4">
-                {error}
-              </div>
-            )}
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-              <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                <label htmlFor="medicine_name">Medicine Name</label>
-                <input
-                  onChange={handleChange}
-                  className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                  type="text"
-                  placeholder="Enter Medicine Name"
-                  name="medicine_name"
-                />
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                  <label htmlFor="medicine_quantity">Medicine Quantity</label>
-                  <input
-                    onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                    type="text"
-                    placeholder="Enter Medicine Quantity"
-                    name="medicine_quantity"
-                  />
-                </div>
-                <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                  <label htmlFor="medicine_price">Medicine Price</label>
-                  <input
-                    onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                    type="number"
-                    placeholder="Enter Medicine Price"
-                    name="medicine_price"
-                  />
-                </div>
-              </div>
-              <Button name="CREATE" />
-            </form>
-          </div>
-        ) : (
-          <div className="text-center">You don't have access to this page</div>
-        )}
+      )}
+
+      {/* MEDICINE NAME */}
+
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-medium text-gray-700">
+          Medicine Name <span className="text-red-500">*</span>
+        </label>
+
+        <input
+          name="medicine_name"
+          type="text"
+          value={formData.medicine_name}
+          onChange={handleChange}
+          disabled={loading}
+          placeholder="Enter medicine name"
+          className="
+            h-11
+            w-full
+            rounded-lg
+            border
+            border-gray-300
+            bg-white
+            px-3
+            text-sm
+            text-gray-800
+            outline-none
+            transition
+            focus:border-[#009BA9]
+            focus:ring-2
+            focus:ring-[#009BA9]/20
+            disabled:bg-gray-100
+          "
+        />
       </div>
-    </div>
+
+      {/* MEDICINE QUANTITY + MEDICINE PRICE */}
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {/* MEDICINE QUANTITY */}
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">
+            Medicine Quantity <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            name="medicine_quantity"
+            type="number"
+            value={formData.medicine_quantity}
+            onChange={handleChange}
+            disabled={loading}
+            placeholder="Enter quantity"
+            className="
+              h-11
+              w-full
+              rounded-lg
+              border
+              border-gray-300
+              bg-white
+              px-3
+              text-sm
+              text-gray-800
+              outline-none
+              transition
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:bg-gray-100
+            "
+          />
+        </div>
+
+        {/* MEDICINE PRICE */}
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">
+            Medicine Price (TK) <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            name="medicine_price"
+            type="number"
+            step="0.01"
+            value={formData.medicine_price}
+            onChange={handleChange}
+            disabled={loading}
+            placeholder="Enter price"
+            className="
+              h-11
+              w-full
+              rounded-lg
+              border
+              border-gray-300
+              bg-white
+              px-3
+              text-sm
+              text-gray-800
+              outline-none
+              transition
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:bg-gray-100
+            "
+          />
+        </div>
+      </div>
+
+      {/* BUTTONS */}
+
+      <div className="flex justify-end gap-3 border-t border-gray-200 pt-5">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={loading}
+          className="
+            rounded-lg
+            border
+            border-gray-300
+            bg-white
+            px-5
+            py-2.5
+            text-sm
+            font-medium
+            text-gray-700
+            transition
+            hover:bg-gray-50
+            disabled:cursor-not-allowed
+            disabled:opacity-50
+          "
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="
+            rounded-lg
+            bg-[#009BA9]
+            px-5
+            py-2.5
+            text-sm
+            font-semibold
+            text-white
+            shadow-sm
+            transition
+            hover:bg-[#008894]
+            focus:outline-none
+            focus:ring-2
+            focus:ring-[#009BA9]/30
+            disabled:cursor-not-allowed
+            disabled:opacity-60
+          "
+        >
+          {loading ? "Creating..." : "Create Medicine"}
+        </button>
+      </div>
+    </form>
   );
 };
+
+export default CreateMedicine;

@@ -1,18 +1,14 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { Sidebar } from "../../Bars/Sidebar";
-import { Profile } from "../../Profile/Profile";
-import Button from "../../Button/Button";
+import axios from "axios";
+
 import { API_URL } from "../../../constants/config";
 
-export const EditMedicine = () => {
-  const { medId } = useParams();
+export const EditMedicine = ({ medicine, onSuccess, onCancel }) => {
   const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
-  const navigate = useNavigate();
-  const [medicine, setMedicine] = useState({});
+
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
   const [formData, setFormData] = useState({
     medicine_name: "",
     medicine_quantity: "",
@@ -20,113 +16,283 @@ export const EditMedicine = () => {
   });
 
   useEffect(() => {
-    axios
-      .get(`${API_URL}/medicine/read/${medId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((res) => {
-        setMedicine(res.data), console.log(res.data);
-      })
-      .catch((err) => {
-        setError("Failed to fetch medicine data");
-        console.error(err);
-      });
-  }, [medId, token, navigate]);
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const isFormComplete = Object.values(formData).some(
-      (field) => field !== ""
-    );
-    if (!isFormComplete) {
-      setError("Please fill in at least one required field.");
+    if (!medicine) {
       return;
     }
 
-    if (window.confirm("Are you sure you want to update info?")) {
-      console.log(formData);
+    setFormData({
+      medicine_name: medicine.medicine_name || "",
 
-      axios
-        .patch(`${API_URL}/update/medicine/${medId}`, formData, {
+      medicine_quantity:
+        medicine.medicine_quantity !== null &&
+        medicine.medicine_quantity !== undefined
+          ? String(medicine.medicine_quantity)
+          : "",
+
+      medicine_price:
+        medicine.medicine_price !== null &&
+        medicine.medicine_price !== undefined
+          ? String(medicine.medicine_price)
+          : "",
+    });
+  }, [medicine]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData((previousData) => ({
+      ...previousData,
+      [name]: value,
+    }));
+
+    if (error) {
+      setError("");
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!medicine?.medicine_id) {
+      setError("Medicine information is missing.");
+      return;
+    }
+
+    setError("");
+
+    const requiredFields = [
+      "medicine_name",
+      "medicine_quantity",
+      "medicine_price",
+    ];
+
+    const isFormComplete = requiredFields.every(
+      (field) => String(formData[field]).trim() !== ""
+    );
+
+    if (!isFormComplete) {
+      setError("Please fill in all required fields.");
+      return;
+    }
+
+    const dataToUpdate = {
+      medicine_name: formData.medicine_name,
+      medicine_quantity: formData.medicine_quantity,
+      medicine_price: formData.medicine_price,
+    };
+
+    const confirmed = window.confirm(
+      "Are you sure you want to update this medicine?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await axios.patch(
+        `${API_URL}/medicine/update/${medicine.medicine_id}`,
+        dataToUpdate,
+        {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        })
-        .then((res) => {
-          console.log("Medicine updated successfully", res.data);
-          alert("Medicine updated successfully");
-        })
-        .catch((error) => {
-          console.error("Error updating medicine:", error);
-        });
+        }
+      );
+
+      console.log("Medicine updated successfully:", response.data);
+
+      if (onSuccess) {
+        onSuccess(response.data);
+      }
+    } catch (error) {
+      console.error("Error updating medicine:", error);
+
+      if (error.response?.data) {
+        setError(
+          error.response.data.error ||
+            error.response.data.message ||
+            "Failed to update medicine."
+        );
+      } else {
+        setError("Failed to update medicine due to network error.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex">
-      <Sidebar />
-      <div className="px-3 w-full">
-        <div className="top-0 flex items-center justify-between sticky bg-[#EFF0F6] z-10 py-3">
-          <h1 className="text-[28px] font-semibold">Edit Medicine</h1>
-          <Profile />
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      {/* ERROR */}
+
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+          <p className="text-sm text-red-600">{error}</p>
         </div>
-        {role === "admin" ? (
-          <div className="bg-[#FAFAFA] rounded-[20px] p-5 w-full">
-            {error && (
-              <div className="bg-red-200 text-red-600 p-2 rounded-sm mb-4">
-                {error}
-              </div>
-            )}
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-              <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                <label htmlFor="medicine_name">Medicine Name</label>
-                <input
-                  onChange={handleChange}
-                  className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                  type="text"
-                  placeholder={medicine.medicine_name}
-                  name="medicine_name"
-                />
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                  <label htmlFor="medicine_quantity">Medicine Quantity</label>
-                  <input
-                    onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                    type="text"
-                    placeholder={medicine.medicine_quantity}
-                    name="medicine_quantity"
-                  />
-                </div>
-                <div className="flex flex-col gap-1 text-[#009BA9] text-[16px] w-full">
-                  <label htmlFor="medicine_price">Medicine Price</label>
-                  <input
-                    onChange={handleChange}
-                    className="p-3 w-full h-[48px] rounded-[8px] bg-[#FAFAFA] border-l border-l-[#009BA9] border-b border-b-[#009BA9] focus:outline-hidden"
-                    type="number"
-                    placeholder={medicine.medicine_price}
-                    name="medicine_price"
-                  />
-                </div>
-              </div>
-              <Button name="UPDATE" />
-            </form>
-          </div>
-        ) : (
-          <div className="text-center">You don't have access to this page</div>
-        )}
+      )}
+
+      {/* MEDICINE NAME */}
+
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-medium text-gray-700">
+          Medicine Name <span className="text-red-500">*</span>
+        </label>
+
+        <input
+          name="medicine_name"
+          type="text"
+          value={formData.medicine_name}
+          onChange={handleChange}
+          disabled={loading}
+          placeholder="Enter medicine name"
+          className="
+            h-11
+            w-full
+            rounded-lg
+            border
+            border-gray-300
+            bg-white
+            px-3
+            text-sm
+            text-gray-800
+            outline-none
+            transition
+            focus:border-[#009BA9]
+            focus:ring-2
+            focus:ring-[#009BA9]/20
+            disabled:bg-gray-100
+          "
+        />
       </div>
-    </div>
+
+      {/* MEDICINE QUANTITY + MEDICINE PRICE */}
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {/* MEDICINE QUANTITY */}
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">
+            Medicine Quantity <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            name="medicine_quantity"
+            type="number"
+            value={formData.medicine_quantity}
+            onChange={handleChange}
+            disabled={loading}
+            placeholder="Enter quantity"
+            className="
+              h-11
+              w-full
+              rounded-lg
+              border
+              border-gray-300
+              bg-white
+              px-3
+              text-sm
+              text-gray-800
+              outline-none
+              transition
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:bg-gray-100
+            "
+          />
+        </div>
+
+        {/* MEDICINE PRICE */}
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">
+            Medicine Price (TK) <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            name="medicine_price"
+            type="number"
+            step="0.01"
+            value={formData.medicine_price}
+            onChange={handleChange}
+            disabled={loading}
+            placeholder="Enter price"
+            className="
+              h-11
+              w-full
+              rounded-lg
+              border
+              border-gray-300
+              bg-white
+              px-3
+              text-sm
+              text-gray-800
+              outline-none
+              transition
+              focus:border-[#009BA9]
+              focus:ring-2
+              focus:ring-[#009BA9]/20
+              disabled:bg-gray-100
+            "
+          />
+        </div>
+      </div>
+
+      {/* BUTTONS */}
+
+      <div className="flex justify-end gap-3 border-t border-gray-200 pt-5">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={loading}
+          className="
+            rounded-lg
+            border
+            border-gray-300
+            bg-white
+            px-5
+            py-2.5
+            text-sm
+            font-medium
+            text-gray-700
+            transition
+            hover:bg-gray-50
+            disabled:cursor-not-allowed
+            disabled:opacity-50
+          "
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="
+            rounded-lg
+            bg-[#009BA9]
+            px-5
+            py-2.5
+            text-sm
+            font-semibold
+            text-white
+            shadow-sm
+            transition
+            hover:bg-[#008894]
+            focus:outline-none
+            focus:ring-2
+            focus:ring-[#009BA9]/30
+            disabled:cursor-not-allowed
+            disabled:opacity-60
+          "
+        >
+          {loading ? "Updating..." : "Update Medicine"}
+        </button>
+      </div>
+    </form>
   );
 };
+
+export default EditMedicine;
