@@ -8,7 +8,6 @@ Welcome to **Curo**, a modern, comprehensive hospital management system designed
 - [About](#about)
 - [Features](#features)
 - [Installation](#installation)
-- [Usage](#usage)
 - [Structure](#structure)
 - [Contributors](#contributors)
 - [Contributing](#contributing)
@@ -16,7 +15,8 @@ Welcome to **Curo**, a modern, comprehensive hospital management system designed
 
 ## Visit
 
-- [Vercel](https://curo0.vercel.app/)
+- [Repository](https://curo0.vercel.app/)
+- [Website](https://curo0.vercel.app/)
 
 ## About
 
@@ -82,7 +82,7 @@ Welcome to **Curo**, a modern, comprehensive hospital management system designed
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/woabu0/curo.git
+   git clone https://github.com/aabubokarr/curo.git
    cd curo
    ```
 
@@ -122,28 +122,6 @@ Welcome to **Curo**, a modern, comprehensive hospital management system designed
      ```bash
      npm run dev
      ```
-
-## Usage
-
-1. **Start the backend server:**
-   ```bash
-   cd server
-   npm start
-   ```
-   The server will run on `http://localhost:8081`
-
-2. **Start the frontend development server:**
-   ```bash
-   cd client
-   npm run dev
-   ```
-   The application will be available at `http://localhost:5173`
-
-3. **Build for production:**
-   ```bash
-   cd client
-   npm run build
-   ```
 
 ## Structure
 
@@ -226,7 +204,6 @@ curo/
 │   │   └── index.css                # Global styles
 │   ├── package.json
 │   └── vite.config.js
-│
 ├── server/                          # Backend (Node.js/Express)
 │   ├── config/
 │   │   └── db.js                    # Database configuration
@@ -264,10 +241,8 @@ curo/
 │   │   └── test.routes.js
 │   ├── server.js                   # Express server entry point
 │   └── package.json
-│
 ├── database/
 │   └── db.sql                      # Database schema
-│
 ├── README.md
 └── LICENSE
 ```
@@ -275,8 +250,8 @@ curo/
 ## Contributors
 
 <p align="center">
-  <a href="https://github.com/woabu0/curo/graphs/contributors">
-    <img src="https://contrib.rocks/image?repo=woabu0/curo" alt="Contributors" />
+  <a href="https://github.com/aabubokarr/curo/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=aabubokarr/curo" alt="Contributors" />
   </a>
 </p>
 
@@ -299,17 +274,6 @@ Contributions are welcome! Please follow these steps:
    git push origin feature-name
    ```
 6. Open a pull request
-
-### Code Style Guidelines
-
-- Follow React best practices
-- Use functional components with hooks
-- Maintain consistent code formatting
-- Write meaningful commit messages
-- Add comments for complex logic
-- Ensure responsive design for all components
-- Use the design system constants from `constants/theme.js`
-- Follow the component structure in `components/UI/` for reusable components
 
 ## License
 
