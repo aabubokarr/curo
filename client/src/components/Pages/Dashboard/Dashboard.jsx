@@ -67,6 +67,13 @@ export const Dashboard = () => {
           second: "2-digit",
           hour12: true,
         }),
+        france: now.toLocaleString("en-US", {
+          timeZone: "Europe/Paris",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true,
+        }),
       });
     };
 
@@ -291,7 +298,6 @@ export const Dashboard = () => {
               sm:grid-cols-2
               lg:grid-cols-4
               gap-4
-              md:gap-6
             "
           >
             {[
@@ -357,23 +363,9 @@ export const Dashboard = () => {
                   "
                 >
                   <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-500 mb-1">
-                        {stat.label}
-                      </p>
-
-                      <p
-                        className="text-3xl font-bold"
-                        style={{
-                          color: stat.color,
-                        }}
-                      >
-                        {stat.value}
-                      </p>
-                    </div>
-
-                    <div
-                      className={`
+                    <div className="flex items-center justify-between">
+                      <div
+                        className={`
                         w-12
                         h-12
                         rounded-full
@@ -384,15 +376,28 @@ export const Dashboard = () => {
                         transition-transform
                         duration-300
                         group-hover:scale-110
+                        mr-2
                       `}
-                    >
-                      <FontAwesomeIcon
-                        icon={stat.icon}
+                      >
+                        <FontAwesomeIcon
+                          icon={stat.icon}
+                          style={{
+                            color: stat.color,
+                          }}
+                          className="text-lg"
+                        />
+                      </div>
+                      <p className="text-sm font-medium text-gray-500 mb-1">
+                        {stat.label}
+                      </p>
+                      <p
+                        className="text-3xl font-bold"
                         style={{
                           color: stat.color,
                         }}
-                        className="text-lg"
-                      />
+                      >
+                        {stat.value}
+                      </p>
                     </div>
                   </div>
                 </Card>
@@ -400,7 +405,7 @@ export const Dashboard = () => {
             ))}
           </div>
 
-          <div className="flex flex-row gap-6 mt-6">
+          <div className="flex flex-row gap-6 mt-4">
             {/* Pie Chart - Left */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -435,7 +440,8 @@ export const Dashboard = () => {
                   </h2>
                   <div className="px-3 py-1 bg-[#009BA9]/10 rounded-full">
                     <span className="text-xs font-semibold text-[#009BA9]">
-                      Total: {Object.values(stats).reduce((a, b) => a + b, 0)}
+                      Total:{" "}
+                      {Object.values(stats).reduce((a, b) => a + Number(b), 0)}
                     </span>
                   </div>
                 </div>
@@ -451,7 +457,7 @@ export const Dashboard = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.5, duration: 0.5 }}
-              className="flex flex-col gap-4 w-64 flex-shrink-0"
+              className="flex flex-col gap-4 lg:gap-0 justify-between w-64 flex-shrink-0"
             >
               {/* Bangladesh */}
               <Card
@@ -543,6 +549,36 @@ export const Dashboard = () => {
                   <FontAwesomeIcon
                     icon={faClock}
                     className="text-blue-500 text-sm flex-shrink-0"
+                  />
+                </div>
+              </Card>
+
+              {/* France */}
+              <Card
+                padding="md"
+                shadow="md"
+                className="
+                  hover:shadow-xl
+                  transition-all
+                  duration-300
+                  rounded-xl
+                  border
+                  border-gray-50
+                  bg-gradient-to-br
+                  from-blue-50
+                  to-indigo-50
+                "
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-gray-500">France</p>
+                    <p className="text-lg font-bold text-gray-800 font-mono">
+                      {timeZones.france || "Loading..."}
+                    </p>
+                  </div>
+                  <FontAwesomeIcon
+                    icon={faClock}
+                    className="text-blue-900 text-sm flex-shrink-0"
                   />
                 </div>
               </Card>

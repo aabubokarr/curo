@@ -1,7 +1,38 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Button, Input, Card } from "../../UI";
+import { Button, Input } from "../../UI";
 import { theme } from "../../../constants/theme";
+
+const contactInfo = [
+  {
+    label: "Email",
+    value: "info@curo.com",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+    ),
+  },
+  {
+    label: "Phone",
+    value: "+1 (555) 123-4567",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+      </svg>
+    ),
+  },
+  {
+    label: "Address",
+    value: "123 Healthcare St, Medical City",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    ),
+  },
+];
 
 export const Contact = () => {
   const [formData, setFormData] = useState({
@@ -26,13 +57,12 @@ export const Contact = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (!formData.agree) {
       setError("Please agree to the Terms and Conditions");
       return;
     }
 
-    // Here you would typically send the data to your backend
     console.log("Form submitted:", formData);
     setSubmitted(true);
     setFormData({
@@ -44,187 +74,184 @@ export const Contact = () => {
       agree: false,
     });
 
-    setTimeout(() => {
-      setSubmitted(false);
-    }, 5000);
+    setTimeout(() => setSubmitted(false), 5000);
   };
 
   return (
-    <section
-      id="contact"
-      className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24"
-    >
-      <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        whileInView={{ y: 0, opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-      >
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4" style={{ color: theme.colors.text.primary }}>
-            Contact Us
+    <section id="contact" className="py-20 md:py-32 bg-[#FAFAFA]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ y: 24, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center max-w-3xl mx-auto mb-16"
+        >
+          <span className="inline-block text-sm font-semibold text-[#009BA9] uppercase tracking-widest mb-4">
+            Get in Touch
+          </span>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#20211A] mb-5 tracking-tight">
+            We&apos;d love to hear from you
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Have questions or need assistance? We're here to help. Reach out to
-            us and we'll get back to you as soon as possible.
+          <p className="text-lg text-[#4A4A4A]">
+            Questions about Curo? Our team is ready to help you transform your
+            healthcare operations.
           </p>
-        </div>
+        </motion.div>
 
-        <Card padding="lg" shadow="lg" className="w-full">
-          {submitted && (
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700"
-            >
-              Thank you for contacting us! We'll get back to you soon.
-            </motion.div>
-          )}
-
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid lg:grid-cols-5 gap-4">
+          {/* Contact cards */}
+          <motion.div
+            initial={{ y: 24, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="lg:col-span-2 space-y-4 grid gap-4"
+          >
+            {contactInfo.map((item, i) => (
               <motion.div
-                initial={{ y: 10, opacity: 0 }}
-                whileInView={{ y: 0, opacity: 1 }}
+                key={item.label}
+                initial={{ x: -16, opacity: 0 }}
+                whileInView={{ x: 0, opacity: 1 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.1 }}
+                transition={{ delay: i * 0.1 }}
+                className="flex items-center gap-4 p-5 rounded-2xl bg-white border border-[#E0E0E0]/60 hover:border-[#009BA9]/25 hover:shadow-lg hover:shadow-[#009BA9]/5 transition-all duration-300"
               >
-                <Input
-                  label="First Name"
-                  name="first_name"
-                  type="text"
-                  placeholder="Enter your first name"
-                  value={formData.first_name}
-                  onChange={handleChange}
-                  required
-                />
+                <div className="w-11 h-11 rounded-xl bg-[#009BA9]/8 text-[#009BA9] flex items-center justify-center shrink-0">
+                  {item.icon}
+                </div>
+                <div>
+                  <div className="text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider mb-1">
+                    {item.label}
+                  </div>
+                  <div className="text-sm font-medium text-[#20211A]">{item.value}</div>
+                </div>
               </motion.div>
+            ))}
 
-              <motion.div
-                initial={{ y: 10, opacity: 0 }}
-                whileInView={{ y: 0, opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.2 }}
-              >
-                <Input
-                  label="Last Name"
-                  name="last_name"
-                  type="text"
-                  placeholder="Enter your last name"
-                  value={formData.last_name}
-                  onChange={handleChange}
-                  required
-                />
-              </motion.div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <motion.div
-                initial={{ y: 10, opacity: 0 }}
-                whileInView={{ y: 0, opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.3 }}
-              >
-                <Input
-                  label="Email"
-                  name="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                />
-              </motion.div>
-
-              <motion.div
-                initial={{ y: 10, opacity: 0 }}
-                whileInView={{ y: 0, opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.4 }}
-              >
-                <Input
-                  label="Phone Number"
-                  name="phone"
-                  type="tel"
-                  placeholder="Enter your phone number"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  required
-                />
-              </motion.div>
-            </div>
-
-            <motion.div
-              initial={{ y: 10, opacity: 0 }}
-              whileInView={{ y: 0, opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.5 }}
-            >
-              <div className="flex flex-col gap-1">
-                <label
-                  htmlFor="message"
-                  className="text-base font-medium"
-                  style={{ color: theme.colors.primary.main }}
-                >
-                  Message
-                </label>
-                <textarea
-                  name="message"
-                  id="message"
-                  placeholder="Enter your message"
-                  required
-                  rows="5"
-                  value={formData.message}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:border-[#009BA9] focus:ring-[#009BA9] transition-all duration-300 resize-none"
-                  style={{
-                    backgroundColor: theme.colors.background.paper,
-                    color: theme.colors.text.primary,
-                  }}
-                />
+            <div className="p-6 rounded-2xl bg-gradient-to-br from-[#009BA9] to-[#007A85] text-white flex flex-col justify-center">
+              <div className="text-sm font-semibold opacity-80 mb-2">Response time</div>
+              <div className="text-2xl font-bold mb-1">Under 24 hours</div>
+              <div className="text-sm opacity-70">
+                We typically respond to all inquiries within one business day.
               </div>
-            </motion.div>
+            </div>
+          </motion.div>
 
-            <motion.div
-              initial={{ y: 10, opacity: 0 }}
-              whileInView={{ y: 0, opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.6 }}
-              className="flex items-start gap-3"
-            >
-              <input
-                type="checkbox"
-                name="agree"
-                id="agree"
-                checked={formData.agree}
-                onChange={handleChange}
-                className="mt-1 w-5 h-5 cursor-pointer accent-[#009BA9]"
-                required
-              />
-              <label htmlFor="agree" className="text-base text-gray-700 cursor-pointer">
-                I agree with the Terms and Conditions
-              </label>
-            </motion.div>
+          {/* Form */}
+          <motion.div
+            initial={{ y: 24, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.15 }}
+            className="lg:col-span-3"
+          >
+            <div className="bg-white rounded-3xl border border-[#E0E0E0]/60 p-6 sm:p-10 shadow-xl shadow-[#009BA9]/5">
+              {submitted && (
+                <motion.div
+                  initial={{ scale: 0.95, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="mb-6 p-4 bg-[#42B127]/10 border border-[#42B127]/20 rounded-2xl text-[#2D8A1F] text-sm font-medium flex items-center gap-3"
+                >
+                  <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Thank you! We&apos;ll get back to you soon.
+                </motion.div>
+              )}
 
-            <motion.div
-              initial={{ y: 10, opacity: 0 }}
-              whileInView={{ y: 0, opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.7 }}
-            >
-              <Button type="submit" variant="primary" size="lg" fullWidth>
-                Submit
-              </Button>
-            </motion.div>
-          </form>
-        </Card>
-      </motion.div>
+              {error && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 text-sm">
+                  {error}
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Input
+                    label="First Name"
+                    name="first_name"
+                    type="text"
+                    placeholder="John"
+                    value={formData.first_name}
+                    onChange={handleChange}
+                    required
+                  />
+                  <Input
+                    label="Last Name"
+                    name="last_name"
+                    type="text"
+                    placeholder="Doe"
+                    value={formData.last_name}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Input
+                    label="Email"
+                    name="email"
+                    type="email"
+                    placeholder="john@example.com"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                  />
+                  <Input
+                    label="Phone Number"
+                    name="phone"
+                    type="tel"
+                    placeholder="+1 (555) 000-0000"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label
+                    htmlFor="message"
+                    className="text-base font-medium"
+                    style={{ color: theme.colors.primary.main }}
+                  >
+                    Message
+                  </label>
+                  <textarea
+                    name="message"
+                    id="message"
+                    placeholder="Tell us how we can help..."
+                    required
+                    rows="5"
+                    value={formData.message}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 rounded-xl border border-[#E0E0E0] focus:outline-none focus:ring-2 focus:ring-offset-1 focus:border-[#009BA9] focus:ring-[#009BA9] transition-all duration-300 resize-none bg-[#FAFAFA]"
+                    style={{ color: theme.colors.text.primary }}
+                  />
+                </div>
+
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="agree"
+                    checked={formData.agree}
+                    onChange={handleChange}
+                    className="mt-1 w-5 h-5 cursor-pointer accent-[#009BA9]"
+                    required
+                  />
+                  <span className="text-sm text-[#4A4A4A]">
+                    I agree with the Terms and Conditions
+                  </span>
+                </label>
+
+                <Button type="submit" variant="primary" size="lg" fullWidth className="shadow-lg shadow-[#009BA9]/20">
+                  Send Message
+                </Button>
+              </form>
+            </div>
+          </motion.div>
+        </div>
+      </div>
     </section>
   );
 };

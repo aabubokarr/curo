@@ -29,9 +29,7 @@ export const Navbar = () => {
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? "bg-white shadow-md"
-          : "bg-[#FAF9F6]"
+        isScrolled ? "bg-white shadow-md" : "bg-[#FAF9F6]"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -41,26 +39,7 @@ export const Navbar = () => {
             to="/"
             className="flex items-center gap-2 cursor-pointer group"
           >
-            <div
-              className="w-10 h-10 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
-              style={{
-                backgroundColor: theme.colors.background.paper,
-                border: `2px solid ${theme.colors.primary.main}`,
-              }}
-            >
-              <span
-                className="text-lg font-bold"
-                style={{ color: theme.colors.primary.main }}
-              >
-                C
-              </span>
-            </div>
-            <span
-              className="hidden sm:block text-lg font-bold"
-              style={{ color: theme.colors.text.primary }}
-            >
-              Curo
-            </span>
+            <img src="./images/logo.png" alt="Logo" className="w-10" />
           </RouterLink>
 
           {/* Desktop Navigation */}
@@ -143,7 +122,10 @@ export const Navbar = () => {
                     {link.label}
                   </Link>
                 ))}
-              <RouterLink to="/login" onClick={() => setIsMobileMenuOpen(false)}>
+              <RouterLink
+                to="/login"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
                 <Button variant="primary" size="sm" fullWidth>
                   Login
                 </Button>
