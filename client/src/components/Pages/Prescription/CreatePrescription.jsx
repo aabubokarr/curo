@@ -19,10 +19,6 @@ export const CreatePrescription = ({ onSuccess, onCancel }) => {
     medicine_input: "",
   });
 
-  /* =========================================================
-     HANDLE CHANGE
-  ========================================================== */
-
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -35,10 +31,6 @@ export const CreatePrescription = ({ onSuccess, onCancel }) => {
       setError("");
     }
   };
-
-  /* =========================================================
-     ADD MEDICINE
-  ========================================================== */
 
   const handleAddMedicine = () => {
     const medicineName = formData.medicine_input.trim();
@@ -62,20 +54,12 @@ export const CreatePrescription = ({ onSuccess, onCancel }) => {
     setError("");
   };
 
-  /* =========================================================
-     REMOVE MEDICINE
-  ========================================================== */
-
   const handleRemoveMedicine = (medicineName) => {
     setFormData((previousData) => ({
       ...previousData,
       medicines: previousData.medicines.filter((m) => m !== medicineName),
     }));
   };
-
-  /* =========================================================
-     HANDLE SUBMIT
-  ========================================================== */
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -121,7 +105,7 @@ export const CreatePrescription = ({ onSuccess, onCancel }) => {
       };
 
       const response = await axios.post(
-        `${API_URL}/create/prescription`,
+        `${API_URL}/prescription/create`,
         submitData,
         {
           headers: {
@@ -152,20 +136,12 @@ export const CreatePrescription = ({ onSuccess, onCancel }) => {
     }
   };
 
-  /* =========================================================
-     HANDLE KEY PRESS
-  ========================================================== */
-
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
       handleAddMedicine();
     }
   };
-
-  /* =========================================================
-     FORM
-  ========================================================== */
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">

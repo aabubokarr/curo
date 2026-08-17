@@ -42,7 +42,7 @@ export const Appointment = () => {
       const api =
         role === "admin"
           ? `${API_URL}/appointment/read`
-          : `${API_URL}/list/appointment/doctor`;
+          : `${API_URL}/appointment/doctor`;
 
       const response = await axios.get(api, {
         headers: {

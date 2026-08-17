@@ -6,6 +6,7 @@ import db from "./config/db.js";
 import authRoutes from "./routes/auth.routes.js";
 import doctorRoutes from "./routes/doctor.routes.js";
 import patientRoutes from "./routes/patient.routes.js";
+import prescriptionRoutes from "./routes/prescription.routes.js";
 import appointmentRoutes from "./routes/appointment.routes.js";
 import departmentRoutes from "./routes/department.routes.js";
 import testRoutes from "./routes/test.routes.js";
@@ -45,6 +46,7 @@ const authenticateJWT = (req, res, next) => {
 app.use("/auth", authRoutes);
 app.use("/doctor", doctorRoutes);
 app.use("/patient", patientRoutes);
+app.use("/prescription", prescriptionRoutes);
 app.use("/appointment", appointmentRoutes);
 app.use("/department", departmentRoutes);
 app.use("/test", testRoutes);
@@ -103,59 +105,6 @@ app.get("/user/count", authenticateJWT, (req, res) => {
     }
 
     return res.status(200).json(results[0]);
-  });
-});
-
-// Update user password
-app.post("/user/password", authenticateJWT, (req, res) => {
-  const { userId, role } = req.user;
-  const { old_pass, new_pass } = req.body;
-
-  let sql;
-  if (role === "admin") {
-    sql = "SELECT password FROM admin_details WHERE admin_id = ?;";
-  } else if (role === "doctor") {
-    sql = "SELECT password FROM doctor_details WHERE doctor_id = ?;";
-  } else if (role === "patient") {
-    sql = "SELECT password FROM patient_details WHERE patient_id = ?;";
-  } else {
-    return res.status(403).json({ error: "Invalid role" });
-  }
-
-  db.query(sql, [userId], (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: "Database error" });
-    }
-
-    if (results.length === 0) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    const user = results[0];
-
-    if (old_pass !== user.password) {
-      return res.status(401).json({ error: "Old password is incorrect" });
-    }
-
-    let updateSql;
-    if (role === "admin") {
-      updateSql = "UPDATE admin_details SET password = ? WHERE admin_id = ?;";
-    } else if (role === "doctor") {
-      updateSql = "UPDATE doctor_details SET password = ? WHERE doctor_id = ?;";
-    } else if (role === "patient") {
-      updateSql =
-        "UPDATE patient_details SET password = ? WHERE patient_id = ?;";
-    }
-
-    db.query(updateSql, [new_pass, userId], (err, updateResults) => {
-      if (err) {
-        return res.status(500).json({ error: "Database error" });
-      }
-
-      return res.status(200).json({
-        message: "Password updated successfully",
-      });
-    });
   });
 });
 
@@ -219,7 +168,7 @@ app.get("/department/:id", (req, res) => {
 
 // APPOINTMENT API's
 // Create a new appointment
-app.get("/list/appointment/doctor", authenticateJWT, (req, res) => {
+app.get("/appointment/doctor", authenticateJWT, (req, res) => {
   const doctorId = req.user.userId;
   const sql =
     "SELECT appointment_id, doc.name AS doctor_name, pat.name AS patient_name, appointment_date, appointment_time FROM appointment AS app, doctor_details AS doc, patient_details AS pat WHERE doc.doctor_id = app.doctor_id AND pat.patient_id = app.patient_id AND doc.doctor_id = ?";
@@ -230,207 +179,6 @@ app.get("/list/appointment/doctor", authenticateJWT, (req, res) => {
       return res.status(500).json({ error: "Database error" });
     }
     res.status(200).json(results);
-  });
-});
-
-// Get an appointment by ID
-app.get("/appointment/:id", (req, res) => {
-  const { id } = req.params;
-  const sql = "SELECT * FROM appointment WHERE appointment_id = ?";
-
-  db.query(sql, [id], (err, results) => {
-    if (err) {
-      console.error("Error fetching appointment: ", err);
-      return res.status(500).json({ error: "Database error" });
-    }
-    if (results.length === 0) {
-      return res.status(404).json({ error: "Appointment not found" });
-    }
-    res.status(200).json(results[0]);
-  });
-});
-
-// PRESCRIPTION API's
-// Create a new prescription
-app.post("/create/prescription", (req, res) => {
-  const { patient_id, doctor_id, medicines } = req.body;
-  if (!Array.isArray(medicines) || medicines.length === 0) {
-    return res
-      .status(400)
-      .json({ error: "At least one medicine must be provided." });
-  }
-
-  const insertPrescriptionSql =
-    "INSERT INTO prescription (patient_id, doctor_id) VALUES (?, ?)";
-  db.query(insertPrescriptionSql, [patient_id, doctor_id], (err, result) => {
-    if (err) {
-      console.error("Error creating prescription: ", err);
-      return res.status(500).json({ error: "Database error" });
-    }
-
-    const prescriptionId = result.insertId;
-
-    const medicineInserts = medicines.map((medicineName) => {
-      const sql =
-        "INSERT INTO prescription_medicines (prescription_id, medicine_name) VALUES (?, ?)";
-      return new Promise((resolve, reject) => {
-        db.query(sql, [prescriptionId, medicineName], (err, result) => {
-          if (err) {
-            console.error("Error inserting medicine: ", err);
-            reject(err);
-          } else {
-            resolve(result);
-          }
-        });
-      });
-    });
-
-    Promise.all(medicineInserts)
-      .then(() => {
-        res.status(201).json({
-          prescription_id: prescriptionId,
-          patient_id,
-          doctor_id,
-          medicines,
-        });
-      })
-      .catch((err) => {
-        console.error("Error inserting medicines:", err);
-        res
-          .status(500)
-          .json({ error: "Error adding medicines to prescription." });
-      });
-  });
-});
-
-// Get prescriptions for the logged-in doctor
-app.get("/list/doctor/prescription", authenticateJWT, (req, res) => {
-  const doctorId = req.user.userId;
-
-  const sql = "SELECT * FROM prescription WHERE doctor_id = ?;";
-
-  db.query(sql, [doctorId], (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: "Database error" });
-    }
-    return res.status(200).json(results);
-  });
-});
-
-// Get prescriptions for the logged-in patient
-app.get("/list/patient/prescription", authenticateJWT, (req, res) => {
-  const patientId = req.user.userId;
-
-  const sql = "SELECT * FROM prescription WHERE patient_id = ?;";
-
-  db.query(sql, [patientId], (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: "Database error" });
-    }
-    return res.status(200).json(results);
-  });
-});
-
-// Get a prescription by ID
-app.get("/prescription/test/:prescriptionId", (req, res) => {
-  const { prescriptionId } = req.params;
-
-  const sql = `
-    SELECT 
-      p.prescription_id, 
-      p.patient_id, 
-      p.doctor_id, 
-      pd.name AS patient_name,
-      dd.name AS doctor_name, 
-      pm.medicine_name
-    FROM prescription p
-    JOIN patient_details pd ON p.patient_id = pd.patient_id
-    JOIN doctor_details dd ON p.doctor_id = dd.doctor_id
-    LEFT JOIN prescription_medicines pm ON p.prescription_id = pm.prescription_id
-    WHERE p.prescription_id = ?
-  `;
-
-  db.query(sql, [prescriptionId], (err, results) => {
-    if (err) {
-      console.error("Error fetching prescription details:", err);
-      return res.status(500).json({ error: "Database error" });
-    }
-
-    if (results.length === 0) {
-      return res.status(404).json({ error: "Prescription not found" });
-    }
-
-    const prescription = {
-      prescription_id: results[0].prescription_id,
-      patient_id: results[0].patient_id,
-      doctor_id: results[0].doctor_id,
-      patient_name: results[0].patient_name,
-      doctor_name: results[0].doctor_name,
-      medicines: results
-        .map((row) => row.medicine_name)
-        .filter((name) => name !== null),
-    };
-
-    res.status(200).json(prescription);
-  });
-});
-
-// Update a prescription
-app.patch("/update/prescription/:id", (req, res) => {
-  const { id } = req.params;
-  const { patient_id, doctor_id, medicine_id } = req.body;
-
-  const updates = [];
-  const values = [];
-
-  if (patient_id) {
-    updates.push("patient_id = ?");
-    values.push(patient_id);
-  }
-  if (doctor_id) {
-    updates.push("doctor_id = ?");
-    values.push(doctor_id);
-  }
-  if (medicine_id) {
-    updates.push("medicine_id = ?");
-    values.push(medicine_id);
-  }
-
-  if (updates.length === 0) {
-    return res.status(400).json({ error: "No fields to update" });
-  }
-
-  const sql = `UPDATE prescription SET ${updates.join(
-    ", "
-  )} WHERE prescription_id = ?`;
-  values.push(id);
-
-  db.query(sql, values, (err, results) => {
-    if (err) {
-      console.error("Error updating prescription: ", err);
-      return res.status(500).json({ error: "Database error" });
-    }
-    if (results.affectedRows === 0) {
-      return res.status(404).json({ error: "Prescription not found" });
-    }
-    res.status(200).json({ message: "Prescription updated successfully" });
-  });
-});
-
-// Delete a prescription
-app.delete("/delete/prescription/:id", (req, res) => {
-  const { id } = req.params;
-  const sql = "DELETE FROM prescription WHERE prescription_id = ?";
-
-  db.query(sql, [id], (err, results) => {
-    if (err) {
-      console.error("Error deleting prescription: ", err);
-      return res.status(500).json({ error: "Database error" });
-    }
-    if (results.affectedRows === 0) {
-      return res.status(404).json({ error: "Prescription not found" });
-    }
-    res.status(200).json({ message: "Prescription deleted successfully" });
   });
 });
 

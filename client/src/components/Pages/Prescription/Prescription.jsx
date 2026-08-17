@@ -36,10 +36,6 @@ export const Prescription = () => {
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedPrescription, setSelectedPrescription] = useState(null);
 
-  /* =========================================================
-     FETCH PRESCRIPTIONS
-  ========================================================== */
-
   const fetchPrescriptions = useCallback(async () => {
     try {
       setLoading(true);
@@ -47,8 +43,8 @@ export const Prescription = () => {
 
       const api =
         role === "doctor"
-          ? `${API_URL}/list/doctor/prescription`
-          : `${API_URL}/list/patient/prescription`;
+          ? `${API_URL}/prescription/doctor`
+          : `${API_URL}/prescription/patient`;
 
       const response = await axios.get(api, {
         headers: {
@@ -70,10 +66,6 @@ export const Prescription = () => {
     }
   }, [token, role]);
 
-  /* =========================================================
-     FETCH ON LOAD
-  ========================================================== */
-
   useEffect(() => {
     if (role === "admin") {
       setLoading(false);
@@ -83,27 +75,15 @@ export const Prescription = () => {
     fetchPrescriptions();
   }, [fetchPrescriptions, role]);
 
-  /* =========================================================
-     VIEW PRESCRIPTION
-  ========================================================== */
-
   const handleViewPrescription = (prescription) => {
     setSelectedPrescription(prescription);
     setShowViewModal(true);
   };
 
-  /* =========================================================
-     PRESCRIPTION CREATED
-  ========================================================== */
-
   const handlePrescriptionCreated = async () => {
     setShowPrescriptionModal(false);
     await fetchPrescriptions();
   };
-
-  /* =========================================================
-     ACCESS DENIED
-  ========================================================== */
 
   if (role === "admin") {
     return (
@@ -137,10 +117,6 @@ export const Prescription = () => {
       </Layout>
     );
   }
-
-  /* =========================================================
-     MAIN PAGE
-  ========================================================== */
 
   return (
     <Layout>

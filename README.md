@@ -1,5 +1,7 @@
 # Curo - Hospital Management Application
 
+![Curo](curo.png)
+
 Welcome to the **Curo** project! This README provides an overview of the project, setup instructions, and other relevant details.
 
 ## Table of Contents
@@ -65,12 +67,12 @@ Welcome to the **Curo** project! This README provides an overview of the project
 curo/
 ├── client/                                 # Frontend (React/Vite)
 │   ├── public/
-│   │   └── images/                         # Static images (doctor.png, patient.png)
+│   │   └── images/                         # Static images
 │   ├── src/
 │   │   ├── components/
 │   │   │   ├── Bars/                       # Navigation components
-│   │   │   │   ├── Navbar.jsx              # Main navigation bar (landing page)
-│   │   │   │   ├── Sidebar.jsx             # Sidebar navigation (dashboard)
+│   │   │   │   ├── Navbar.jsx              # Main navigation bar
+│   │   │   │   ├── Sidebar.jsx             # Sidebar navigation
 │   │   │   │   └── barData.json            # Navigation menu data
 │   │   │   ├── UI/                         # Reusable UI components
 │   │   │   │   ├── Button/                 # Button component
@@ -133,8 +135,8 @@ curo/
 │   │   │       └── IdCard.jsx
 │   │   ├── constants/                      # Application constants
 │   │   │   ├── theme.js                    # Design system & theme
-│   │   │   └── config.js                   # Configuration constants (API_URL, ROUTES, ROLES)
-│   │   ├── App.jsx                         # Main app component with routes
+│   │   │   └── config.js                   # Configuration constants
+│   │   ├── App.jsx                         # Main app component
 │   │   ├── main.jsx                        # Entry point
 │   │   └── index.css                       # Global styles
 │   ├── package.json
@@ -149,6 +151,7 @@ curo/
 │   │   ├── doctor.controllers.js
 │   │   ├── medicine.controllers.js
 │   │   ├── patient.controllers.js
+│   │   ├── prescription.controllers.js
 │   │   ├── request.controllers.js
 │   │   ├── service.controllers.js
 │   │   └── test.controllers.js
@@ -161,6 +164,7 @@ curo/
 │   │   ├── doctor.models.js
 │   │   ├── medicine.models.js
 │   │   ├── patient.models.js
+│   │   ├── prescription.models.js
 │   │   ├── request.models.js
 │   │   ├── service.models.js
 │   │   └── test.models.js
@@ -171,10 +175,11 @@ curo/
 │   │   ├── doctor.routes.js
 │   │   ├── medicine.routes.js
 │   │   ├── patient.routes.js
+│   │   ├── prescription.routes.js
 │   │   ├── request.routes.js
 │   │   ├── service.routes.js
 │   │   └── test.routes.js
-│   ├── server.js                           # Express server entry point
+│   ├── server.js                           # Server entry point
 │   └── package.json
 ├── database/
 │   └── db.sql                              # Database schema

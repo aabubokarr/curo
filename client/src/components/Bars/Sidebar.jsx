@@ -15,7 +15,6 @@ import {
   faFilePrescription,
   faEnvelope,
   faChevronRight,
-  faStethoscope,
 } from "@fortawesome/free-solid-svg-icons";
 
 import { Box, Typography, Divider, Avatar } from "@mui/material";
@@ -59,13 +58,13 @@ export const Sidebar = () => {
     }
 
     if (role === "doctor") {
-      return ["Dashboard", "Appointments", "Prescriptions"].includes(
+      return ["Appointments", "Prescriptions"].includes(
         item.title
       );
     }
 
     if (role === "patient") {
-      return ["Dashboard", "Prescriptions"].includes(item.title);
+      return ["Prescriptions"].includes(item.title);
     }
 
     return false;
@@ -108,8 +107,8 @@ export const Sidebar = () => {
 
         <Box
           sx={{
-            width: 48,
-            height: 48,
+            width: 50,
+            height: 50,
             flexShrink: 0,
             borderRadius: "15px",
             display: "flex",
@@ -119,13 +118,7 @@ export const Sidebar = () => {
             boxShadow: "0 8px 25px rgba(0, 0, 0, 0.15)",
           }}
         >
-          <FontAwesomeIcon
-            icon={faStethoscope}
-            style={{
-              color: theme.colors.primary.main,
-              fontSize: "22px",
-            }}
-          />
+          <img src="./images/logo.png" alt="Logo" className="w-10" />
         </Box>
 
         {/* Brand */}
