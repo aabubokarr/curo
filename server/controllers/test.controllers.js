@@ -31,7 +31,7 @@ export const readTestById = (req, res) => {
       console.error("Error reading data:", err);
       return res.status(500).json({ error: "Database error" });
     }
-    
+
     if (results.length === 0) {
       return res.status(404).json({ error: "Test not found" });
     }
