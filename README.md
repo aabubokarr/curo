@@ -154,7 +154,8 @@ curo/
 │   │   ├── prescription.controllers.js
 │   │   ├── request.controllers.js
 │   │   ├── service.controllers.js
-│   │   └── test.controllers.js
+│   │   ├── test.controllers.js
+│   │   └── user.controllers.js
 │   ├── middlewares/
 │   │   └── auth.middleware.js              # Authentication middleware
 │   ├── models/                             # Data models
@@ -167,7 +168,8 @@ curo/
 │   │   ├── prescription.models.js
 │   │   ├── request.models.js
 │   │   ├── service.models.js
-│   │   └── test.models.js
+│   │   ├── test.models.js
+│   │   └── user.models.js
 │   ├── routes/                             # API routes
 │   │   ├── appointment.routes.js
 │   │   ├── auth.routes.js
@@ -178,7 +180,8 @@ curo/
 │   │   ├── prescription.routes.js
 │   │   ├── request.routes.js
 │   │   ├── service.routes.js
-│   │   └── test.routes.js
+│   │   ├── test.routes.js
+│   │   └── user.routes.js
 │   ├── server.js                           # Server entry point
 │   └── package.json
 ├── database/

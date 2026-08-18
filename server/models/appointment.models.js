@@ -15,11 +15,19 @@ const Appointment = {
       callback
     );
   },
+
   read: (callback) => {
     const sql =
       "SELECT appointment_id, doc.name AS doctor_name, pat.name AS patient_name, appointment_date, appointment_time FROM appointment AS app, doctor_details AS doc, patient_details AS pat WHERE doc.doctor_id = app.doctor_id AND pat.patient_id = app.patient_id";
     db.query(sql, callback);
   },
+
+  getByDoctor: (doctorId, callback) => {
+    const sql =
+      "SELECT appointment_id, doc.name AS doctor_name, pat.name AS patient_name, appointment_date, appointment_time FROM appointment AS app, doctor_details AS doc, patient_details AS pat WHERE doc.doctor_id = app.doctor_id AND pat.patient_id = app.patient_id AND doc.doctor_id = ?";
+    db.query(sql, [doctorId], callback);
+  },
+
   update: (id, data, callback) => {
     const updates = [];
     const values = [];
@@ -31,8 +39,8 @@ const Appointment = {
       }
     });
 
-    if(updates.length === 0){
-      return callback({message: "No fields to update"})
+    if (updates.length === 0) {
+      return callback({ message: "No fields to update" });
     }
 
     const sql = `UPDATE appointment SET ${updates.join(
@@ -41,6 +49,7 @@ const Appointment = {
     values.push(id);
     db.query(sql, values, callback);
   },
+
   delete: (id, callback) => {
     const sql = "DELETE FROM appointment WHERE appointment_id = ?";
     db.query(sql, [id], callback);

@@ -25,6 +25,18 @@ export const readAppointment = (req, res) => {
   });
 };
 
+export const getDoctorAppointment = (req, res) => {
+  const doctorId = req.user.userId;
+
+  Appointment.getByDoctor(doctorId, (err, results) => {
+    if (err) {
+      console.error("Error fetching appointments: ", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    res.status(200).json(results);
+  });
+};
+
 export const updateAppointment = (req, res) => {
   Appointment.update(req.params.id, req.body, (err, results) => {
     if (err) {
@@ -50,7 +62,7 @@ export const deleteAppointment = (req, res) => {
     }
 
     if (results.affectedRows === 0) {
-      res.status(404).json({ error: "Appointment not found" });
+      return res.status(404).json({ error: "Appointment not found" });
     }
 
     res.json({
